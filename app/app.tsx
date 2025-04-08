@@ -5,7 +5,6 @@
  * @format
  */
 
-import "react"
 import type { PropsWithChildren } from "react"
 import {
   ScrollView,
@@ -20,10 +19,11 @@ import {
 import {
   Colors,
   DebugInstructions,
-  Header,
   LearnMoreLinks,
   ReloadInstructions,
 } from "react-native/Libraries/NewAppScreen"
+
+import { Header } from "./components/Header"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -89,10 +89,8 @@ function App(): React.JSX.Element {
         barStyle={isDarkMode ? "light-content" : "dark-content"}
         backgroundColor={backgroundStyle.backgroundColor}
       />
+      <Header />
       <ScrollView style={backgroundStyle}>
-        <View style={{ paddingRight: safePadding }}>
-          <Header />
-        </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,

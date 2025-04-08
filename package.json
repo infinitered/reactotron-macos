@@ -26,7 +26,6 @@
     "@types/jest": "^29.5.14",
     "@types/react": "^19.1.0",
     "eslint": "^8.57.1",
-    "eslint-config-expo": "^8.0.1",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-reactotron": "^0.1.7",
@@ -51,7 +50,6 @@
       "plugin:@typescript-eslint/recommended",
       "plugin:react/recommended",
       "plugin:react-native/all",
-      "expo",
       "plugin:react/jsx-runtime",
       "prettier"
     ],
@@ -100,7 +98,7 @@
   },
   "babel": {
     "presets": [
-      "module:@react-native/babel-preset"
+      "@react-native/babel-preset"
     ]
   },
   "jest": {
