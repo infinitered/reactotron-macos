@@ -5,16 +5,17 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import "react"
+import type { PropsWithChildren } from "react"
 import {
   ScrollView,
   StatusBar,
-  StyleSheet,
   Text,
   useColorScheme,
   View,
-} from 'react-native';
+  ViewStyle,
+  TextStyle,
+} from "react-native"
 
 import {
   Colors,
@@ -22,44 +23,54 @@ import {
   Header,
   LearnMoreLinks,
   ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+} from "react-native/Libraries/NewAppScreen"
+
+if (__DEV__) {
+  // This is for debugging Reactotron with ... Reactotron!
+  // Load Reactotron client in development only.
+  // Note that you must be using metro's `inlineRequires` for this to work.
+  // If you turn it off in metro.config.js, you'll have to manually import it.
+  require("./devtools/ReactotronConfig.ts")
+}
 
 type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  title: string
+}>
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function Section({ children, title }: SectionProps): React.JSX.Element {
+  const isDarkMode = useColorScheme() === "dark"
   return (
-    <View style={styles.sectionContainer}>
+    <View style={$sectionContainer}>
       <Text
         style={[
-          styles.sectionTitle,
+          $sectionTitle,
           {
             color: isDarkMode ? Colors.white : Colors.black,
           },
-        ]}>
+        ]}
+      >
         {title}
       </Text>
       <Text
         style={[
-          styles.sectionDescription,
+          $sectionDescription,
           {
             color: isDarkMode ? Colors.light : Colors.dark,
           },
-        ]}>
+        ]}
+      >
         {children}
       </Text>
     </View>
-  );
+  )
 }
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const isDarkMode = useColorScheme() === "dark"
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  }
 
   /*
    * To keep the template simple and small we're adding padding to prevent view
@@ -70,28 +81,28 @@ function App(): React.JSX.Element {
    * You can read more about it here:
    * https://github.com/react-native-community/discussions-and-proposals/discussions/827
    */
-  const safePadding = '5%';
+  const safePadding = "5%"
 
   return (
     <View style={backgroundStyle}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={isDarkMode ? "light-content" : "dark-content"}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
+      <ScrollView style={backgroundStyle}>
+        <View style={{ paddingRight: safePadding }}>
+          <Header />
         </View>
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
             paddingHorizontal: safePadding,
             paddingBottom: safePadding,
-          }}>
+          }}
+        >
           <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
+            Edit <Text style={$highlight}>App.tsx</Text> to change this screen and then come back to
+            see your edits.
           </Section>
           <Section title="See Your Changes">
             <ReloadInstructions />
@@ -99,33 +110,32 @@ function App(): React.JSX.Element {
           <Section title="Debug">
             <DebugInstructions />
           </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
+          <Section title="Learn More">Read the docs to discover what to do next:</Section>
           <LearnMoreLinks />
         </View>
       </ScrollView>
     </View>
-  );
+  )
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const $highlight: TextStyle = {
+  fontWeight: "700",
+}
 
-export default App;
+const $sectionContainer: ViewStyle = {
+  marginTop: 32,
+  paddingHorizontal: 24,
+}
+
+const $sectionDescription: TextStyle = {
+  fontSize: 18,
+  fontWeight: "400",
+  marginTop: 8,
+}
+
+const $sectionTitle: TextStyle = {
+  fontSize: 24,
+  fontWeight: "600",
+}
+
+export default App
