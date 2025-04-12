@@ -9,9 +9,10 @@
     "test": "jest"
   },
   "dependencies": {
+    "@expo-google-fonts/space-grotesk": "^0.3.0",
     "react": "19.0.0",
     "react-native": "0.78.2",
-    "react-native-macos": "^0.78.1"
+    "react-native-macos": "^0.78.2"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -103,5 +104,10 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "codegenConfig": {
+    "name": "IRFontListSpec",
+    "type": "modules",
+    "jsSrcsDir": "specs"
   }
 }

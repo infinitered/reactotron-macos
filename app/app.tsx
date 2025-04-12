@@ -5,7 +5,6 @@
  * @format
  */
 
-import type { PropsWithChildren } from "react"
 import {
   ScrollView,
   StatusBar,
@@ -16,14 +15,14 @@ import {
   TextStyle,
 } from "react-native"
 
-import {
-  Colors,
-  DebugInstructions,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from "react-native/Libraries/NewAppScreen"
+import { Colors } from "react-native/Libraries/NewAppScreen"
 
 import { Header } from "./components/Header"
+import { HeaderTab } from "./components/HeaderTab"
+import { HeaderTitle } from "./components/HeaderTitle"
+
+import IRFontList from "../specs/NativeIRFontList"
+import { useEffect, useState } from "react"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -33,38 +32,6 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
-type SectionProps = PropsWithChildren<{
-  title: string
-}>
-
-function Section({ children, title }: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === "dark"
-  return (
-    <View style={$sectionContainer}>
-      <Text
-        style={[
-          $sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}
-      >
-        {title}
-      </Text>
-      <Text
-        style={[
-          $sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}
-      >
-        {children}
-      </Text>
-    </View>
-  )
-}
-
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === "dark"
 
@@ -72,16 +39,14 @@ function App(): React.JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   }
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the reccomendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = "5%"
+  const [fonts, setFonts] = useState<string[]>([])
+
+  useEffect(() => {
+    //  console.log("NatveIRFontList", IRFontList)
+    IRFontList.getFontList().then((fonts: string[]) => {
+      setFonts(fonts)
+    })
+  }, [])
 
   return (
     <View style={backgroundStyle}>
@@ -89,36 +54,42 @@ function App(): React.JSX.Element {
         barStyle={isDarkMode ? "light-content" : "dark-content"}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <Header />
+      <Header>
+        <HeaderTab
+          text="Example1"
+          icon="example"
+          onClick={() => {}}
+          isActive={true}
+          key="example-1"
+        />
+        <HeaderTab
+          text="Example2"
+          icon="example"
+          onClick={() => {}}
+          isActive={true}
+          key="example-2"
+        />
+        <HeaderTitle title="Title" />
+      </Header>
       <ScrollView style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}
-        >
-          <Section title="Step One">
-            Edit <Text style={$highlight}>App.tsx</Text> to change this screen and then come back to
-            see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">Read the docs to discover what to do next:</Section>
-          <LearnMoreLinks />
-        </View>
+        <Text style={{ textAlign: "center", fontSize: 32 }}>Default</Text>
+        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Space Grotesk" }}>
+          Space Grotesk
+        </Text>
+        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}>
+          Baskerville (system)
+        </Text>
+        {fonts.map((font) => (
+          <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
+        ))}
       </ScrollView>
     </View>
   )
 }
 
-const $highlight: TextStyle = {
-  fontWeight: "700",
-}
+// const $highlight: TextStyle = {
+//   fontWeight: "700",
+// }
 
 const $sectionContainer: ViewStyle = {
   marginTop: 32,

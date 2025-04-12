@@ -1,83 +1,17 @@
 import type { PropsWithChildren } from "react"
-import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 
-import ActionButton from "./ActionButton"
-import HeaderTabButton from "./HeaderTabButton"
-
-export interface HeaderProps {
-  /**
-   * Array of tabs to display on the left side.
-   */
-  tabs?: {
-    text: string
-    icon: any
-    onClick: () => void
-    isActive: boolean
-  }[]
-  /**
-   * Optional title text to display in the center.
-   */
-  title?: string
-  /**
-   * Array of actions to display on the right side.
-   */
-  actions?: {
-    tip: string
-    icon: any
-    onClick: () => void
-  }[]
-  /**
-   * Optional style override for the main container.
-   */
-  style?: StyleProp<ViewStyle>
-  /**
-   * Optional style override for the content container (inside the main container).
-   */
-  contentStyle?: StyleProp<ViewStyle>
-  /**
-   * Optional style override for the title text.
-   */
-  titleStyle?: StyleProp<TextStyle>
-}
+export interface HeaderProps {}
 
 /**
  * A header component similar to the ones used in Ignite apps.
  */
 export function Header(props: PropsWithChildren<HeaderProps>) {
-  const {
-    tabs,
-    title,
-    actions,
-    children,
-    style: $styleOverride,
-    contentStyle: $contentStyleOverride,
-    titleStyle: $titleStyleOverride,
-  } = props
+  const { children } = props
 
   return (
-    <View style={[$container, $styleOverride]}>
-      <View style={[$contentContainer, $contentStyleOverride]}>
-        <View style={$leftContainer}>
-          {tabs &&
-            tabs.map((t, idx) => (
-              <HeaderTabButton
-                key={idx}
-                text={t.text}
-                icon={t.icon}
-                onClick={t.onClick}
-                isActive={t.isActive}
-              />
-            ))}
-        </View>
-        <View style={$middleContainer}>
-          {!!title && <Text style={[$title, $titleStyleOverride]}>{title}</Text>}
-        </View>
-        <View style={$rightContainer}>
-          {actions &&
-            actions.map((a, idx) => <ActionButton key={idx} icon={a.icon} onClick={a.onClick} />)}
-        </View>
-      </View>
-      {children}
+    <View style={$container}>
+      <View style={$contentContainer}>{children}</View>
     </View>
   )
 }
@@ -101,34 +35,34 @@ const $contentContainer: ViewStyle = {
   paddingHorizontal: 10,
 }
 
-const $leftContainer: ViewStyle = {
-  alignItems: "center",
-  flex: 1,
-  flexDirection: "row",
-  justifyContent: "flex-start",
-  minWidth: 100,
-}
+// const $leftContainer: ViewStyle = {
+//   alignItems: "center",
+//   flex: 1,
+//   flexDirection: "row",
+//   justifyContent: "flex-start",
+//   minWidth: 100,
+// }
 
-const $middleContainer: ViewStyle = {
-  alignItems: "center",
-  flex: 1,
-  justifyContent: "center",
-  paddingHorizontal: 10,
-}
+// const $middleContainer: ViewStyle = {
+//   alignItems: "center",
+//   flex: 1,
+//   justifyContent: "center",
+//   paddingHorizontal: 10,
+// }
 
-const $rightContainer: ViewStyle = {
-  alignItems: "center",
-  flex: 1,
-  flexDirection: "row",
-  justifyContent: "flex-end",
-  minWidth: 100,
-}
+// const $rightContainer: ViewStyle = {
+//   alignItems: "center",
+//   flex: 1,
+//   flexDirection: "row",
+//   justifyContent: "flex-end",
+//   minWidth: 100,
+// }
 
-const $title: TextStyle = {
-  color: "#333333",
-  fontSize: 16,
-  fontWeight: "500",
-  textAlign: "center",
-}
+// const $title: TextStyle = {
+//   color: "#333333",
+//   fontSize: 16,
+//   fontWeight: "500",
+//   textAlign: "center",
+// }
 
 export default Header
