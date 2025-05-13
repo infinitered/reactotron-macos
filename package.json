@@ -6,7 +6,8 @@
     "macos": "react-native run-macos",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "windows": "npx @react-native-community/cli run-windows"
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.3.0",
@@ -35,7 +36,8 @@
     "prettier": "2.8.8",
     "reactotron-core-client": "^2.9.7",
     "reactotron-react-native": "^5.1.12",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "metro-config": "^0.81.4"
   },
   "engines": {
     "node": ">=18"
@@ -110,5 +112,12 @@
     "name": "IRFontListSpec",
     "type": "modules",
     "jsSrcsDir": "specs"
+  },
+  "react-native-windows": {
+    "init-windows": {
+      "name": "reactotron",
+      "namespace": "reactotron",
+      "template": "old/uwp-cpp-app"
+    }
   }
 }

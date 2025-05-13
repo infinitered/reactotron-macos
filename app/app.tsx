@@ -13,6 +13,7 @@ import {
   View,
   ViewStyle,
   TextStyle,
+  TextInput,
 } from "react-native"
 
 import { Colors } from "react-native/Libraries/NewAppScreen"
@@ -21,7 +22,7 @@ import { Header } from "./components/Header"
 import { HeaderTab } from "./components/HeaderTab"
 import { HeaderTitle } from "./components/HeaderTitle"
 
-import IRFontList from "../specs/NativeIRFontList"
+// import IRFontList from "../specs/NativeIRFontList"
 import { useEffect, useState } from "react"
 
 if (__DEV__) {
@@ -43,9 +44,9 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     //  console.log("NatveIRFontList", IRFontList)
-    IRFontList.getFontList().then((fonts: string[]) => {
-      setFonts(fonts)
-    })
+    // IRFontList.getFontList().then((fonts: string[]) => {
+    //   setFonts(fonts)
+    // })
   }, [])
 
   return (
@@ -73,15 +74,29 @@ function App(): React.JSX.Element {
       </Header>
       <ScrollView style={backgroundStyle}>
         <Text style={{ textAlign: "center", fontSize: 32 }}>Default</Text>
-        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Space Grotesk" }}>
-          Space Grotesk
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 32,
+            fontFamily: "Assets/SpaceGrotesk.ttf#Space Grotesk",
+          }}
+        >
+          Default
         </Text>
-        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}>
+        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Impact#Impact" }}>
           Baskerville (system)
         </Text>
         {fonts.map((font) => (
           <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
         ))}
+        <TextInput
+          placeholder="Default"
+          style={{
+            textAlign: "center",
+            fontSize: 32,
+            fontFamily: "Assets/SpaceGrotesk.ttf#Space Grotesk",
+          }}
+        />
       </ScrollView>
     </View>
   )
