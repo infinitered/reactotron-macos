@@ -13,6 +13,7 @@ import {
   View,
   ViewStyle,
   TextStyle,
+  Platform,
 } from "react-native"
 
 import { Colors } from "react-native/Libraries/NewAppScreen"
@@ -21,8 +22,8 @@ import { Header } from "./components/Header"
 import { HeaderTab } from "./components/HeaderTab"
 import { HeaderTitle } from "./components/HeaderTitle"
 
-import IRFontList from "../specs/NativeIRFontList"
-import { useEffect, useState } from "react"
+// import IRFontList from "../specs/NativeIRFontList"
+// import { useEffect, useState } from "react"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -39,14 +40,14 @@ function App(): React.JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   }
 
-  const [fonts, setFonts] = useState<string[]>([])
+  // const [fonts, setFonts] = useState<string[]>([])
 
-  useEffect(() => {
-    //  console.log("NatveIRFontList", IRFontList)
-    IRFontList.getFontList().then((fonts: string[]) => {
-      setFonts(fonts)
-    })
-  }, [])
+  // useEffect(() => {
+  //   //  console.log("NatveIRFontList", IRFontList)
+  //   IRFontList.getFontList().then((fonts: string[]) => {
+  //     setFonts(fonts)
+  //   })
+  // }, [])
 
   return (
     <View style={backgroundStyle}>
@@ -73,15 +74,26 @@ function App(): React.JSX.Element {
       </Header>
       <ScrollView style={backgroundStyle}>
         <Text style={{ textAlign: "center", fontSize: 32 }}>Default</Text>
-        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Space Grotesk" }}>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 32,
+            fontFamily: Platform.select({
+              windows: "Assets/SpaceGrotesk.ttf#Space Grotesk",
+              default: "Space Grotesk",
+            }),
+          }}
+        >
           Space Grotesk
         </Text>
         <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}>
           Baskerville (system)
         </Text>
-        {fonts.map((font) => (
-          <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
-        ))}
+        {/*
+          {fonts.map((font) => (
+            <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
+          ))}
+        */}
       </ScrollView>
     </View>
   )
