@@ -12,7 +12,8 @@
     "@expo-google-fonts/space-grotesk": "^0.3.0",
     "react": "19.0.0",
     "react-native": "0.78.2",
-    "react-native-macos": "^0.78.2"
+    "react-native-macos": "^0.78.2",
+    "react-native-windows": "^0.78.5"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
