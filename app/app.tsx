@@ -21,8 +21,8 @@ import { Header } from "./components/Header"
 import { HeaderTab } from "./components/HeaderTab"
 import { HeaderTitle } from "./components/HeaderTitle"
 
-import IRFontList from "../specs/NativeIRFontList"
-import { useEffect, useState } from "react"
+// import IRFontList from "../specs/NativeIRFontList"
+// import { useEffect, useState } from "react"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -39,14 +39,14 @@ function App(): React.JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   }
 
-  const [fonts, setFonts] = useState<string[]>([])
+  // const [fonts, setFonts] = useState<string[]>([])
 
-  useEffect(() => {
-    //  console.log("NatveIRFontList", IRFontList)
-    IRFontList.getFontList().then((fonts: string[]) => {
-      setFonts(fonts)
-    })
-  }, [])
+  // useEffect(() => {
+  //   //  console.log("NatveIRFontList", IRFontList)
+  //   IRFontList.getFontList().then((fonts: string[]) => {
+  //     setFonts(fonts)
+  //   })
+  // }, [])
 
   return (
     <View style={backgroundStyle}>
@@ -79,9 +79,10 @@ function App(): React.JSX.Element {
         <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}>
           Baskerville (system)
         </Text>
+        {/*}
         {fonts.map((font) => (
           <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
-        ))}
+        ))}*/}
       </ScrollView>
     </View>
   )
