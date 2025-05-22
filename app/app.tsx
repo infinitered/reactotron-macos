@@ -13,6 +13,7 @@ import {
   View,
   ViewStyle,
   TextStyle,
+  Platform,
 } from "react-native"
 
 import { Colors } from "react-native/Libraries/NewAppScreen"
@@ -73,16 +74,26 @@ function App(): React.JSX.Element {
       </Header>
       <ScrollView style={backgroundStyle}>
         <Text style={{ textAlign: "center", fontSize: 32 }}>Default</Text>
-        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Space Grotesk" }}>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 32,
+            fontFamily: Platform.select({
+              windows: "Assets/SpaceGrotesk.ttf#Space Grotesk",
+              default: "Space Grotesk",
+            }),
+          }}
+        >
           Space Grotesk
         </Text>
         <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}>
           Baskerville (system)
         </Text>
-        {/*}
-        {fonts.map((font) => (
-          <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
-        ))}*/}
+        {/*
+          {fonts.map((font) => (
+            <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
+          ))}
+        */}
       </ScrollView>
     </View>
   )
