@@ -1,8 +1,8 @@
 //
-//  IRFontList.h
+//  IRRunShellCommand.h
 //  Reactotron-macOS
 //
-//  Created by Jamon Holmgren on 4/9/25.
+//  Created by Jamon Holmgren and Leon Kim on 6/30/25.
 //
 
 #import <Cocoa/Cocoa.h>
@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface IRFontList : NSObject <NativeIRFontListSpec>
+@interface IRRunShellCommand : NSObject <NativeIRRunShellCommandSpec>
 
 @end
 

@@ -13,8 +13,9 @@
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
 		580FDC959613C3DDF5C47E31 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */; };
+		E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DD2E135F5D003B7988 /* IRFontList.mm */; };
+		E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
-		E9B2F1652DA9CEB800E60FB3 /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9B2F1642DA9CEB800E60FB3 /* IRFontList.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,9 +30,11 @@
 		514201592437B4B40078DB4F /* Reactotron.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reactotron.entitlements; sourceTree = "<group>"; };
 		CBA768848D07B4EDA42574FD /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		CF52DE317C310410AD0A2A0C /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		E91662DC2E135F5D003B7988 /* IRFontList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../app/native/IRFontList.h; sourceTree = SOURCE_ROOT; };
+		E91662DD2E135F5D003B7988 /* IRFontList.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../app/native/IRFontList.mm; sourceTree = SOURCE_ROOT; };
+		E91662DE2E135F5D003B7988 /* IRRunShellCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRRunShellCommand.h; path = ../app/native/IRRunShellCommand.h; sourceTree = SOURCE_ROOT; };
+		E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRRunShellCommand.mm; path = ../app/native/IRRunShellCommand.mm; sourceTree = SOURCE_ROOT; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
-		E9B2F1632DA9CEB800E60FB3 /* IRFontList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../app/native/IRFontList.h; sourceTree = SOURCE_ROOT; };
-		E9B2F1642DA9CEB800E60FB3 /* IRFontList.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../app/native/IRFontList.mm; sourceTree = SOURCE_ROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -90,8 +93,10 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				E9B2F1632DA9CEB800E60FB3 /* IRFontList.h */,
-				E9B2F1642DA9CEB800E60FB3 /* IRFontList.mm */,
+				E91662DC2E135F5D003B7988 /* IRFontList.h */,
+				E91662DD2E135F5D003B7988 /* IRFontList.mm */,
+				E91662DE2E135F5D003B7988 /* IRRunShellCommand.h */,
+				E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */,
 				E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */,
 				5142014A2437B4B30078DB4F /* Reactotron-macOS */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -276,8 +281,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				514201582437B4B40078DB4F /* main.m in Sources */,
-				E9B2F1652DA9CEB800E60FB3 /* IRFontList.mm in Sources */,
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
+				E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */,
+				E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,10 +403,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -456,10 +459,7 @@
 					"\"$(inherited)\"",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

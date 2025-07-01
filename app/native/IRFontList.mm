@@ -15,6 +15,14 @@ RCT_EXPORT_MODULE()
   return std::make_shared<facebook::react::NativeIRFontListSpecJSI>(params);
 }
 
+// Below this are the interfaces that can be called from JS.
+
+// Sync example (very fast)
+- (NSArray<NSString *> *)getFontListSync {
+  return [[NSFontManager sharedFontManager] availableFontFamilies];
+}
+
+// Async example (1000x slower)
 - (void)getFontList:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
   resolve([[NSFontManager sharedFontManager] availableFontFamilies]);
 }
