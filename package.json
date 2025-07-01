@@ -3,7 +3,8 @@
   "version": "4.0.0-alpha.1",
   "private": true,
   "scripts": {
-    "macos": "react-native run-macos",
+    "macos": "RCT_NEW_ARCH_ENABLED=1 react-native run-macos",
+    "pod": "RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest"
@@ -106,7 +107,7 @@
     "preset": "react-native"
   },
   "codegenConfig": {
-    "name": "IRMainSpec",
+    "name": "AppSpec",
     "type": "modules",
     "jsSrcsDir": "specs"
   }

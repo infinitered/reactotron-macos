@@ -39,9 +39,9 @@ function App(): React.JSX.Element {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   }
 
-  const fonts = IRFontList.getFontListSync()
+  // const fonts = IRFontList.getFontListSync()
 
-  fonts.unshift(IRRunShellCommand.runSync("Chalkboard"))
+  const fonts = [IRRunShellCommand.runSync("Chalkboard")]
 
   return (
     <View style={backgroundStyle}>
@@ -64,24 +64,9 @@ function App(): React.JSX.Element {
           isActive={true}
           key="example-2"
         />
-        <HeaderTitle title="Title" />
+        <HeaderTitle title={"Arch: " + (global?.nativeFabricUIManager ? "Fabric" : "Paper")} />
       </Header>
       <ScrollView style={backgroundStyle}>
-        <Text style={{ textAlign: "center", fontSize: 32 }} key="default">
-          Default
-        </Text>
-        <Text
-          style={{ textAlign: "center", fontSize: 32, fontFamily: "Space Grotesk" }}
-          key="Space Grotesk"
-        >
-          Space Grotesk
-        </Text>
-        <Text
-          style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}
-          key="Baskerville"
-        >
-          Baskerville (system)
-        </Text>
         {fonts.map((font) => (
           <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }} key={font}>
             {font}

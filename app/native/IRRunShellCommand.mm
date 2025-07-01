@@ -26,4 +26,8 @@ RCT_EXPORT_MODULE()
   return [NSString stringWithFormat:@"Testing %@", command];
 }
 
+- (NSString *)_run:(NSString *)command {
+  
+}
+
 @end

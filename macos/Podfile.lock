@@ -1780,10 +1780,10 @@ SPEC CHECKSUMS:
   React-performancetimeline: c4678b2226a660268cc478662ffc43a2ab1b5d30
   React-RCTActionSheet: 411a6257051d5b24dc66704851cc9235f958e65a
   React-RCTAnimation: c0197d1545a45ade3517f34271ec9c81b1aee5fd
-  React-RCTAppDelegate: 6f4b5516bcfba86bf9d8b03805a6d92635c6d32a
+  React-RCTAppDelegate: c94c03ef7dfad0a446c4ecff6dc9252860cfc80e
   React-RCTBlob: 23fd27a68f1f28fb3f3abf7b22a429a4d65fd9d9
-  React-RCTFabric: b8f59a39b8361e18c97f940296d9c9e375763283
-  React-RCTFBReactNativeSpec: e6e51257b7ee44e7ae9d645ef36a2425e3fb5610
+  React-RCTFabric: cccaa2f386b67512c80fdaf3e548d6fb7bf4c1e8
+  React-RCTFBReactNativeSpec: 99c54bd15b054a509b0fdc960f222b2683ab4fb2
   React-RCTImage: c00be431cd5639cb63241d427ebb14593a82e5f7
   React-RCTLinking: 0b0399a963b358af083c2b37a10ec542bfe7cd5d
   React-RCTNetwork: ca3adfccdccf3898839832964fabea7106b7cd78

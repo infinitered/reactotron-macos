@@ -6,4 +6,4 @@ export interface Spec extends TurboModule {
   runSync(command: string): string
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>("IRMain")
+export default TurboModuleRegistry.getEnforcing<Spec>("IRRunShellCommand")

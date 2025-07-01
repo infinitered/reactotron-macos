@@ -7,7 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-#import <IRMainSpec/IRMainSpec.h>
+#import <AppSpec/AppSpec.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
