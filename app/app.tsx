@@ -14,6 +14,7 @@ import {
   ViewStyle,
   TextStyle,
   TouchableOpacity,
+  AppState,
 } from "react-native"
 
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
@@ -28,57 +29,118 @@ if (__DEV__) {
 
 function App(): React.JSX.Element {
   const p = console.tron.log
-  const [nodeInstalled, setNodeInstalled] = useState<boolean | null>(null)
-  const [bunInstalled, setBunInstalled] = useState<boolean | null>(null)
+  const [nodeVersion, setNodeVersion] = useState<string | null>(null)
+  const [bunVersion, setBunVersion] = useState<string | null>(null)
   const arch = global?.nativeFabricUIManager ? "Fabric" : "Paper"
   const [activeTab, setActiveTab] = useState("Example1")
+  const [countdownPID, setCountdownPID] = useState<string | null>(null)
 
   useEffect(() => {
     // Check Node
     try {
       const nodePath = IRRunShellCommand.runSync("which node")
-      setNodeInstalled(!!nodePath)
+      const nodeVersion = nodePath ? IRRunShellCommand.runSync(`node -v`).trim() : null
+      setNodeVersion(nodeVersion)
     } catch {
-      setNodeInstalled(false)
+      setNodeVersion(false)
     }
     // Check Bun
     try {
       const bunPath = IRRunShellCommand.runSync("which bun")
-      setBunInstalled(!!bunPath)
+      const bunVersion = bunPath ? IRRunShellCommand.runSync(`bun -v`).trim() : null
+      setBunVersion(bunVersion)
     } catch {
-      setBunInstalled(false)
+      setBunVersion(false)
     }
-  }, [])
+  }, [setNodeVersion, setBunVersion])
+
+  // Handle app state changes to kill countdown when app goes to background
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState === "background" || nextAppState === "inactive") {
+        if (countdownPID) {
+          p("App going to background, killing countdown process...")
+          IRRunShellCommand.killProcess(countdownPID)
+            .then((result) => {
+              p(`Killed countdown process: ${JSON.stringify(result)}`)
+              setCountdownPID(null)
+            })
+            .catch((error) => {
+              p(`Failed to kill countdown process: ${error}`)
+            })
+        }
+      }
+    }
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange)
+    return () => subscription?.remove()
+  }, [countdownPID])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (countdownPID) {
+        p("Component unmounting, killing countdown process...")
+        IRRunShellCommand.killProcess(countdownPID)
+          .then((result) => {
+            p(`Killed countdown process on unmount: ${JSON.stringify(result)}`)
+          })
+          .catch((error) => {
+            p(`Failed to kill countdown process on unmount: ${error}`)
+          })
+      }
+    }
+  }, [countdownPID])
 
   // const fonts = IRFontList.getFontListSync()
 
   // Test the long-running command functionality
   const testLongRunningCommand = () => {
-    p("Starting long-running command test...")
-
-    // Start a simple long-running process using the new API
-    IRRunShellCommand.runTaskWithCommand(
-      "/bin/bash", // command
-      ["-c", "for i in {1..3}; do echo 'Test output $i'; sleep 1; done"], // arguments
-      (output: string, typeOfOutput: string) => {
-        p(`[${typeOfOutput}] ${output.trim()}`)
-      },
-      (terminationStatus: number) => {
-        if (terminationStatus === 0) {
-          p("✅ Long-running command completed successfully")
-        } else {
-          p(`❌ Long-running command failed with status: ${terminationStatus}`)
-        }
-      },
-    )
+    // p("Starting long-running command test...")
+    // // Start a simple long-running process using the new API
+    // IRRunShellCommand.runTaskWithCommand(
+    //   "/bin/bash", // command
+    //   ["-c", "for i in {1..3}; do echo 'Test output $i'; sleep 1; done"], // arguments
+    //   (output: string, typeOfOutput: string) => {
+    //     p(`[${typeOfOutput}] ${output.trim()}`)
+    //   },
+    //   (terminationStatus: number) => {
+    //     if (terminationStatus === 0) {
+    //       p("✅ Long-running command completed successfully")
+    //     } else {
+    //       p(`❌ Long-running command failed with status: ${terminationStatus}`)
+    //     }
+    //   },
+    // )
   }
 
   // Test the regular command functionality
   const testRegularCommands = () => {
     p("Testing regular commands...")
 
-    const bun: string = IRRunShellCommand.runSync("which bun")
-    const node: string = IRRunShellCommand.runSync("which node")
+    const bun: string = IRRunShellCommand.runSync("which bun").trim()
+    const node: string = IRRunShellCommand.runSync("which node").trim()
+
+    // a script that does a countdown from 10 to 0 using "say"
+    const countdownShellScript = `
+      for i in {10..0}; do
+        say -v "Samantha" "$i"
+        sleep 1
+      done
+    `
+
+    // Use the new PID-based method
+    IRRunShellCommand.runAsyncWithPID(countdownShellScript)
+      .then((result: any) => {
+        p(`Countdown started with PID: ${result.pid}`)
+        setCountdownPID(result.pid)
+      })
+      .catch((error: any) => {
+        p(`Failed to start countdown: ${error}`)
+      })
+
+    p(`Bun: ${bun}`)
+    p(`Node: ${node}`)
 
     // Test async command
     IRRunShellCommand.runAsync("echo 'Hello from async command!'")
@@ -87,6 +149,36 @@ function App(): React.JSX.Element {
       })
       .catch((error: any) => {
         p(`Async error: ${error}`)
+      })
+  }
+
+  // Test killing the countdown process
+  const testKillCountdown = () => {
+    if (countdownPID) {
+      p(`Killing countdown process with PID: ${countdownPID}`)
+      IRRunShellCommand.killProcess(countdownPID)
+        .then((result) => {
+          p(`Killed countdown process: ${JSON.stringify(result)}`)
+          setCountdownPID(null)
+        })
+        .catch((error) => {
+          p(`Failed to kill countdown process: ${error}`)
+        })
+    } else {
+      p("No countdown process running")
+    }
+  }
+
+  // Test killall functionality
+  const testKillAllSay = () => {
+    p("Killing all 'say' processes...")
+    IRRunShellCommand.killAllProcesses("say")
+      .then((result) => {
+        p(`Killed all say processes: ${JSON.stringify(result)}`)
+        setCountdownPID(null)
+      })
+      .catch((error) => {
+        p(`Failed to kill say processes: ${error}`)
       })
   }
 
@@ -107,13 +199,13 @@ function App(): React.JSX.Element {
           {/* Status Row */}
           <View style={$statusRow}>
             <View style={$statusItem}>
-              <View style={[$dot, nodeInstalled ? $dotGreen : $dotRed]} />
-              <Text style={$statusText}>Node</Text>
+              <View style={[$dot, nodeVersion ? $dotGreen : $dotRed]} />
+              <Text style={$statusText}>Node {nodeVersion}</Text>
             </View>
             <View style={$divider} />
             <View style={$statusItem}>
-              <View style={[$dot, bunInstalled ? $dotGreen : $dotRed]} />
-              <Text style={$statusText}>Bun</Text>
+              <View style={[$dot, bunVersion ? $dotGreen : $dotRed]} />
+              <Text style={$statusText}>Bun {bunVersion}</Text>
             </View>
             <View style={$divider} />
             <View style={$statusItem}>
@@ -124,6 +216,13 @@ function App(): React.JSX.Element {
 
           {/* Title */}
           <Text style={$title}>IRRunShellCommand Tests</Text>
+
+          {/* Countdown Status */}
+          {countdownPID && (
+            <View style={$countdownStatus}>
+              <Text style={$countdownText}>Countdown running (PID: {countdownPID})</Text>
+            </View>
+          )}
 
           {/* Test Cards */}
           <View style={$testCardContainer}>
@@ -148,6 +247,32 @@ function App(): React.JSX.Element {
                 <View style={$testCardText}>
                   <Text style={$testLabel}>Test Long-Running Command</Text>
                   <Text style={$testDesc}>Starts a ping command and monitors its output</Text>
+                </View>
+              </View>
+            </View>
+            {countdownPID && (
+              <View style={$testCard}>
+                <View style={[$testAccentBar, { backgroundColor: colors.red }]} />
+                <View style={$testCardContent}>
+                  <TouchableOpacity style={$button} onPress={testKillCountdown}>
+                    <Text style={$buttonText}>🛑 Kill</Text>
+                  </TouchableOpacity>
+                  <View style={$testCardText}>
+                    <Text style={$testLabel}>Kill Countdown Process</Text>
+                    <Text style={$testDesc}>Kills the countdown process by PID</Text>
+                  </View>
+                </View>
+              </View>
+            )}
+            <View style={$testCard}>
+              <View style={[$testAccentBar, { backgroundColor: colors.red }]} />
+              <View style={$testCardContent}>
+                <TouchableOpacity style={$button} onPress={testKillAllSay}>
+                  <Text style={$buttonText}>🛑 Kill All</Text>
+                </TouchableOpacity>
+                <View style={$testCardText}>
+                  <Text style={$testLabel}>Kill All Say Processes</Text>
+                  <Text style={$testDesc}>Uses killall to stop all say processes</Text>
                 </View>
               </View>
             </View>
@@ -255,7 +380,6 @@ const $dot: ViewStyle = {
 const $dotGreen: ViewStyle = { backgroundColor: colors.green }
 const $dotRed: ViewStyle = { backgroundColor: colors.red }
 const $dotOrange: ViewStyle = { backgroundColor: colors.orange }
-const $dotGray: ViewStyle = { backgroundColor: colors.gray }
 const $statusText: TextStyle = {
   fontSize: 16,
   color: colors.gray,
@@ -269,6 +393,20 @@ const $title: TextStyle = {
   textAlign: "center",
   color: colors.gray,
   letterSpacing: 0.2,
+}
+
+const $countdownStatus: ViewStyle = {
+  backgroundColor: colors.orangeLight,
+  padding: 12,
+  borderRadius: 8,
+  marginBottom: 24,
+  borderLeftWidth: 4,
+  borderLeftColor: colors.orange,
+}
+const $countdownText: TextStyle = {
+  fontSize: 14,
+  color: colors.orange,
+  fontWeight: "600",
 }
 
 const $testCardContainer: ViewStyle = {

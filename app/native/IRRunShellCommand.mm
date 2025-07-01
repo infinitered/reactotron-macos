@@ -34,10 +34,74 @@ RCT_EXPORT_MODULE()
   });
 }
 
+/**
+ * This method runs a command and returns the process ID so it can be killed later.
+ */
+- (void)runAsyncWithPID:(NSString *)command resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    @try {
+      // Use popen to get the PID
+      NSString *pidCommand = [NSString stringWithFormat:@"%@ & echo $!", command];
+      FILE *pipe = popen([pidCommand UTF8String], "r");
+      if (!pipe) {
+        dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to start command", nil); });
+        return;
+      }
+      
+      char buffer[128];
+      NSString *pidString = @"";
+      if (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+        pidString = [NSString stringWithUTF8String:buffer];
+        pidString = [pidString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+      }
+      pclose(pipe);
+      
+      if (pidString.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{ 
+          resolve(@{@"pid": pidString, @"command": command}); 
+        });
+      } else {
+        dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to get PID", nil); });
+      }
+    } @catch (NSException *exception) {
+      dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", exception.reason, nil); });
+    }
+  });
+}
+
+/**
+ * Kills a process by PID using kill -9
+ */
+- (void)killProcess:(NSString *)pid resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    @try {
+      NSString *killCommand = [NSString stringWithFormat:@"kill -9 %@", pid];
+      NSString *result = [self _run_c:killCommand];
+      dispatch_async(dispatch_get_main_queue(), ^{ resolve(@{@"killed": @YES, @"pid": pid, @"result": result}); });
+    } @catch (NSException *exception) {
+      dispatch_async(dispatch_get_main_queue(), ^{ reject(@"kill_error", exception.reason, nil); });
+    }
+  });
+}
+
+/**
+ * Kills all processes with a specific name using killall
+ */
+- (void)killAllProcesses:(NSString *)processName resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    @try {
+      NSString *killCommand = [NSString stringWithFormat:@"killall %@", processName];
+      NSString *result = [self _run_c:killCommand];
+      dispatch_async(dispatch_get_main_queue(), ^{ resolve(@{@"killed": @YES, @"processName": processName, @"result": result}); });
+    } @catch (NSException *exception) {
+      dispatch_async(dispatch_get_main_queue(), ^{ reject(@"kill_error", exception.reason, nil); });
+    }
+  });
+}
+
 - (NSString *)runSync:(NSString *)command {
   return [self _run_c:command];
 }
-
 
 /**
  * This method runs a command and returns the output as a string.
@@ -161,6 +225,5 @@ RCT_EXPORT_MODULE()
     }
   });
 }
-
 
 @end
