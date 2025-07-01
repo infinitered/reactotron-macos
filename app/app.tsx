@@ -41,7 +41,11 @@ function App(): React.JSX.Element {
 
   // const fonts = IRFontList.getFontListSync()
 
-  const fonts = [IRRunShellCommand.runSync("Chalkboard")]
+  const perfStart = performance.now()
+  const cmd = IRRunShellCommand.runSync("/usr/bin/env node --version")
+  const perfEnd = performance.now()
+  const fonts = ["Node version: " + cmd]
+  fonts.push(`Fetched in: ${perfEnd - perfStart} ms`)
 
   return (
     <View style={backgroundStyle}>

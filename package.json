@@ -3,6 +3,7 @@
   "version": "4.0.0-alpha.1",
   "private": true,
   "scripts": {
+    "it": "RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos && react-native run-macos",
     "macos": "RCT_NEW_ARCH_ENABLED=1 react-native run-macos",
     "pod": "RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
     "lint": "eslint .",
