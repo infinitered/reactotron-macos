@@ -5,7 +5,7 @@
  * @format
  */
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ScrollView,
   StatusBar,
@@ -14,6 +14,7 @@ import {
   ViewStyle,
   TextStyle,
   TouchableOpacity,
+  AppState,
 } from "react-native"
 
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
@@ -26,14 +27,57 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+interface TestCardProps {
+  title: string
+  description: string
+  onPress: () => void
+}
+
+function TestCard(props: TestCardProps) {
+  return (
+    <View style={$testCardContainer}>
+      <View style={$testCard}>
+        <View style={$testAccentBar} />
+        <View style={$testCardContent}>
+          <TouchableOpacity style={$button} onPress={props.onPress}>
+            <Text style={$buttonText}>▶️ Run</Text>
+          </TouchableOpacity>
+          <View style={$testCardText}>
+            <Text style={$testLabel}>{props.title}</Text>
+            <Text style={$testDesc}>{props.description}</Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  )
+}
+
+const serverCode: string = `
+console.log(\`Hello, I am \${process.pid} lol\`)
+
+const http = require("http")
+
+http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" })
+  res.end("Hello, World!")
+}).listen(9000)
+
+console.log(\`Server is running on port 9000\`)
+`
+
 function App(): React.JSX.Element {
   const p = console.tron.log
-  const shell = IRRunShellCommand.runSync
-  const shellAsync = IRRunShellCommand.runAsync
+  const shell = (cmd: string) => IRRunShellCommand.runSync(cmd)?.trim()
+  const shellAsync = (cmd: string) => IRRunShellCommand.runAsync(cmd).then((r) => r?.trim())
   const [nodeVersion, setNodeVersion] = useState<string | null>(null)
   const [bunVersion, setBunVersion] = useState<string | null>(null)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
   const [activeTab, setActiveTab] = useState("Example1")
+  const pid = useRef<string | null>(null)
 
   // const fonts = IRFontList.getFontListSync()
 
@@ -42,11 +86,11 @@ function App(): React.JSX.Element {
     p("Testing regular commands...")
 
     const p1: number = performance.now()
-    const bun: string = IRRunShellCommand.runSync("bun --version").trim()
+    const bun: string = shell("bun --version")
     const p1b: number = performance.now() - p1
 
     const p2: number = performance.now()
-    const node: string = IRRunShellCommand.runSync("node --version").trim()
+    const node: string = shell("node --version")
     const p2b: number = performance.now() - p2
 
     p(`Bun: ${bun} in ${p1b}ms`)
@@ -57,12 +101,53 @@ function App(): React.JSX.Element {
 
     // Test async command
     const p3: number = performance.now()
-    shellAsync("echo 'Hello from async command!'")
+    shellAsync("node --version")
       .then((result: string) => {
         const p3b: number = performance.now() - p3
         p(`Async result: ${result} in ${p3b}ms`)
       })
       .catch((error: any) => p(`Async error: ${error}`))
+  }
+
+  const testStartNodeServer = async () => {
+    p("Starting Node HTTP server...")
+    // This won't return until the server is done
+    shellAsync(`REACTOTRON_CORE_SERVER=true node -e '${serverCode}'`)
+      .then((r) => {
+        p(`Node server stopped from PID: ${pid.current}`)
+        if (__DEV__) {
+          console.tron.display({
+            name: `Node server output`,
+            value: r,
+            preview: r.slice(0, 100),
+            important: true,
+          })
+        }
+      })
+      .catch((e) => {
+        p(`Error starting Node server: ${e}`)
+        if (__DEV__) {
+          console.tron.display({
+            name: `Node server error`,
+            value: e,
+            important: true,
+          })
+        }
+      })
+
+    // Wait for the server to start
+    await delay(100)
+
+    pid.current = await shellAsync(`ps aux | grep 'node -e' | grep -v grep | awk '{print $2}'`)
+
+    // Get the PID of the server
+    p(`Node HTTP server PID: ${pid.current}`)
+
+    // Kill that process on shutdown
+    IRRunShellCommand.runCommandOnShutdown(`kill -9 ${pid.current}`)
+
+    // const grep = await shellAsync(`ps aux | grep ${pid}`)
+    // p(`Node HTTP server grep for ${pid}: ${grep}`)
   }
 
   return (
@@ -105,20 +190,16 @@ function App(): React.JSX.Element {
           <Text style={$title}>IRRunShellCommand Tests</Text>
 
           {/* Test Cards */}
-          <View style={$testCardContainer}>
-            <View style={$testCard}>
-              <View style={$testAccentBar} />
-              <View style={$testCardContent}>
-                <TouchableOpacity style={$button} onPress={testRegularCommands}>
-                  <Text style={$buttonText}>▶️ Run</Text>
-                </TouchableOpacity>
-                <View style={$testCardText}>
-                  <Text style={$testLabel}>Test Regular Commands</Text>
-                  <Text style={$testDesc}>Tests sync and async command execution</Text>
-                </View>
-              </View>
-            </View>
-          </View>
+          <TestCard
+            title="Test Regular Commands"
+            description="Tests sync and async command execution"
+            onPress={testRegularCommands}
+          />
+          <TestCard
+            title="Start Node HTTP Server"
+            description="Starts a Node HTTP server at localhost:9000"
+            onPress={testStartNodeServer}
+          />
         </View>
       </ScrollView>
     </View>

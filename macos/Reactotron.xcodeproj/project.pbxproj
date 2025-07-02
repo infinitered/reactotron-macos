@@ -16,6 +16,7 @@
 		E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DD2E135F5D003B7988 /* IRFontList.mm */; };
 		E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
+		E9DA40442E14ED0100D3A986 /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = E9DA40432E14ED0100D3A986 /* ProcessUtils.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,8 @@
 		E91662DE2E135F5D003B7988 /* IRRunShellCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRRunShellCommand.h; path = ../app/native/IRRunShellCommand.h; sourceTree = SOURCE_ROOT; };
 		E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRRunShellCommand.mm; path = ../app/native/IRRunShellCommand.mm; sourceTree = SOURCE_ROOT; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
+		E9DA40422E14ED0100D3A986 /* ProcessUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../app/native/ProcessUtils.h; sourceTree = SOURCE_ROOT; };
+		E9DA40432E14ED0100D3A986 /* ProcessUtils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../app/native/ProcessUtils.c; sourceTree = SOURCE_ROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -93,6 +96,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				E9DA40422E14ED0100D3A986 /* ProcessUtils.h */,
+				E9DA40432E14ED0100D3A986 /* ProcessUtils.c */,
 				E91662DC2E135F5D003B7988 /* IRFontList.h */,
 				E91662DD2E135F5D003B7988 /* IRFontList.mm */,
 				E91662DE2E135F5D003B7988 /* IRRunShellCommand.h */,
@@ -282,6 +287,7 @@
 			files = (
 				514201582437B4B40078DB4F /* main.m in Sources */,
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
+				E9DA40442E14ED0100D3A986 /* ProcessUtils.c in Sources */,
 				E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */,
 				E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */,
 			);

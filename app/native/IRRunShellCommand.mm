@@ -6,7 +6,14 @@
 //
 
 #import "IRRunShellCommand.h"
+// #import "ProcessUtils.h"
 #import <objc/runtime.h>
+
+@interface IRRunShellCommand ()
+
+@property (nonatomic, strong) NSMutableArray<NSString *> *shutdownCommands;
+
+@end
 
 @implementation IRRunShellCommand
 
@@ -34,70 +41,51 @@ RCT_EXPORT_MODULE()
   });
 }
 
-/**
- * This method runs a command and returns the process ID so it can be killed later.
- */
-- (void)runAsyncWithPID:(NSString *)command resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    @try {
-      // Use popen to get the PID
-      NSString *pidCommand = [NSString stringWithFormat:@"%@ & echo $!", command];
-      FILE *pipe = popen([pidCommand UTF8String], "r");
-      if (!pipe) {
-        dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to start command", nil); });
-        return;
-      }
-      
-      char buffer[128];
-      NSString *pidString = @"";
-      if (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-        pidString = [NSString stringWithUTF8String:buffer];
-        pidString = [pidString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-      }
-      pclose(pipe);
-      
-      if (pidString.length > 0) {
-        dispatch_async(dispatch_get_main_queue(), ^{ 
-          resolve(@{@"pid": pidString, @"command": command}); 
-        });
-      } else {
-        dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to get PID", nil); });
-      }
-    } @catch (NSException *exception) {
-      dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", exception.reason, nil); });
-    }
-  });
-}
+// /**
+//  * This method runs a command and returns the process ID so it can be killed later.
+//  */
+// - (void)runAsync:(NSString *)command getPID:(nonnull pid_t *)outPID resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+//   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//     @try {
+//       // Use popen to get the PID
+//       NSString *pidCommand = [NSString stringWithFormat:@"%@ & echo $!", command];
+//       FILE *pipe = popen([pidCommand UTF8String], "r");
+//       if (!pipe) {
+//         dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to start command", nil); });
+//         return;
+//       }
 
-/**
- * Kills a process by PID using kill -9
- */
-- (void)killProcess:(NSString *)pid resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    @try {
-      NSString *killCommand = [NSString stringWithFormat:@"kill -9 %@", pid];
-      NSString *result = [self _run_c:killCommand];
-      dispatch_async(dispatch_get_main_queue(), ^{ resolve(@{@"killed": @YES, @"pid": pid, @"result": result}); });
-    } @catch (NSException *exception) {
-      dispatch_async(dispatch_get_main_queue(), ^{ reject(@"kill_error", exception.reason, nil); });
-    }
-  });
-}
-
-/**
- * Kills all processes with a specific name using killall
- */
-- (void)killAllProcesses:(NSString *)processName resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    @try {
-      NSString *killCommand = [NSString stringWithFormat:@"killall %@", processName];
-      NSString *result = [self _run_c:killCommand];
-      dispatch_async(dispatch_get_main_queue(), ^{ resolve(@{@"killed": @YES, @"processName": processName, @"result": result}); });
-    } @catch (NSException *exception) {
-      dispatch_async(dispatch_get_main_queue(), ^{ reject(@"kill_error", exception.reason, nil); });
-    }
-  });
-}
+//       // Get the PID of the child process
+//       // pid_t pid = _get_pid(pipe);
+//       // if (pid == -1) {
+//       //     NSLog(@"Failed to retrieve PID.");
+//       // } else {
+//       //     NSLog(@"Child process PID: %d", pid);
+//       //     if (outPID) {
+//       //         *outPID = pid; // Pass the PID back to the caller
+//       //     }
+//       // }
+      
+//       char buffer[128];
+//       NSString *pidString = @"";
+//       if (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+//         pidString = [NSString stringWithUTF8String:buffer];
+//         pidString = [pidString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+//       }
+//       pclose(pipe);
+      
+//       if (pidString.length > 0) {
+//         dispatch_async(dispatch_get_main_queue(), ^{ 
+//           resolve(@{@"pid": pidString, @"command": command}); 
+//         });
+//       } else {
+//         dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to get PID", nil); });
+//       }
+//     } @catch (NSException *exception) {
+//       dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", exception.reason, nil); });
+//     }
+//   });
+// }
 
 - (NSString *)runSync:(NSString *)command {
   return [self _run_c:command];
@@ -118,6 +106,9 @@ RCT_EXPORT_MODULE()
   size_t capacity = 1024;
   // Current length
   size_t length = 0;
+  
+  // TODO: Limit the output to 2MB and then start dropping output from the middle.
+
   // Temporary 128 byte buffer to read chunks from the output
   char temp_buffer[128];
   
@@ -153,77 +144,36 @@ RCT_EXPORT_MODULE()
   return result;
 }
 
-- (void)runTaskWithCommand:(NSString *)command
-                arguments:(NSArray<NSString *> *)arguments
-                 callback:(void (^)(NSString *output, NSString *typeOfOutput))callback
-               completion:(void (^)(int terminationStatus))completion {
-  // Create a background thread to run the task
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    @autoreleasepool {
-      // Create the NSTask
-      NSTask *task = [[NSTask alloc] init];
-      task.launchPath = command;
-      task.arguments = arguments;
+- (void)runCommandOnShutdown:(NSString *)command {
+  if (!self.shutdownCommands) {
+    self.shutdownCommands = [NSMutableArray array];
 
-      // Create pipes for stdout and stderr
-      NSPipe *stdoutPipe = [NSPipe pipe];
-      NSPipe *stderrPipe = [NSPipe pipe];
-      task.standardOutput = stdoutPipe;
-      task.standardError = stderrPipe;
+    // Register for the NSApplicationWillTerminateNotification
+    [[NSNotificationCenter defaultCenter]
+      addObserver:self
+      selector:@selector(_handleAppTermination:)
+      name:NSApplicationWillTerminateNotification
+      object:nil
+    ];
+  }
+  [self.shutdownCommands addObject:command];
+}
 
-      // Set up termination handler
-      task.terminationHandler = ^(NSTask *terminatedTask) {
-        if (completion) {
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completion(terminatedTask.terminationStatus);
-          });
-        }
-      };
+- (void)_handleAppTermination:(NSNotification *)notification {
+  // Remove the observer
+  [[NSNotificationCenter defaultCenter] removeObserver:self name:NSApplicationWillTerminateNotification object:nil];
 
-      // Read stdout asynchronously
-      [[stdoutPipe fileHandleForReading] setReadabilityHandler:^(NSFileHandle *fileHandle) {
-        NSData *data = [fileHandle availableData];
-        if (data.length > 0) {
-          NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-          if (callback) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-              callback(output, @"stdout");
-            });
-          }
-        }
-      }];
+  // If there are no shutdown commands, do nothing
+  if (!self.shutdownCommands || self.shutdownCommands.count == 0) return;
 
-      // Read stderr asynchronously
-      [[stderrPipe fileHandleForReading] setReadabilityHandler:^(NSFileHandle *fileHandle) {
-        NSData *data = [fileHandle availableData];
-        if (data.length > 0) {
-          NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-          if (callback) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-              callback(output, @"stderr");
-            });
-          }
-        }
-      }];
+  // Run all shutdown commands
+  for (NSString *command in self.shutdownCommands) {
+    NSLog(@"Running shutdown command: %@", command);
+    [self _run_c:command];
+  }
 
-      // Launch the task
-      @try {
-        [task launch];
-        [task waitUntilExit]; // Wait for the task to finish
-      } @catch (NSException *exception) {
-        NSLog(@"Failed to launch task: %@", exception);
-        if (completion) {
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completion(-1); // Indicate failure
-          });
-        }
-      }
-
-      // Clean up
-      [[stdoutPipe fileHandleForReading] setReadabilityHandler:nil];
-      [[stderrPipe fileHandleForReading] setReadabilityHandler:nil];
-    }
-  });
+  // Clear the shutdown commands
+  self.shutdownCommands = nil;
 }
 
 @end
