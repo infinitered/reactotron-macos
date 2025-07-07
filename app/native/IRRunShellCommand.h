@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface IRRunShellCommand : NSObject <NativeIRRunShellCommandSpec>
+@interface IRRunShellCommand : NativeIRRunShellCommandSpecBase <NativeIRRunShellCommandSpec>
 
 @end
 

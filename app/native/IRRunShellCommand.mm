@@ -91,6 +91,97 @@ RCT_EXPORT_MODULE()
   return [self _run_c:command];
 }
 
+- (void)runTaskWithCommand:(NSString *)command
+                      args:(NSArray<NSString *> *)args
+                    taskId:(NSString *)taskId {
+  dispatch_async(
+      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        @autoreleasepool {
+          NSTask *task = [NSTask new];
+          task.executableURL = [NSURL fileURLWithPath:command];
+          task.arguments = args;
+          NSPipe *outPipe = [NSPipe pipe];
+          NSPipe *errPipe = [NSPipe pipe];
+          task.standardOutput = outPipe;
+          task.standardError = errPipe;
+
+          __block BOOL completed = NO;
+          __block NSLock *completionLock = [[NSLock alloc] init];
+
+          auto pump = ^(NSPipe *pipe, NSString *stream) {
+            pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *h) {
+              @autoreleasepool {
+                NSData *d = h.availableData;
+                if (d.length == 0)
+                  return;
+
+                NSString *output =
+                    [[NSString alloc] initWithData:d
+                                          encoding:NSUTF8StringEncoding];
+                if (output && !completed) {
+                  dispatch_async(dispatch_get_main_queue(), ^{
+                    if (!completed) {
+                      [self emitOnShellCommandOutput:@{
+                        @"taskId" : taskId,
+                        @"output" : output,
+                        @"type" : stream
+                      }];
+                    }
+                  });
+                }
+              }
+            };
+          };
+
+          pump(outPipe, @"stdout");
+          pump(errPipe, @"stderr");
+
+          task.terminationHandler = ^(NSTask *t) {
+            [completionLock lock];
+            if (completed) {
+              [completionLock unlock];
+              return;
+            }
+            completed = YES;
+            [completionLock unlock];
+
+            outPipe.fileHandleForReading.readabilityHandler = nil;
+            errPipe.fileHandleForReading.readabilityHandler = nil;
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+              [self emitOnShellCommandComplete:@{
+                @"taskId" : taskId,
+                @"exitCode" : @(t.terminationStatus)
+              }];
+            });
+          };
+
+          NSError *err = nil;
+          if (![task launchAndReturnError:&err]) {
+            [completionLock lock];
+            completed = YES;
+            [completionLock unlock];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+              [self emitOnShellCommandOutput:@{
+                @"taskId" : taskId,
+                @"output" : err.localizedDescription ?: @"launch error",
+                @"type" : @"stderr"
+              }];
+              [self emitOnShellCommandComplete:@{
+                @"taskId" : taskId,
+                @"exitCode" : @(-1)
+              }];
+            });
+
+            return;
+          }
+
+          [task waitUntilExit];
+        }
+      });
+}
+
 /**
  * This method runs a command and returns the output as a string.
  * It's pretty darn fast, mostly written in C. 
