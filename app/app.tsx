@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import {
+  EventSubscription,
   ScrollView,
   StatusBar,
   Text,
@@ -18,6 +19,20 @@ import {
 } from "react-native"
 
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
+
+type RunTaskParams = {
+  command: string
+  args?: string[]
+  taskId: string
+  onOutput?: (output: string, type: "stdout" | "stderr") => void
+  onComplete?: (exitCode: number) => void
+}
+
+function runTaskWithCommand(params: RunTaskParams) {
+  const taskId = params.taskId
+  console.log({ taskId })
+  IRRunShellCommand.runTaskWithCommand(params.command, params.args ?? [], params.taskId)
+}
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -73,6 +88,8 @@ function App(): React.JSX.Element {
   const p = console.tron.log
   const shell = (cmd: string) => IRRunShellCommand.runSync(cmd)?.trim()
   const shellAsync = (cmd: string) => IRRunShellCommand.runAsync(cmd).then((r) => r?.trim())
+  const outputSubscription = useRef<null | EventSubscription>(null)
+  const completeSubscription = useRef<null | EventSubscription>(null)
   const [nodeVersion, setNodeVersion] = useState<string | null>(null)
   const [bunVersion, setBunVersion] = useState<string | null>(null)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
@@ -80,6 +97,21 @@ function App(): React.JSX.Element {
   const pid = useRef<string | null>(null)
 
   // const fonts = IRFontList.getFontListSync()
+
+  // Long running command output and completion listener
+  useEffect(() => {
+    outputSubscription.current = IRRunShellCommand.onShellCommandOutput((output) =>
+      console.log({ output }),
+    )
+    completeSubscription.current = IRRunShellCommand.onShellCommandComplete((complete) =>
+      console.log({ complete }),
+    )
+
+    return () => {
+      outputSubscription.current?.remove()
+      completeSubscription.current?.remove()
+    }
+  }, [])
 
   // Test the regular command functionality
   const testRegularCommands = () => {
@@ -107,6 +139,18 @@ function App(): React.JSX.Element {
         p(`Async result: ${result} in ${p3b}ms`)
       })
       .catch((error: any) => p(`Async error: ${error}`))
+  }
+
+  const testLongRunningCommands = () => {
+    p("Starting long-running command test...")
+
+    runTaskWithCommand({
+      command: "/sbin/ping",
+      args: ["-t 10", "8.8.8.8"],
+      //command: "/bin/bash",
+      //args: ["-c", 'for i in {1..5}; do echo "Test output $i"; sleep 1; done'],
+      taskId: `long_task_${Date.now()}`,
+    })
   }
 
   const testStartNodeServer = async () => {
@@ -194,6 +238,11 @@ function App(): React.JSX.Element {
             title="Test Regular Commands"
             description="Tests sync and async command execution"
             onPress={testRegularCommands}
+          />
+          <TestCard
+            title="Test Long Running Commands"
+            description="Tests long running command execution"
+            onPress={testLongRunningCommands}
           />
           <TestCard
             title="Start Node HTTP Server"
