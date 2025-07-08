@@ -5,7 +5,7 @@
  * @format
  */
 
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import {
   ScrollView,
   StatusBar,
@@ -14,7 +14,6 @@ import {
   ViewStyle,
   TextStyle,
   TouchableOpacity,
-  AppState,
 } from "react-native"
 
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
@@ -55,19 +54,6 @@ function TestCard(props: TestCardProps) {
     </View>
   )
 }
-
-const serverCode: string = `
-console.log(\`Hello, I am \${process.pid} lol\`)
-
-const http = require("http")
-
-http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" })
-  res.end("Hello, World!")
-}).listen(9000)
-
-console.log(\`Server is running on port 9000\`)
-`
 
 function App(): React.JSX.Element {
   const p = console.tron.log
@@ -110,9 +96,24 @@ function App(): React.JSX.Element {
   }
 
   const testStartNodeServer = async () => {
+    const port = 9095
+    const host = "localhost"
+    const path = "/"
+
+    const startServerScript = `
+      // REACTOTRON_CORE_SERVER
+      const { startReactotronServer } = require("${IRRunShellCommand.appPath()}/Contents/Resources/reactotron-server.js")
+      startReactotronServer({
+        port: ${port}, 
+        host: "${host}",
+        path: "${path}",
+      })
+    `
+
     p("Starting Node HTTP server...")
     // This won't return until the server is done
-    shellAsync(`REACTOTRON_CORE_SERVER=true node -e '${serverCode}'`)
+    console.tron.log(startServerScript)
+    shellAsync(`node -e '${startServerScript}'`)
       .then((r) => {
         p(`Node server stopped from PID: ${pid.current}`)
         if (__DEV__) {
@@ -136,12 +137,16 @@ function App(): React.JSX.Element {
       })
 
     // Wait for the server to start
-    await delay(100)
+    // await delay(1)
 
-    pid.current = await shellAsync(`ps aux | grep 'node -e' | grep -v grep | awk '{print $2}'`)
+    const p1: number = performance.now()
+    pid.current = await shellAsync(
+      `ps aux | grep 'REACTOTRON_CORE_SERVER' | grep -v grep | awk '{print $2}'`,
+    )
+    const p1b: number = performance.now() - p1
 
     // Get the PID of the server
-    p(`Node HTTP server PID: ${pid.current}`)
+    p(`Node HTTP server PID: ${pid.current} in ${p1b}ms`)
 
     // Kill that process on shutdown
     IRRunShellCommand.runCommandOnShutdown(`kill -9 ${pid.current}`)

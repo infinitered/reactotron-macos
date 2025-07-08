@@ -26,6 +26,13 @@ RCT_EXPORT_MODULE()
 // Below this are the interfaces that can be called from JS.
 
 /**
+ * Returns the path to the app.
+ */
+- (NSString *)appPath {
+  return [[NSBundle mainBundle] bundlePath] ?: @"";
+}
+
+/**
  * This method runs a command and returns the output as a string.
  * It's async, so use it for long-running commands.
  */
