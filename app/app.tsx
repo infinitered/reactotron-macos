@@ -5,12 +5,11 @@
  * @format
  */
 
-import { useState } from "react"
-import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle, Pressable } from "react-native"
+import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
 
 import { useData } from "./state/useData"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
-import Stack from "@nkzw/stack"
+import Stack from "@nkzw/stack/native"
 import { Tab } from "./components/Tab"
 import { useGlobalState } from "./state/useGlobalState"
 
@@ -38,37 +37,39 @@ function App(): React.JSX.Element {
         <Tab activeTab={activeTab} label="Example1" onPress={() => setActiveTab("Example1")} />
         <Tab activeTab={activeTab} label="Example2" onPress={() => setActiveTab("Example2")} />
       </Stack>
-      <ScrollView style={$scrollView(theme)}>
-        <View style={$dashboard(theme)}>
-          {/* Status Row */}
-          <View style={$statusRow(theme)}>
-            <View style={$statusItem(theme)}>
-              <View
-                style={[
-                  $dot(theme),
-                  error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
-                ]}
-              />
-              <Text style={$statusText(theme)}>App Connected</Text>
-            </View>
-            <View style={$divider(theme)} />
-            <View style={$statusItem(theme)}>
-              <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
-              <Text style={$statusText(theme)}>Client Connected</Text>
-            </View>
-            <View style={$divider(theme)} />
-            <View style={$statusItem(theme)}>
-              <View
-                style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]}
-              />
-              <Text style={$statusText(theme)}>{arch}</Text>
-            </View>
-          </View>
+      <Stack flex1>
+        <ScrollView style={$scrollView(theme)}>
+          <Stack style={$dashboard(theme)} gap={32}>
+            {/* Status Row */}
+            <Stack alignCenter style={$statusRow(theme)}>
+              <Stack alignCenter style={$statusItem(theme)}>
+                <View
+                  style={[
+                    $dot(theme),
+                    error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
+                  ]}
+                />
+                <Text style={$statusText(theme)}>App Connected</Text>
+              </Stack>
+              <View style={$divider(theme)} />
+              <Stack alignCenter style={$statusItem(theme)}>
+                <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
+                <Text style={$statusText(theme)}>Client Connected</Text>
+              </Stack>
+              <View style={$divider(theme)} />
+              <Stack alignCenter style={$statusItem(theme)}>
+                <View
+                  style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]}
+                />
+                <Text style={$statusText(theme)}>{arch}</Text>
+              </Stack>
+            </Stack>
 
-          {/* Title */}
-          <Text style={$title(theme)}>IRRunShellCommand Tests</Text>
-        </View>
-      </ScrollView>
+            {/* Title */}
+            <Text style={$title(theme)}>IRRunShellCommand Tests</Text>
+          </Stack>
+        </ScrollView>
+      </Stack>
     </Stack>
   )
 }
@@ -77,7 +78,7 @@ function App(): React.JSX.Element {
 //   fontWeight: "700",
 // }
 
-const $scrollView = withTheme<ViewStyle>(({ colors }) => ({
+const $scrollView = withTheme<ViewStyle>(() => ({
   flex: 1,
 }))
 
@@ -94,19 +95,12 @@ const $dashboard = withTheme<ViewStyle>(({ colors }) => ({
   shadowOffset: { width: 0, height: 4 },
 }))
 
-const $statusRow = withTheme<ViewStyle>(({}) => ({
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "flex-start",
+const $statusRow = withTheme<ViewStyle>(() => ({
   marginBottom: 32,
-  gap: 0,
 }))
 
-const $statusItem = withTheme<ViewStyle>(({}) => ({
-  flexDirection: "row",
-  alignItems: "center",
+const $statusItem = withTheme<ViewStyle>(() => ({
   minWidth: 80,
-  justifyContent: "center",
 }))
 
 const $divider = withTheme<ViewStyle>(({ colors }) => ({

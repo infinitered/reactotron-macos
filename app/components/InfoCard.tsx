@@ -4,7 +4,7 @@
  * Likely to be removed; double-check that it is even used.
  */
 import { Pressable, Text, TextStyle, View, ViewStyle } from "react-native"
-import { colors } from "../theme/colors"
+import { useThemeName, withTheme } from "../theme/theme"
 
 interface InfoCardProps {
   title: string
@@ -13,17 +13,19 @@ interface InfoCardProps {
 }
 
 export function InfoCard(props: InfoCardProps) {
+  const [theme] = useThemeName()
+
   return (
-    <View style={$cardContainer}>
-      <View style={$card}>
-        <View style={$accentBar} />
-        <View style={$cardContent}>
-          <Pressable style={$button} onPress={props.onPress}>
-            <Text style={$buttonText}>▶️ Run</Text>
+    <View style={$cardContainer(theme)}>
+      <View style={$card(theme)}>
+        <View style={$accentBar(theme)} />
+        <View style={$cardContent(theme)}>
+          <Pressable style={$button(theme)} onPress={props.onPress}>
+            <Text style={$buttonText(theme)}>▶️ Run</Text>
           </Pressable>
-          <View style={$cardText}>
-            <Text style={$testLabel}>{props.title}</Text>
-            <Text style={$testDesc}>{props.description}</Text>
+          <View style={$cardText(theme)}>
+            <Text style={$testLabel(theme)}>{props.title}</Text>
+            <Text style={$testDesc(theme)}>{props.description}</Text>
           </View>
         </View>
       </View>
@@ -31,19 +33,19 @@ export function InfoCard(props: InfoCardProps) {
   )
 }
 
-const $cardContainer: ViewStyle = {
+const $cardContainer = withTheme<ViewStyle>(() => ({
   gap: 24,
   display: "flex",
   flexDirection: "row",
   flexWrap: "wrap",
   justifyContent: "space-between",
-}
+}))
 
-const $card: ViewStyle = {
+const $card = withTheme<ViewStyle>(({ colors }) => ({
   flex: 1,
   flexDirection: "row",
   alignItems: "stretch",
-  backgroundColor: colors.palette.neutral200,
+  backgroundColor: colors.cardBackground,
   borderRadius: 14,
   marginBottom: 24,
   shadowColor: "#000",
@@ -51,51 +53,53 @@ const $card: ViewStyle = {
   shadowRadius: 6,
   shadowOffset: { width: 0, height: 2 },
   overflow: "hidden",
-}
-const $accentBar: ViewStyle = {
+}))
+const $accentBar = withTheme<ViewStyle>(({ colors }) => ({
   width: 6,
-  backgroundColor: colors.green,
+  backgroundColor: colors.primary,
   borderTopLeftRadius: 14,
   borderBottomLeftRadius: 14,
-}
-const $cardContent: ViewStyle = {
+}))
+const $cardContent = withTheme<ViewStyle>(() => ({
   flex: 1,
   padding: 18,
   justifyContent: "space-between",
   flexDirection: "row",
   alignItems: "center",
   gap: 16,
-}
-const $cardText: ViewStyle = {
+}))
+const $cardText = withTheme<ViewStyle>(() => ({
   flex: 1,
   justifyContent: "center",
-}
-const $testLabel: TextStyle = {
+}))
+const $testLabel = withTheme<TextStyle>(({ colors }) => ({
   fontSize: 17,
   fontWeight: "700",
   marginBottom: 4,
-  color: colors.palette.neutral300,
-}
-const $testDesc: TextStyle = {
+  color: colors.mainText,
+}))
+const $testDesc = withTheme<TextStyle>(({ colors }) => ({
   fontSize: 14,
-  color: colors.palette.neutral300,
+  color: colors.neutral,
   marginBottom: 16,
-}
-const $button: ViewStyle = {
-  backgroundColor: colors.palette.accent500,
+}))
+
+const $button = withTheme<ViewStyle>(({ colors }) => ({
+  backgroundColor: colors.primary,
   borderRadius: 8,
   paddingVertical: 12,
   paddingHorizontal: 18,
   alignSelf: "flex-start",
   marginTop: 2,
-  shadowColor: colors.palette.accent500,
+  shadowColor: colors.primary,
   shadowOpacity: 0.08,
   shadowRadius: 4,
   shadowOffset: { width: 0, height: 2 },
-}
-const $buttonText: TextStyle = {
-  color: "#FFF",
+}))
+
+const $buttonText = withTheme<TextStyle>(({ typography, colors }) => ({
+  color: colors.background,
   fontWeight: "bold",
-  fontSize: 16,
+  fontSize: typography.body,
   letterSpacing: 0.2,
-}
+}))

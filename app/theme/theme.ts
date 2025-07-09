@@ -1,7 +1,9 @@
-import { TextStyle, ViewStyle } from "react-native"
+import { ViewStyle } from "react-native"
 import { colorsLight, colorsDark, type Colors } from "./colors"
-import { useState } from "react"
 import { useGlobalState } from "../state/useGlobalState"
+import { Spacing, spacing } from "./spacing"
+import { Typography, typography } from "./typography"
+import { Timing, timing } from "./timing"
 
 export type ThemeName = "light" | "dark"
 
