@@ -4,3 +4,5 @@ export const timing = {
    */
   quick: 300,
 } as const
+
+export type Timing = typeof timing

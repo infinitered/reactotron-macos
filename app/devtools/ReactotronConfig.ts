@@ -9,6 +9,7 @@ import Reactotron from "reactotron-react-native"
 
 const reactotron = Reactotron.configure({
   name: require("../../package.json").name,
+  // port: 9095,
   onConnect: () => {
     /** since this file gets hot reloaded, let's clear the past logs every time we connect */
     Reactotron.clear()

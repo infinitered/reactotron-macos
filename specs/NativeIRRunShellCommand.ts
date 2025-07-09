@@ -14,6 +14,7 @@ export interface ShellCommandCompleteEvent {
 }
 
 export interface Spec extends TurboModule {
+  appPath(): string
   runAsync(command: string): Promise<string>
   runSync(command: string): string
   runCommandOnShutdown(command: string): void

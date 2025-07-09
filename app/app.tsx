@@ -5,268 +5,74 @@
  * @format
  */
 
-import { useEffect, useRef, useState } from "react"
-import {
-  EventSubscription,
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
-  ViewStyle,
-  TextStyle,
-  TouchableOpacity,
-} from "react-native"
+import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
 
-import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
-
-type RunTaskParams = {
-  command: string
-  args?: string[]
-  taskId: string
-  onOutput?: (output: string, type: "stdout" | "stderr") => void
-  onComplete?: (exitCode: number) => void
-}
-
-function runTaskWithCommand(params: RunTaskParams) {
-  const taskId = params.taskId
-  console.log({ taskId })
-  IRRunShellCommand.runTaskWithCommand(params.command, params.args ?? [], params.taskId)
-}
+import { useServer } from "./state/useServer"
+import { useTheme, useThemeName, withTheme } from "./theme/theme"
+import { Tab } from "./components/Tab"
+import Header from "./components/Header"
+import { HeaderTitle } from "./components/HeaderTitle"
+import ActionButton from "./components/ActionButton"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
   // Load Reactotron client in development only.
-  // Note that you must be using metro's `inlineRequires` for this to work.
-  // If you turn it off in metro.config.js, you'll have to manually import it.
   require("./devtools/ReactotronConfig.ts")
 }
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-interface TestCardProps {
-  title: string
-  description: string
-  onPress: () => void
-}
-
-function TestCard(props: TestCardProps) {
-  return (
-    <View style={$testCardContainer}>
-      <View style={$testCard}>
-        <View style={$testAccentBar} />
-        <View style={$testCardContent}>
-          <TouchableOpacity style={$button} onPress={props.onPress}>
-            <Text style={$buttonText}>▶️ Run</Text>
-          </TouchableOpacity>
-          <View style={$testCardText}>
-            <Text style={$testLabel}>{props.title}</Text>
-            <Text style={$testDesc}>{props.description}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  )
-}
-
-const serverCode: string = `
-console.log(\`Hello, I am \${process.pid} lol\`)
-
-const http = require("http")
-
-http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" })
-  res.end("Hello, World!")
-}).listen(9000)
-
-console.log(\`Server is running on port 9000\`)
-`
-
 function App(): React.JSX.Element {
-  const p = console.tron.log
-  const shell = (cmd: string) => IRRunShellCommand.runSync(cmd)?.trim()
-  const shellAsync = (cmd: string) => IRRunShellCommand.runAsync(cmd).then((r) => r?.trim())
-  const [nodeVersion, setNodeVersion] = useState<string | null>(null)
-  const [bunVersion, setBunVersion] = useState<string | null>(null)
+  const [theme, setTheme] = useThemeName()
+  const { colors } = useTheme(theme)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
-  const [activeTab, setActiveTab] = useState("Example1")
-  const pid = useRef<string | null>(null)
 
-  const outputSubscription = useRef<null | EventSubscription>(null)
-  const completeSubscription = useRef<null | EventSubscription>(null)
-
-  // const fonts = IRFontList.getFontListSync()
-
-  // Long running command output and completion listener
-  useEffect(() => {
-    outputSubscription.current = IRRunShellCommand.onShellCommandOutput((output) =>
-      console.log({ output }),
-    )
-    completeSubscription.current = IRRunShellCommand.onShellCommandComplete((complete) =>
-      console.log({ complete }),
-    )
-
-    return () => {
-      outputSubscription.current?.remove()
-      completeSubscription.current?.remove()
-    }
-  }, [])
-
-  // Test the regular command functionality
-  const testRegularCommands = () => {
-    p("Testing regular commands...")
-
-    const p1: number = performance.now()
-    const bun: string = shell("bun --version")
-    const p1b: number = performance.now() - p1
-
-    const p2: number = performance.now()
-    const node: string = shell("node --version")
-    const p2b: number = performance.now() - p2
-
-    p(`Bun: ${bun} in ${p1b}ms`)
-    p(`Node: ${node} in ${p2b}ms`)
-
-    setNodeVersion(node)
-    setBunVersion(bun)
-
-    // Test async command
-    const p3: number = performance.now()
-    shellAsync("node --version")
-      .then((result: string) => {
-        const p3b: number = performance.now() - p3
-        p(`Async result: ${result} in ${p3b}ms`)
-      })
-      .catch((error: any) => p(`Async error: ${error}`))
-  }
-
-  const testLongRunningCommands = () => {
-    p("Starting long-running command test...")
-
-    const taskId = `long_task_${Date.now()}`
-
-    runTaskWithCommand({
-      command: "/sbin/ping",
-      args: ["-t 10", "8.8.8.8"],
-      taskId,
-    })
-  }
-
-  const stopLongRunningCommands = () => {
-    // Kill all tasks
-    //IRRunShellCommand.killAllTasks()
-
-    // Load running task IDs and kill one by one
-    IRRunShellCommand.getRunningTaskIds().forEach((taskId) => {
-      console.log(`Killing task ${taskId}`)
-      IRRunShellCommand.killTaskWithId(taskId)
-    })
-  }
-
-  const testStartNodeServer = async () => {
-    p("Starting Node HTTP server...")
-    // This won't return until the server is done
-    shellAsync(`REACTOTRON_CORE_SERVER=true node -e '${serverCode}'`)
-      .then((r) => {
-        p(`Node server stopped from PID: ${pid.current}`)
-        if (__DEV__) {
-          console.tron.display({
-            name: `Node server output`,
-            value: r,
-            preview: r.slice(0, 100),
-            important: true,
-          })
-        }
-      })
-      .catch((e) => {
-        p(`Error starting Node server: ${e}`)
-        if (__DEV__) {
-          console.tron.display({
-            name: `Node server error`,
-            value: e,
-            important: true,
-          })
-        }
-      })
-
-    // Wait for the server to start
-    await delay(100)
-
-    pid.current = await shellAsync(`ps aux | grep 'node -e' | grep -v grep | awk '{print $2}'`)
-
-    // Get the PID of the server
-    p(`Node HTTP server PID: ${pid.current}`)
-
-    // Kill that process on shutdown
-    IRRunShellCommand.runCommandOnShutdown(`kill -9 ${pid.current}`)
-
-    // const grep = await shellAsync(`ps aux | grep ${pid}`)
-    // p(`Node HTTP server grep for ${pid}: ${grep}`)
-  }
+  // TODO: replace with Zustand or other global state management
+  const { isConnected, error } = useServer()
 
   return (
-    <View style={$root}>
+    <View style={$container(theme)}>
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      {/* Tabs */}
-      <View style={$tabBar}>
-        <TouchableOpacity onPress={() => setActiveTab("Example1")}>
-          <Text style={activeTab === "Example1" ? $tabActive : $tabInactive}>Example1</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setActiveTab("Example2")}>
-          <Text style={activeTab === "Example2" ? $tabActive : $tabInactive}>Example2</Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView style={$scrollView}>
-        <View style={$dashboard}>
-          {/* Status Row */}
-          <View style={$statusRow}>
-            <View style={$statusItem}>
-              <View
-                style={[$dot, nodeVersion === null ? $dotGray : nodeVersion ? $dotGreen : $dotRed]}
-              />
-              <Text style={$statusText}>Node {nodeVersion}</Text>
-            </View>
-            <View style={$divider} />
-            <View style={$statusItem}>
-              <View
-                style={[$dot, bunVersion === null ? $dotGray : bunVersion ? $dotGreen : $dotRed]}
-              />
-              <Text style={$statusText}>Bun {bunVersion}</Text>
-            </View>
-            <View style={$divider} />
-            <View style={$statusItem}>
-              <View style={[$dot, arch === "Fabric" ? $dotGreen : $dotOrange]} />
-              <Text style={$statusText}>{arch}</Text>
-            </View>
-          </View>
-
-          {/* Title */}
-          <Text style={$title}>IRRunShellCommand Tests</Text>
-
-          {/* Test Cards */}
-          <TestCard
-            title="Test Regular Commands"
-            description="Tests sync and async command execution"
-            onPress={testRegularCommands}
-          />
-          <TestCard
-            title="Test Long Running Commands"
-            description="Tests long running command execution"
-            onPress={testLongRunningCommands}
-          />
-          <TestCard
-            title="Test Stop Long Running Commands"
-            description="Tests long running command execution"
-            onPress={stopLongRunningCommands}
-          />
-          <TestCard
-            title="Start Node HTTP Server"
-            description="Starts a Node HTTP server at localhost:9000"
-            onPress={testStartNodeServer}
-          />
+      <Header>
+        <View style={$tabContainer(theme)}>
+          <Tab label="Example1" />
+          <Tab label="Example2" />
         </View>
-      </ScrollView>
+        <HeaderTitle title="Reactotron " />
+
+        {/* Status Row */}
+        <View style={$statusRow(theme)}>
+          <View style={$statusItem(theme)}>
+            <View
+              style={[
+                $dot(theme),
+                error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
+              ]}
+            />
+            <Text style={$statusText(theme)}>App Connected</Text>
+          </View>
+          <View style={$divider(theme)} />
+          <View style={$statusItem(theme)}>
+            <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
+            <Text style={$statusText(theme)}>Client Connected</Text>
+          </View>
+          <View style={$divider(theme)} />
+          <View style={$statusItem(theme)}>
+            <View style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]} />
+            <Text style={$statusText(theme)}>{arch}</Text>
+          </View>
+        </View>
+        <ActionButton
+          icon={({ size }) => (
+            <Text style={{ fontSize: size }}>{theme === "dark" ? "🌙" : "☀️"}</Text>
+          )}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        />
+      </Header>
+
+      <View style={$contentContainer(theme)}>
+        <ScrollView style={$scrollView(theme)}>
+          <View style={$dashboard(theme)}></View>
+        </ScrollView>
+      </View>
     </View>
   )
 }
@@ -275,59 +81,30 @@ function App(): React.JSX.Element {
 //   fontWeight: "700",
 // }
 
-// --- Styles ---
-const colors = {
-  background: "#FAFAFA",
-  card: "#FFF",
-  border: "#E0E0E0",
-  orange: "#FF8800",
-  orangeLight: "#FFF3E0",
-  gray: "#888",
-  grayLight: "#F5F5F5",
-  green: "#3DDC91",
-  red: "#FF5252",
-}
-
-const $root: ViewStyle = {
+const $container = withTheme<ViewStyle>(({ colors }) => ({
   flex: 1,
   backgroundColor: colors.background,
-}
+}))
 
-const $tabBar: ViewStyle = {
+const $tabContainer = withTheme<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
-  alignItems: "center",
-  paddingHorizontal: 32,
-  paddingTop: 18,
-  paddingBottom: 8,
-  gap: 16,
-}
-const $tabActive: TextStyle = {
-  fontSize: 16,
-  fontWeight: "700",
-  color: colors.orange,
-  borderBottomWidth: 3,
-  borderBottomColor: colors.orange,
-  paddingBottom: 6,
-  marginRight: 16,
-}
-const $tabInactive: TextStyle = {
-  fontSize: 16,
-  fontWeight: "500",
-  color: colors.gray,
-  borderBottomWidth: 3,
-  borderBottomColor: "transparent",
-  paddingBottom: 6,
-  marginRight: 16,
-}
+  paddingHorizontal: spacing.xl,
+  paddingVertical: spacing.md,
+  gap: spacing.md,
+}))
 
-const $scrollView: ViewStyle = {
+const $contentContainer = withTheme<ViewStyle>(() => ({
   flex: 1,
-}
+}))
 
-const $dashboard: ViewStyle = {
-  margin: 24,
-  padding: 32,
-  backgroundColor: colors.card,
+const $scrollView = withTheme<ViewStyle>(() => ({
+  flex: 1,
+}))
+
+const $dashboard = withTheme<ViewStyle>(({ colors, spacing }) => ({
+  margin: spacing.lg,
+  padding: spacing.xl,
+  backgroundColor: colors.cardBackground,
   borderRadius: 20,
   borderWidth: 1,
   borderColor: colors.border,
@@ -335,122 +112,56 @@ const $dashboard: ViewStyle = {
   shadowOpacity: 0.06,
   shadowRadius: 12,
   shadowOffset: { width: 0, height: 4 },
-}
+  gap: spacing.xl,
+}))
 
-const $statusRow: ViewStyle = {
+const $statusRow = withTheme<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   alignItems: "center",
-  justifyContent: "flex-start",
-  marginBottom: 32,
-  gap: 0,
-}
-const $statusItem: ViewStyle = {
+  padding: spacing.sm,
+  justifyContent: "center",
+}))
+
+const $statusItem = withTheme<ViewStyle>(() => ({
   flexDirection: "row",
   alignItems: "center",
   minWidth: 80,
-  justifyContent: "center",
-}
-const $divider: ViewStyle = {
+}))
+
+const $divider = withTheme<ViewStyle>(({ colors, spacing }) => ({
   width: 1,
   height: 24,
   backgroundColor: colors.border,
-  marginHorizontal: 18,
+  marginHorizontal: spacing.md,
   borderRadius: 1,
-}
-const $dot: ViewStyle = {
+}))
+
+const $dot = withTheme<ViewStyle>(({ colors }) => ({
   width: 12,
   height: 12,
   borderRadius: 6,
   marginRight: 8,
   borderWidth: 1,
   borderColor: colors.border,
-}
-const $dotGray: ViewStyle = { backgroundColor: colors.gray }
-const $dotGreen: ViewStyle = { backgroundColor: colors.green }
-const $dotRed: ViewStyle = { backgroundColor: colors.red }
-const $dotOrange: ViewStyle = { backgroundColor: colors.orange }
-const $statusText: TextStyle = {
-  fontSize: 16,
-  color: colors.gray,
-  fontWeight: "600",
-}
+}))
+const $dotGray = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.neutral }))
+const $dotGreen = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.success }))
+const $dotRed = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.danger }))
+const $dotOrange = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.primary }))
 
-const $title: TextStyle = {
+const $statusText = withTheme<TextStyle>(({ colors }) => ({
+  fontSize: 16,
+  color: colors.mainText,
+  fontWeight: "600",
+}))
+
+const $title = withTheme<TextStyle>(({ colors }) => ({
   fontSize: 22,
   fontWeight: "bold",
   marginBottom: 28,
   textAlign: "center",
-  color: colors.gray,
+  color: colors.mainText,
   letterSpacing: 0.2,
-}
-
-const $testCardContainer: ViewStyle = {
-  gap: 24,
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  justifyContent: "space-between",
-}
-
-const $testCard: ViewStyle = {
-  flex: 1,
-  flexDirection: "row",
-  alignItems: "stretch",
-  backgroundColor: colors.grayLight,
-  borderRadius: 14,
-  marginBottom: 24,
-  shadowColor: "#000",
-  shadowOpacity: 0.03,
-  shadowRadius: 6,
-  shadowOffset: { width: 0, height: 2 },
-  overflow: "hidden",
-}
-const $testAccentBar: ViewStyle = {
-  width: 6,
-  backgroundColor: colors.green,
-  borderTopLeftRadius: 14,
-  borderBottomLeftRadius: 14,
-}
-const $testCardContent: ViewStyle = {
-  flex: 1,
-  padding: 18,
-  justifyContent: "space-between",
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 16,
-}
-const $testCardText: ViewStyle = {
-  flex: 1,
-  justifyContent: "center",
-}
-const $testLabel: TextStyle = {
-  fontSize: 17,
-  fontWeight: "700",
-  marginBottom: 4,
-  color: colors.gray,
-}
-const $testDesc: TextStyle = {
-  fontSize: 14,
-  color: colors.gray,
-  marginBottom: 16,
-}
-const $button: ViewStyle = {
-  backgroundColor: colors.orange,
-  borderRadius: 8,
-  paddingVertical: 12,
-  paddingHorizontal: 18,
-  alignSelf: "flex-start",
-  marginTop: 2,
-  shadowColor: colors.orange,
-  shadowOpacity: 0.08,
-  shadowRadius: 4,
-  shadowOffset: { width: 0, height: 2 },
-}
-const $buttonText: TextStyle = {
-  color: "#FFF",
-  fontWeight: "bold",
-  fontSize: 16,
-  letterSpacing: 0.2,
-}
+}))
 
 export default App

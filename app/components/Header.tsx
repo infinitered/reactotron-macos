@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react"
 import { View, ViewStyle } from "react-native"
+import { useThemeName, withTheme } from "../theme/theme"
 
 export interface HeaderProps {}
 
@@ -8,32 +9,33 @@ export interface HeaderProps {}
  */
 export function Header(props: PropsWithChildren<HeaderProps>) {
   const { children } = props
+  const [theme] = useThemeName()
 
   return (
-    <View style={$container}>
-      <View style={$contentContainer}>{children}</View>
+    <View style={$container(theme)}>
+      <View style={$contentContainer(theme)}>{children}</View>
     </View>
   )
 }
 
-const $container: ViewStyle = {
-  backgroundColor: "#F3F3F3",
-  borderBottomColor: "#E0E0E0",
+const $container = withTheme<ViewStyle>(({ colors }) => ({
+  backgroundColor: colors.cardBackground,
+  borderBottomColor: colors.border,
   borderBottomWidth: 1,
   elevation: 3,
   shadowColor: "#000",
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.1,
   shadowRadius: 5,
-}
+}))
 
-const $contentContainer: ViewStyle = {
+const $contentContainer = withTheme<ViewStyle>(() => ({
   alignItems: "center",
   flexDirection: "row",
   height: 70,
   justifyContent: "space-between",
   paddingHorizontal: 10,
-}
+}))
 
 // const $leftContainer: ViewStyle = {
 //   alignItems: "center",
