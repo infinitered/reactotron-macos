@@ -5,7 +5,7 @@
  * @format
  */
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   ScrollView,
   StatusBar,
@@ -17,6 +17,7 @@ import {
 } from "react-native"
 
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
+import { useData } from "./state/useData"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -56,104 +57,11 @@ function TestCard(props: TestCardProps) {
 }
 
 function App(): React.JSX.Element {
-  const p = console.tron.log
-  const shell = (cmd: string) => IRRunShellCommand.runSync(cmd)?.trim()
-  const shellAsync = (cmd: string) => IRRunShellCommand.runAsync(cmd).then((r) => r?.trim())
-  const [nodeVersion, setNodeVersion] = useState<string | null>(null)
-  const [bunVersion, setBunVersion] = useState<string | null>(null)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
   const [activeTab, setActiveTab] = useState("Example1")
-  const pid = useRef<string | null>(null)
 
-  // const fonts = IRFontList.getFontListSync()
-
-  // Test the regular command functionality
-  const testRegularCommands = () => {
-    p("Testing regular commands...")
-
-    const p1: number = performance.now()
-    const bun: string = shell("bun --version")
-    const p1b: number = performance.now() - p1
-
-    const p2: number = performance.now()
-    const node: string = shell("node --version")
-    const p2b: number = performance.now() - p2
-
-    p(`Bun: ${bun} in ${p1b}ms`)
-    p(`Node: ${node} in ${p2b}ms`)
-
-    setNodeVersion(node)
-    setBunVersion(bun)
-
-    // Test async command
-    const p3: number = performance.now()
-    shellAsync("node --version")
-      .then((result: string) => {
-        const p3b: number = performance.now() - p3
-        p(`Async result: ${result} in ${p3b}ms`)
-      })
-      .catch((error: any) => p(`Async error: ${error}`))
-  }
-
-  const testStartNodeServer = async () => {
-    const port = 9095
-    const host = "localhost"
-    const path = "/"
-
-    const startServerScript = `
-      // REACTOTRON_CORE_SERVER
-      const { startReactotronServer } = require("${IRRunShellCommand.appPath()}/Contents/Resources/reactotron-server.js")
-      startReactotronServer({
-        port: ${port}, 
-        host: "${host}",
-        path: "${path}",
-      })
-    `
-
-    p("Starting Node HTTP server...")
-    // This won't return until the server is done
-    console.tron.log(startServerScript)
-    shellAsync(`node -e '${startServerScript}'`)
-      .then((r) => {
-        p(`Node server stopped from PID: ${pid.current}`)
-        if (__DEV__) {
-          console.tron.display({
-            name: `Node server output`,
-            value: r,
-            preview: r.slice(0, 100),
-            important: true,
-          })
-        }
-      })
-      .catch((e) => {
-        p(`Error starting Node server: ${e}`)
-        if (__DEV__) {
-          console.tron.display({
-            name: `Node server error`,
-            value: e,
-            important: true,
-          })
-        }
-      })
-
-    // Wait for the server to start
-    // await delay(1)
-
-    const p1: number = performance.now()
-    pid.current = await shellAsync(
-      `ps aux | grep 'REACTOTRON_CORE_SERVER' | grep -v grep | awk '{print $2}'`,
-    )
-    const p1b: number = performance.now() - p1
-
-    // Get the PID of the server
-    p(`Node HTTP server PID: ${pid.current} in ${p1b}ms`)
-
-    // Kill that process on shutdown
-    IRRunShellCommand.runCommandOnShutdown(`kill -9 ${pid.current}`)
-
-    // const grep = await shellAsync(`ps aux | grep ${pid}`)
-    // p(`Node HTTP server grep for ${pid}: ${grep}`)
-  }
+  // TODO: replace with Zustand
+  const { isConnected, error } = useData()
 
   return (
     <View style={$root}>
@@ -172,17 +80,13 @@ function App(): React.JSX.Element {
           {/* Status Row */}
           <View style={$statusRow}>
             <View style={$statusItem}>
-              <View
-                style={[$dot, nodeVersion === null ? $dotGray : nodeVersion ? $dotGreen : $dotRed]}
-              />
-              <Text style={$statusText}>Node {nodeVersion}</Text>
+              <View style={[$dot, error ? $dotRed : isConnected ? $dotGreen : $dotGray]} />
+              <Text style={$statusText}>App Connected</Text>
             </View>
             <View style={$divider} />
             <View style={$statusItem}>
-              <View
-                style={[$dot, bunVersion === null ? $dotGray : bunVersion ? $dotGreen : $dotRed]}
-              />
-              <Text style={$statusText}>Bun {bunVersion}</Text>
+              <View style={[$dot, false ? $dotGreen : $dotGray]} />
+              <Text style={$statusText}>Client Connected</Text>
             </View>
             <View style={$divider} />
             <View style={$statusItem}>
@@ -193,18 +97,6 @@ function App(): React.JSX.Element {
 
           {/* Title */}
           <Text style={$title}>IRRunShellCommand Tests</Text>
-
-          {/* Test Cards */}
-          <TestCard
-            title="Test Regular Commands"
-            description="Tests sync and async command execution"
-            onPress={testRegularCommands}
-          />
-          <TestCard
-            title="Start Node HTTP Server"
-            description="Starts a Node HTTP server at localhost:9000"
-            onPress={testStartNodeServer}
-          />
         </View>
       </ScrollView>
     </View>
