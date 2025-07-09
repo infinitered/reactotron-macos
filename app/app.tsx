@@ -15,7 +15,6 @@ import {
   ViewStyle,
   TextStyle,
   TouchableOpacity,
-  AppState,
 } from "react-native"
 
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
@@ -88,13 +87,14 @@ function App(): React.JSX.Element {
   const p = console.tron.log
   const shell = (cmd: string) => IRRunShellCommand.runSync(cmd)?.trim()
   const shellAsync = (cmd: string) => IRRunShellCommand.runAsync(cmd).then((r) => r?.trim())
-  const outputSubscription = useRef<null | EventSubscription>(null)
-  const completeSubscription = useRef<null | EventSubscription>(null)
   const [nodeVersion, setNodeVersion] = useState<string | null>(null)
   const [bunVersion, setBunVersion] = useState<string | null>(null)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
   const [activeTab, setActiveTab] = useState("Example1")
   const pid = useRef<string | null>(null)
+
+  const outputSubscription = useRef<null | EventSubscription>(null)
+  const completeSubscription = useRef<null | EventSubscription>(null)
 
   // const fonts = IRFontList.getFontListSync()
 
@@ -144,12 +144,23 @@ function App(): React.JSX.Element {
   const testLongRunningCommands = () => {
     p("Starting long-running command test...")
 
+    const taskId = `long_task_${Date.now()}`
+
     runTaskWithCommand({
       command: "/sbin/ping",
       args: ["-t 10", "8.8.8.8"],
-      //command: "/bin/bash",
-      //args: ["-c", 'for i in {1..5}; do echo "Test output $i"; sleep 1; done'],
-      taskId: `long_task_${Date.now()}`,
+      taskId,
+    })
+  }
+
+  const stopLongRunningCommands = () => {
+    // Kill all tasks
+    //IRRunShellCommand.killAllTasks()
+
+    // Load running task IDs and kill one by one
+    IRRunShellCommand.getRunningTaskIds().forEach((taskId) => {
+      console.log(`Killing task ${taskId}`)
+      IRRunShellCommand.killTaskWithId(taskId)
     })
   }
 
@@ -243,6 +254,11 @@ function App(): React.JSX.Element {
             title="Test Long Running Commands"
             description="Tests long running command execution"
             onPress={testLongRunningCommands}
+          />
+          <TestCard
+            title="Test Stop Long Running Commands"
+            description="Tests long running command execution"
+            onPress={stopLongRunningCommands}
           />
           <TestCard
             title="Start Node HTTP Server"

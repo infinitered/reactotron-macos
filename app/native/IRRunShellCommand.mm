@@ -206,18 +206,17 @@ RCT_EXPORT_MODULE()
       });
 }
 
-- (BOOL)killTaskWithId:(NSString *)taskId {
+- (NSNumber *)killTaskWithId:(NSString *)taskId {
   NSLog(@"taskId: %@", taskId);
   [self.tasksLock lock];
   NSTask *task = self.runningTasks[taskId];
   if (task && task.isRunning) {
     [task terminate];
     [self.tasksLock unlock];
-    // TODO: return causes crash. Probably because of waitUntilExit or pipes
-    return YES;
+    return @YES;
   }
   [self.tasksLock unlock];
-  return NO;
+  return @NO;
 }
 
 - (void)killAllTasks {
