@@ -15,7 +15,24 @@ try {
 }
 
 const globals: Record<string, unknown> = _load_globals
+const persisted_globals: Record<string, unknown> = _load_globals
 const components_to_rerender: Record<string, Dispatch<SetStateAction<never[]>>[]> = {}
+
+let _save_initiated_at: number = 0
+function save_globals() {
+  storage.set(PERSISTED_KEY, JSON.stringify(persisted_globals))
+  console.tron.log("saved globals", persisted_globals)
+  _save_initiated_at = 0
+}
+
+let _debounce_persist_timeout: NodeJS.Timeout | null = null
+function debounce_persist(delay: number) {
+  if (_save_initiated_at === 0) _save_initiated_at = Date.now()
+  if (Date.now() - _save_initiated_at > delay) return save_globals()
+
+  if (_debounce_persist_timeout) clearTimeout(_debounce_persist_timeout)
+  _debounce_persist_timeout = setTimeout(save_globals, delay)
+}
 
 /**
  * Trying for the simplest possible global state management.
@@ -33,7 +50,7 @@ const components_to_rerender: Record<string, Dispatch<SetStateAction<never[]>>[]
 export function useGlobal<T = unknown>(
   id: string,
   initialValue: T,
-  { persist = true }: UseGlobalOptions = { persist: false },
+  { persist = false }: UseGlobalOptions = {},
 ): [T, (value: T) => void] {
   // Initialize this global if it doesn't exist.
   if (globals[id] === undefined) globals[id] = initialValue
@@ -48,7 +65,11 @@ export function useGlobal<T = unknown>(
   const setValue = useCallback(
     (value: T) => {
       globals[id] = value
-      if (persist) storage.set(PERSISTED_KEY, JSON.stringify(globals))
+      if (persist) {
+        persisted_globals[id] = value
+        // debounce save to mmkv
+        debounce_persist(1000)
+      }
       components_to_rerender[id].forEach((rerender) => rerender([]))
     },
     [globals, id],

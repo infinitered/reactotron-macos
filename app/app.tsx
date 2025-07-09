@@ -13,6 +13,8 @@ import { Tab } from "./components/Tab"
 import Header from "./components/Header"
 import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
+import { useGlobal } from "./state/useGlobal"
+import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -20,12 +22,16 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
+function ReactotronHeader() {
+  const [activeTab] = useGlobal("activeTab", "Example1", { persist: true })
+  return <HeaderTitle title={"Reactotron " + activeTab} />
+}
+
 function App(): React.JSX.Element {
   const [theme, setTheme] = useThemeName()
   const { colors } = useTheme(theme)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
-  // TODO: replace with Zustand or other global state management
   const { isConnected, error } = useServer()
 
   return (
@@ -36,7 +42,7 @@ function App(): React.JSX.Element {
           <Tab label="Example1" />
           <Tab label="Example2" />
         </View>
-        <HeaderTitle title="Reactotron " />
+        <ReactotronHeader />
 
         {/* Status Row */}
         <View style={$statusRow(theme)}>
@@ -47,7 +53,7 @@ function App(): React.JSX.Element {
                 error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
               ]}
             />
-            <Text style={$statusText(theme)}>App Connected</Text>
+            <Text style={$statusText(theme)}>App Connected {IRRunShellCommand.appPID()}</Text>
           </View>
           <View style={$divider(theme)} />
           <View style={$statusItem(theme)}>
