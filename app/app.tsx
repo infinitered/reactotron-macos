@@ -9,7 +9,6 @@ import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-n
 
 import { useData } from "./state/useData"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
-import Stack from "@nkzw/stack/native"
 import { Tab } from "./components/Tab"
 import { useGlobalState } from "./state/useGlobalState"
 
@@ -31,18 +30,18 @@ function App(): React.JSX.Element {
   const { isConnected, error } = useData()
 
   return (
-    <Stack style={{ backgroundColor: colors.background }}>
+    <View style={$container(theme)}>
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <Stack gap={16} horizontalPadding={32} verticalPadding>
+      <View style={$tabContainer(theme)}>
         <Tab activeTab={activeTab} label="Example1" onPress={() => setActiveTab("Example1")} />
         <Tab activeTab={activeTab} label="Example2" onPress={() => setActiveTab("Example2")} />
-      </Stack>
-      <Stack flex1>
+      </View>
+      <View style={$contentContainer(theme)}>
         <ScrollView style={$scrollView(theme)}>
-          <Stack style={$dashboard(theme)} gap={32}>
+          <View style={$dashboard(theme)}>
             {/* Status Row */}
-            <Stack alignCenter style={$statusRow(theme)}>
-              <Stack alignCenter style={$statusItem(theme)}>
+            <View style={$statusRow(theme)}>
+              <View style={$statusItem(theme)}>
                 <View
                   style={[
                     $dot(theme),
@@ -50,27 +49,27 @@ function App(): React.JSX.Element {
                   ]}
                 />
                 <Text style={$statusText(theme)}>App Connected</Text>
-              </Stack>
+              </View>
               <View style={$divider(theme)} />
-              <Stack alignCenter style={$statusItem(theme)}>
+              <View style={$statusItem(theme)}>
                 <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
                 <Text style={$statusText(theme)}>Client Connected</Text>
-              </Stack>
+              </View>
               <View style={$divider(theme)} />
-              <Stack alignCenter style={$statusItem(theme)}>
+              <View style={$statusItem(theme)}>
                 <View
                   style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]}
                 />
                 <Text style={$statusText(theme)}>{arch}</Text>
-              </Stack>
-            </Stack>
+              </View>
+            </View>
 
             {/* Title */}
             <Text style={$title(theme)}>IRRunShellCommand Tests</Text>
-          </Stack>
+          </View>
         </ScrollView>
-      </Stack>
-    </Stack>
+      </View>
+    </View>
   )
 }
 
@@ -78,13 +77,29 @@ function App(): React.JSX.Element {
 //   fontWeight: "700",
 // }
 
+const $container = withTheme<ViewStyle>(({ colors }) => ({
+  flex: 1,
+  backgroundColor: colors.background,
+}))
+
+const $tabContainer = withTheme<ViewStyle>(({ spacing }) => ({
+  flexDirection: "row",
+  paddingHorizontal: spacing.xl,
+  paddingVertical: spacing.md,
+  gap: spacing.md,
+}))
+
+const $contentContainer = withTheme<ViewStyle>(() => ({
+  flex: 1,
+}))
+
 const $scrollView = withTheme<ViewStyle>(() => ({
   flex: 1,
 }))
 
-const $dashboard = withTheme<ViewStyle>(({ colors }) => ({
-  margin: 24,
-  padding: 32,
+const $dashboard = withTheme<ViewStyle>(({ colors, spacing }) => ({
+  margin: spacing.lg,
+  padding: spacing.xl,
   backgroundColor: colors.cardBackground,
   borderRadius: 20,
   borderWidth: 1,
@@ -93,21 +108,26 @@ const $dashboard = withTheme<ViewStyle>(({ colors }) => ({
   shadowOpacity: 0.06,
   shadowRadius: 12,
   shadowOffset: { width: 0, height: 4 },
+  gap: spacing.xl,
 }))
 
-const $statusRow = withTheme<ViewStyle>(() => ({
-  marginBottom: 32,
+const $statusRow = withTheme<ViewStyle>(({ spacing }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: spacing.xl,
 }))
 
 const $statusItem = withTheme<ViewStyle>(() => ({
+  flexDirection: "row",
+  alignItems: "center",
   minWidth: 80,
 }))
 
-const $divider = withTheme<ViewStyle>(({ colors }) => ({
+const $divider = withTheme<ViewStyle>(({ colors, spacing }) => ({
   width: 1,
   height: 24,
   backgroundColor: colors.border,
-  marginHorizontal: 18,
+  marginHorizontal: spacing.md,
   borderRadius: 1,
 }))
 
