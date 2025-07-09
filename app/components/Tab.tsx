@@ -4,7 +4,7 @@ import { useGlobal } from "../state/useGlobal"
 
 export function Tab({ label }: { label: string }) {
   const [theme] = useThemeName()
-  const [activeTab, setActiveTab] = useGlobal("activeTab", label)
+  const [activeTab, setActiveTab] = useGlobal("activeTab", label, { persist: true })
   const active = activeTab === label
 
   return (
