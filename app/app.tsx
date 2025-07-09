@@ -7,66 +7,70 @@
 
 import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
 
-import { useData } from "./state/useData"
+import { useServer } from "./state/useServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { Tab } from "./components/Tab"
-import { useGlobalState } from "./state/useGlobalState"
+import Header from "./components/Header"
+import { HeaderTitle } from "./components/HeaderTitle"
+import ActionButton from "./components/ActionButton"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
   // Load Reactotron client in development only.
-  // Note that you must be using metro's `inlineRequires` for this to work.
-  // If you turn it off in metro.config.js, you'll have to manually import it.
   require("./devtools/ReactotronConfig.ts")
 }
 
 function App(): React.JSX.Element {
-  const [theme] = useThemeName()
+  const [theme, setTheme] = useThemeName()
   const { colors } = useTheme(theme)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
-  const [activeTab, setActiveTab] = useGlobalState("activeTab", "Example1")
 
   // TODO: replace with Zustand or other global state management
-  const { isConnected, error } = useData()
+  const { isConnected, error } = useServer()
 
   return (
     <View style={$container(theme)}>
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <View style={$tabContainer(theme)}>
-        <Tab activeTab={activeTab} label="Example1" onPress={() => setActiveTab("Example1")} />
-        <Tab activeTab={activeTab} label="Example2" onPress={() => setActiveTab("Example2")} />
-      </View>
+      <Header>
+        <View style={$tabContainer(theme)}>
+          <Tab label="Example1" />
+          <Tab label="Example2" />
+        </View>
+        <HeaderTitle title="Reactotron " />
+
+        {/* Status Row */}
+        <View style={$statusRow(theme)}>
+          <View style={$statusItem(theme)}>
+            <View
+              style={[
+                $dot(theme),
+                error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
+              ]}
+            />
+            <Text style={$statusText(theme)}>App Connected</Text>
+          </View>
+          <View style={$divider(theme)} />
+          <View style={$statusItem(theme)}>
+            <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
+            <Text style={$statusText(theme)}>Client Connected</Text>
+          </View>
+          <View style={$divider(theme)} />
+          <View style={$statusItem(theme)}>
+            <View style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]} />
+            <Text style={$statusText(theme)}>{arch}</Text>
+          </View>
+        </View>
+        <ActionButton
+          icon={({ size }) => (
+            <Text style={{ fontSize: size }}>{theme === "dark" ? "🌙" : "☀️"}</Text>
+          )}
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        />
+      </Header>
+
       <View style={$contentContainer(theme)}>
         <ScrollView style={$scrollView(theme)}>
-          <View style={$dashboard(theme)}>
-            {/* Status Row */}
-            <View style={$statusRow(theme)}>
-              <View style={$statusItem(theme)}>
-                <View
-                  style={[
-                    $dot(theme),
-                    error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
-                  ]}
-                />
-                <Text style={$statusText(theme)}>App Connected</Text>
-              </View>
-              <View style={$divider(theme)} />
-              <View style={$statusItem(theme)}>
-                <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
-                <Text style={$statusText(theme)}>Client Connected</Text>
-              </View>
-              <View style={$divider(theme)} />
-              <View style={$statusItem(theme)}>
-                <View
-                  style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]}
-                />
-                <Text style={$statusText(theme)}>{arch}</Text>
-              </View>
-            </View>
-
-            {/* Title */}
-            <Text style={$title(theme)}>IRRunShellCommand Tests</Text>
-          </View>
+          <View style={$dashboard(theme)}></View>
         </ScrollView>
       </View>
     </View>
@@ -114,7 +118,8 @@ const $dashboard = withTheme<ViewStyle>(({ colors, spacing }) => ({
 const $statusRow = withTheme<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   alignItems: "center",
-  marginBottom: spacing.xl,
+  padding: spacing.sm,
+  justifyContent: "center",
 }))
 
 const $statusItem = withTheme<ViewStyle>(() => ({

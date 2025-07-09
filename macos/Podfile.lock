@@ -1239,6 +1239,27 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
+  - react-native-mmkv (3.3.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - React-NativeModulesApple (0.78.3):
     - glog
     - hermes-engine
@@ -1569,6 +1590,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native-macos/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native-macos/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native-macos/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - React-NativeModulesApple (from `../node_modules/react-native-macos/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native-macos/ReactCommon/reactperflogger`)
   - React-performancetimeline (from `../node_modules/react-native-macos/ReactCommon/react/performance/timeline`)
@@ -1676,6 +1698,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-macos/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native-macos/ReactCommon/react/nativemodule/microtasks"
+  react-native-mmkv:
+    :path: "../node_modules/react-native-mmkv"
   React-NativeModulesApple:
     :path: "../node_modules/react-native-macos/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -1775,6 +1799,7 @@ SPEC CHECKSUMS:
   React-logger: 403502d548fbc097ab2c5a783ca98f5e84390bad
   React-Mapbuffer: 3815edc6553967769cdd5e9127284926416270f0
   React-microtasksnativemodule: e6cb4584ab49af3ecb0c13b5909c9fe0ce969ea9
+  react-native-mmkv: c969437e688f281c34d90310d5e05bbd5f8732a1
   React-NativeModulesApple: f3c2e2ce112c5f1cc4f163176924418d446a6e6a
   React-perflogger: 3756bfe3ff8cc8fffed3c51dce34cef861d4b82a
   React-performancetimeline: c4678b2226a660268cc478662ffc43a2ab1b5d30

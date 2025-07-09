@@ -1,6 +1,6 @@
 import { ViewStyle } from "react-native"
 import { colorsLight, colorsDark, type Colors } from "./colors"
-import { useGlobalState } from "../state/useGlobalState"
+import { useGlobal } from "../state/useGlobal"
 import { Spacing, spacing } from "./spacing"
 import { Typography, typography } from "./typography"
 import { Timing, timing } from "./timing"
@@ -36,5 +36,5 @@ export function withTheme<T = ViewStyle>(style: ComponentStyle<T>): ThemedStyle<
 }
 
 export function useThemeName(): [ThemeName, (value: ThemeName) => void] {
-  return useGlobalState<ThemeName>("theme", "light")
+  return useGlobal<ThemeName>("theme", "light")
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 
-export function useData(props: { port: number } = { port: 9292 }) {
+export function useServer(props: { port: number } = { port: 9292 }) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 

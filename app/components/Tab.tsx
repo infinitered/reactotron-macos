@@ -1,39 +1,32 @@
-import { Pressable, Text, TextStyle } from "react-native"
+import { Pressable, Text, TextStyle, View, ViewStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
+import { useGlobal } from "../state/useGlobal"
 
-export function Tab({
-  activeTab,
-  label,
-  onPress,
-}: {
-  activeTab: string
-  label: string
-  onPress: () => void
-}) {
+export function Tab({ label }: { label: string }) {
   const [theme] = useThemeName()
+  const [activeTab, setActiveTab] = useGlobal("activeTab", label)
+  const active = activeTab === label
+
   return (
-    <Pressable onPress={onPress}>
-      <Text style={activeTab === "Example1" ? $tabActive(theme) : $tabInactive(theme)}>
-        {label}
-      </Text>
+    <Pressable onPress={() => setActiveTab(label)}>
+      <Text style={[$tab(theme), active ? $tabActive(theme) : {}]}>{label}</Text>
     </Pressable>
   )
 }
 
-const $tabActive = withTheme<TextStyle>(({ colors, spacing }) => ({
+const $tab = withTheme<ViewStyle>(({ spacing, colors }) => ({
   fontSize: spacing.md,
-  borderBottomWidth: 3,
+  color: colors.mainText,
+  borderWidth: 3,
+  borderColor: colors.border,
+  borderStyle: "solid",
   paddingBottom: spacing.xxs,
   marginRight: spacing.md,
-  color: colors.mainText,
-  borderBottomColor: colors.mainText,
+  cursor: "pointer",
 }))
 
-const $tabInactive = withTheme<TextStyle>(({ colors, spacing }) => ({
-  fontSize: spacing.md,
+const $tabActive = withTheme<TextStyle>(({ colors, spacing }) => ({
+  borderBottomColor: colors.primary,
   color: colors.mainText,
-  borderBottomWidth: 3,
-  borderBottomColor: "transparent",
-  paddingBottom: spacing.xxs,
-  marginRight: spacing.md,
+  textDecorationLine: "underline",
 }))
