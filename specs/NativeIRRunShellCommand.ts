@@ -18,6 +18,9 @@ export interface Spec extends TurboModule {
   runSync(command: string): string
   runCommandOnShutdown(command: string): void
   runTaskWithCommand(command: string, args: ReadonlyArray<string>, taskId: string): void
+  getRunningTaskIds(): ReadonlyArray<string>
+  killTaskWithId(taskId: string): boolean
+  killAllTasks(): void
   readonly onShellCommandOutput: EventEmitter<ShellCommandOutputEvent>
   readonly onShellCommandComplete: EventEmitter<ShellCommandCompleteEvent>
 }

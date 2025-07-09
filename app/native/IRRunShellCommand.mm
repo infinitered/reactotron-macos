@@ -12,6 +12,8 @@
 @interface IRRunShellCommand ()
 
 @property (nonatomic, strong) NSMutableArray<NSString *> *shutdownCommands;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSTask *> *runningTasks;
+@property (nonatomic, strong) NSLock *tasksLock;
 
 @end
 
@@ -22,6 +24,16 @@ RCT_EXPORT_MODULE()
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
   return std::make_shared<facebook::react::NativeIRRunShellCommandSpecJSI>(params);
 }
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _runningTasks = [NSMutableDictionary dictionary];
+        _tasksLock = [[NSLock alloc] init];
+    }
+    return self;
+}
+
 
 // Below this are the interfaces that can be called from JS.
 
@@ -100,6 +112,11 @@ RCT_EXPORT_MODULE()
           NSTask *task = [NSTask new];
           task.executableURL = [NSURL fileURLWithPath:command];
           task.arguments = args;
+
+          [self.tasksLock lock];
+          self.runningTasks[taskId] = task;
+          [self.tasksLock unlock];
+
           NSPipe *outPipe = [NSPipe pipe];
           NSPipe *errPipe = [NSPipe pipe];
           task.standardOutput = outPipe;
@@ -114,7 +131,6 @@ RCT_EXPORT_MODULE()
                 NSData *d = h.availableData;
                 if (d.length == 0)
                   return;
-
                 NSString *output =
                     [[NSString alloc] initWithData:d
                                           encoding:NSUTF8StringEncoding];
@@ -145,6 +161,11 @@ RCT_EXPORT_MODULE()
             completed = YES;
             [completionLock unlock];
 
+            // Remove from running tasks
+            [self.tasksLock lock];
+            [self.runningTasks removeObjectForKey:taskId];
+            [self.tasksLock unlock];
+
             outPipe.fileHandleForReading.readabilityHandler = nil;
             errPipe.fileHandleForReading.readabilityHandler = nil;
 
@@ -162,6 +183,10 @@ RCT_EXPORT_MODULE()
             completed = YES;
             [completionLock unlock];
 
+            [self.tasksLock lock];
+            [self.runningTasks removeObjectForKey:taskId];
+            [self.tasksLock unlock];
+
             dispatch_async(dispatch_get_main_queue(), ^{
               [self emitOnShellCommandOutput:@{
                 @"taskId" : taskId,
@@ -173,13 +198,51 @@ RCT_EXPORT_MODULE()
                 @"exitCode" : @(-1)
               }];
             });
-
             return;
           }
 
           [task waitUntilExit];
         }
       });
+}
+
+- (BOOL)killTaskWithId:(NSString *)taskId {
+  NSLog(@"taskId: %@", taskId);
+  [self.tasksLock lock];
+  NSTask *task = self.runningTasks[taskId];
+  if (task && task.isRunning) {
+    [task terminate];
+    [self.tasksLock unlock];
+    // TODO: return causes crash. Probably because of waitUntilExit or pipes
+    return YES;
+  }
+  [self.tasksLock unlock];
+  return NO;
+}
+
+- (void)killAllTasks {
+  [self.tasksLock lock];
+  NSArray *taskIds = [self.runningTasks allKeys];
+  for (NSString *taskId in taskIds) {
+    NSTask *task = self.runningTasks[taskId];
+    if (task && task.isRunning) {
+      [task terminate];
+    }
+  }
+  [self.tasksLock unlock];
+}
+
+- (NSArray<NSString *> *)getRunningTaskIds {
+  [self.tasksLock lock];
+  NSMutableArray *runningIds = [NSMutableArray array];
+  for (NSString *taskId in self.runningTasks) {
+    NSTask *task = self.runningTasks[taskId];
+    if (task && task.isRunning) {
+      [runningIds addObject:taskId];
+    }
+  }
+  [self.tasksLock unlock];
+  return [runningIds copy];
 }
 
 /**
