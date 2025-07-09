@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react"
 import { View, ViewStyle } from "react-native"
+import { colors } from "../theme/colors"
 
 export interface HeaderProps {}
 
@@ -17,8 +18,8 @@ export function Header(props: PropsWithChildren<HeaderProps>) {
 }
 
 const $container: ViewStyle = {
-  backgroundColor: "#F3F3F3",
-  borderBottomColor: "#E0E0E0",
+  backgroundColor: colors.secondaryLight,
+  borderBottomColor: colors.border,
   borderBottomWidth: 1,
   elevation: 3,
   shadowColor: "#000",

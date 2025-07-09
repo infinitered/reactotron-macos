@@ -5,19 +5,14 @@
  * @format
  */
 
-import { useEffect, useRef, useState } from "react"
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
-  ViewStyle,
-  TextStyle,
-  TouchableOpacity,
-} from "react-native"
+import { useState } from "react"
+import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle, Pressable } from "react-native"
 
-import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
 import { useData } from "./state/useData"
+import { useTheme, useThemeName, withTheme } from "./theme/theme"
+import Stack from "@nkzw/stack"
+import { Tab } from "./components/Tab"
+import { useGlobalState } from "./state/useGlobalState"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -27,79 +22,54 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-interface TestCardProps {
-  title: string
-  description: string
-  onPress: () => void
-}
-
-function TestCard(props: TestCardProps) {
-  return (
-    <View style={$testCardContainer}>
-      <View style={$testCard}>
-        <View style={$testAccentBar} />
-        <View style={$testCardContent}>
-          <TouchableOpacity style={$button} onPress={props.onPress}>
-            <Text style={$buttonText}>▶️ Run</Text>
-          </TouchableOpacity>
-          <View style={$testCardText}>
-            <Text style={$testLabel}>{props.title}</Text>
-            <Text style={$testDesc}>{props.description}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  )
-}
-
 function App(): React.JSX.Element {
+  const [theme] = useThemeName()
+  const { colors } = useTheme(theme)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
-  const [activeTab, setActiveTab] = useState("Example1")
+  const [activeTab, setActiveTab] = useGlobalState("activeTab", "Example1")
 
-  // TODO: replace with Zustand
+  // TODO: replace with Zustand or other global state management
   const { isConnected, error } = useData()
 
   return (
-    <View style={$root}>
+    <Stack style={{ backgroundColor: colors.background }}>
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      {/* Tabs */}
-      <View style={$tabBar}>
-        <TouchableOpacity onPress={() => setActiveTab("Example1")}>
-          <Text style={activeTab === "Example1" ? $tabActive : $tabInactive}>Example1</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setActiveTab("Example2")}>
-          <Text style={activeTab === "Example2" ? $tabActive : $tabInactive}>Example2</Text>
-        </TouchableOpacity>
-      </View>
-      <ScrollView style={$scrollView}>
-        <View style={$dashboard}>
+      <Stack gap={16} horizontalPadding={32} verticalPadding>
+        <Tab activeTab={activeTab} label="Example1" onPress={() => setActiveTab("Example1")} />
+        <Tab activeTab={activeTab} label="Example2" onPress={() => setActiveTab("Example2")} />
+      </Stack>
+      <ScrollView style={$scrollView(theme)}>
+        <View style={$dashboard(theme)}>
           {/* Status Row */}
-          <View style={$statusRow}>
-            <View style={$statusItem}>
-              <View style={[$dot, error ? $dotRed : isConnected ? $dotGreen : $dotGray]} />
-              <Text style={$statusText}>App Connected</Text>
+          <View style={$statusRow(theme)}>
+            <View style={$statusItem(theme)}>
+              <View
+                style={[
+                  $dot(theme),
+                  error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
+                ]}
+              />
+              <Text style={$statusText(theme)}>App Connected</Text>
             </View>
-            <View style={$divider} />
-            <View style={$statusItem}>
-              <View style={[$dot, false ? $dotGreen : $dotGray]} />
-              <Text style={$statusText}>Client Connected</Text>
+            <View style={$divider(theme)} />
+            <View style={$statusItem(theme)}>
+              <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
+              <Text style={$statusText(theme)}>Client Connected</Text>
             </View>
-            <View style={$divider} />
-            <View style={$statusItem}>
-              <View style={[$dot, arch === "Fabric" ? $dotGreen : $dotOrange]} />
-              <Text style={$statusText}>{arch}</Text>
+            <View style={$divider(theme)} />
+            <View style={$statusItem(theme)}>
+              <View
+                style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]}
+              />
+              <Text style={$statusText(theme)}>{arch}</Text>
             </View>
           </View>
 
           {/* Title */}
-          <Text style={$title}>IRRunShellCommand Tests</Text>
+          <Text style={$title(theme)}>IRRunShellCommand Tests</Text>
         </View>
       </ScrollView>
-    </View>
+    </Stack>
   )
 }
 
@@ -107,59 +77,14 @@ function App(): React.JSX.Element {
 //   fontWeight: "700",
 // }
 
-// --- Styles ---
-const colors = {
-  background: "#FAFAFA",
-  card: "#FFF",
-  border: "#E0E0E0",
-  orange: "#FF8800",
-  orangeLight: "#FFF3E0",
-  gray: "#888",
-  grayLight: "#F5F5F5",
-  green: "#3DDC91",
-  red: "#FF5252",
-}
-
-const $root: ViewStyle = {
+const $scrollView = withTheme<ViewStyle>(({ colors }) => ({
   flex: 1,
-  backgroundColor: colors.background,
-}
+}))
 
-const $tabBar: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-  paddingHorizontal: 32,
-  paddingTop: 18,
-  paddingBottom: 8,
-  gap: 16,
-}
-const $tabActive: TextStyle = {
-  fontSize: 16,
-  fontWeight: "700",
-  color: colors.orange,
-  borderBottomWidth: 3,
-  borderBottomColor: colors.orange,
-  paddingBottom: 6,
-  marginRight: 16,
-}
-const $tabInactive: TextStyle = {
-  fontSize: 16,
-  fontWeight: "500",
-  color: colors.gray,
-  borderBottomWidth: 3,
-  borderBottomColor: "transparent",
-  paddingBottom: 6,
-  marginRight: 16,
-}
-
-const $scrollView: ViewStyle = {
-  flex: 1,
-}
-
-const $dashboard: ViewStyle = {
+const $dashboard = withTheme<ViewStyle>(({ colors }) => ({
   margin: 24,
   padding: 32,
-  backgroundColor: colors.card,
+  backgroundColor: colors.cardBackground,
   borderRadius: 20,
   borderWidth: 1,
   borderColor: colors.border,
@@ -167,122 +92,57 @@ const $dashboard: ViewStyle = {
   shadowOpacity: 0.06,
   shadowRadius: 12,
   shadowOffset: { width: 0, height: 4 },
-}
+}))
 
-const $statusRow: ViewStyle = {
+const $statusRow = withTheme<ViewStyle>(({}) => ({
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "flex-start",
   marginBottom: 32,
   gap: 0,
-}
-const $statusItem: ViewStyle = {
+}))
+
+const $statusItem = withTheme<ViewStyle>(({}) => ({
   flexDirection: "row",
   alignItems: "center",
   minWidth: 80,
   justifyContent: "center",
-}
-const $divider: ViewStyle = {
+}))
+
+const $divider = withTheme<ViewStyle>(({ colors }) => ({
   width: 1,
   height: 24,
   backgroundColor: colors.border,
   marginHorizontal: 18,
   borderRadius: 1,
-}
-const $dot: ViewStyle = {
+}))
+
+const $dot = withTheme<ViewStyle>(({ colors }) => ({
   width: 12,
   height: 12,
   borderRadius: 6,
   marginRight: 8,
   borderWidth: 1,
   borderColor: colors.border,
-}
-const $dotGray: ViewStyle = { backgroundColor: colors.gray }
-const $dotGreen: ViewStyle = { backgroundColor: colors.green }
-const $dotRed: ViewStyle = { backgroundColor: colors.red }
-const $dotOrange: ViewStyle = { backgroundColor: colors.orange }
-const $statusText: TextStyle = {
-  fontSize: 16,
-  color: colors.gray,
-  fontWeight: "600",
-}
+}))
+const $dotGray = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.neutral }))
+const $dotGreen = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.success }))
+const $dotRed = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.danger }))
+const $dotOrange = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.primary }))
 
-const $title: TextStyle = {
+const $statusText = withTheme<TextStyle>(({ colors }) => ({
+  fontSize: 16,
+  color: colors.mainText,
+  fontWeight: "600",
+}))
+
+const $title = withTheme<TextStyle>(({ colors }) => ({
   fontSize: 22,
   fontWeight: "bold",
   marginBottom: 28,
   textAlign: "center",
-  color: colors.gray,
+  color: colors.mainText,
   letterSpacing: 0.2,
-}
-
-const $testCardContainer: ViewStyle = {
-  gap: 24,
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  justifyContent: "space-between",
-}
-
-const $testCard: ViewStyle = {
-  flex: 1,
-  flexDirection: "row",
-  alignItems: "stretch",
-  backgroundColor: colors.grayLight,
-  borderRadius: 14,
-  marginBottom: 24,
-  shadowColor: "#000",
-  shadowOpacity: 0.03,
-  shadowRadius: 6,
-  shadowOffset: { width: 0, height: 2 },
-  overflow: "hidden",
-}
-const $testAccentBar: ViewStyle = {
-  width: 6,
-  backgroundColor: colors.green,
-  borderTopLeftRadius: 14,
-  borderBottomLeftRadius: 14,
-}
-const $testCardContent: ViewStyle = {
-  flex: 1,
-  padding: 18,
-  justifyContent: "space-between",
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 16,
-}
-const $testCardText: ViewStyle = {
-  flex: 1,
-  justifyContent: "center",
-}
-const $testLabel: TextStyle = {
-  fontSize: 17,
-  fontWeight: "700",
-  marginBottom: 4,
-  color: colors.gray,
-}
-const $testDesc: TextStyle = {
-  fontSize: 14,
-  color: colors.gray,
-  marginBottom: 16,
-}
-const $button: ViewStyle = {
-  backgroundColor: colors.orange,
-  borderRadius: 8,
-  paddingVertical: 12,
-  paddingHorizontal: 18,
-  alignSelf: "flex-start",
-  marginTop: 2,
-  shadowColor: colors.orange,
-  shadowOpacity: 0.08,
-  shadowRadius: 4,
-  shadowOffset: { width: 0, height: 2 },
-}
-const $buttonText: TextStyle = {
-  color: "#FFF",
-  fontWeight: "bold",
-  fontSize: 16,
-  letterSpacing: 0.2,
-}
+}))
 
 export default App
