@@ -45,6 +45,13 @@ RCT_EXPORT_MODULE()
 }
 
 /**
+ * Returns the PID of the app.
+ */
+- (NSNumber *)appPID {
+  return [NSNumber numberWithInteger:[[NSProcessInfo processInfo] processIdentifier]];
+}
+
+/**
  * This method runs a command and returns the output as a string.
  * It's async, so use it for long-running commands.
  */
