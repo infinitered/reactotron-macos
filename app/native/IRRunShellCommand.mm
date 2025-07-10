@@ -26,12 +26,12 @@ RCT_EXPORT_MODULE()
 }
 
 - (instancetype)init {
-    self = [super init];
-    if (self) {
-        _runningTasks = [NSMutableDictionary dictionary];
-        _tasksLock = [[NSLock alloc] init];
-    }
-    return self;
+  self = [super init];
+  if (self) {
+    _runningTasks = [NSMutableDictionary dictionary];
+    _tasksLock = [[NSLock alloc] init];
+  }
+  return self;
 }
 
 
@@ -67,161 +67,119 @@ RCT_EXPORT_MODULE()
   });
 }
 
-// /**
-//  * This method runs a command and returns the process ID so it can be killed later.
-//  */
-// - (void)runAsync:(NSString *)command getPID:(nonnull pid_t *)outPID resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
-//   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//     @try {
-//       // Use popen to get the PID
-//       NSString *pidCommand = [NSString stringWithFormat:@"%@ & echo $!", command];
-//       FILE *pipe = popen([pidCommand UTF8String], "r");
-//       if (!pipe) {
-//         dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to start command", nil); });
-//         return;
-//       }
-
-//       // Get the PID of the child process
-//       // pid_t pid = _get_pid(pipe);
-//       // if (pid == -1) {
-//       //     NSLog(@"Failed to retrieve PID.");
-//       // } else {
-//       //     NSLog(@"Child process PID: %d", pid);
-//       //     if (outPID) {
-//       //         *outPID = pid; // Pass the PID back to the caller
-//       //     }
-//       // }
-      
-//       char buffer[128];
-//       NSString *pidString = @"";
-//       if (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-//         pidString = [NSString stringWithUTF8String:buffer];
-//         pidString = [pidString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-//       }
-//       pclose(pipe);
-      
-//       if (pidString.length > 0) {
-//         dispatch_async(dispatch_get_main_queue(), ^{ 
-//           resolve(@{@"pid": pidString, @"command": command}); 
-//         });
-//       } else {
-//         dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", @"Failed to get PID", nil); });
-//       }
-//     } @catch (NSException *exception) {
-//       dispatch_async(dispatch_get_main_queue(), ^{ reject(@"command_error", exception.reason, nil); });
-//     }
-//   });
-// }
-
 - (NSString *)runSync:(NSString *)command {
   return [self _run_c:command];
 }
+
+/*
+ * Executes a shell command asynchronously on a background queue.
+ * Captures both stdout and stderr streams, and emits events with their output and completion status.
+ */
 
 - (void)runTaskWithCommand:(NSString *)command
                       args:(NSArray<NSString *> *)args
                     taskId:(NSString *)taskId {
   dispatch_async(
-      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        @autoreleasepool {
-          NSTask *task = [NSTask new];
-          task.executableURL = [NSURL fileURLWithPath:command];
-          task.arguments = args;
+                 dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                   @autoreleasepool {
+                     NSTask *task = [NSTask new];
+                     task.executableURL = [NSURL fileURLWithPath:command];
+                     task.arguments = args;
 
-          [self.tasksLock lock];
-          self.runningTasks[taskId] = task;
-          [self.tasksLock unlock];
+                     [self.tasksLock lock];
+                     self.runningTasks[taskId] = task;
+                     [self.tasksLock unlock];
 
-          NSPipe *outPipe = [NSPipe pipe];
-          NSPipe *errPipe = [NSPipe pipe];
-          task.standardOutput = outPipe;
-          task.standardError = errPipe;
+                     NSPipe *outPipe = [NSPipe pipe];
+                     NSPipe *errPipe = [NSPipe pipe];
+                     task.standardOutput = outPipe;
+                     task.standardError = errPipe;
 
-          __block BOOL completed = NO;
-          __block NSLock *completionLock = [[NSLock alloc] init];
+                     __block BOOL completed = NO;
+                     __block NSLock *completionLock = [[NSLock alloc] init];
 
-          auto pump = ^(NSPipe *pipe, NSString *stream) {
-            pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *h) {
-              @autoreleasepool {
-                NSData *d = h.availableData;
-                if (d.length == 0)
-                  return;
-                NSString *output =
-                    [[NSString alloc] initWithData:d
-                                          encoding:NSUTF8StringEncoding];
-                if (output && !completed) {
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                    if (!completed) {
-                      [self emitOnShellCommandOutput:@{
-                        @"taskId" : taskId,
-                        @"output" : output,
-                        @"type" : stream
-                      }];
-                    }
-                  });
-                }
-              }
-            };
-          };
+                     auto pump = ^(NSPipe *pipe, NSString *stream) {
+                       pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *h) {
+                         @autoreleasepool {
+                           NSData *d = h.availableData;
+                           if (d.length == 0)
+                             return;
+                           NSString *output =
+                           [[NSString alloc] initWithData:d
+                                                 encoding:NSUTF8StringEncoding];
+                           if (output && !completed) {
+                             dispatch_async(dispatch_get_main_queue(), ^{
+                               if (!completed) {
+                                 [self emitOnShellCommandOutput:@{
+                                  @"taskId" : taskId,
+                                  @"output" : output,
+                                  @"type" : stream
+                                 }];
+                               }
+                             });
+                           }
+                         }
+                       };
+                     };
 
-          pump(outPipe, @"stdout");
-          pump(errPipe, @"stderr");
+                     pump(outPipe, @"stdout");
+                     pump(errPipe, @"stderr");
 
-          task.terminationHandler = ^(NSTask *t) {
-            [completionLock lock];
-            if (completed) {
-              [completionLock unlock];
-              return;
-            }
-            completed = YES;
-            [completionLock unlock];
+                     task.terminationHandler = ^(NSTask *t) {
+                       [completionLock lock];
+                       if (completed) {
+                         [completionLock unlock];
+                         return;
+                       }
+                       completed = YES;
+                       [completionLock unlock];
 
-            // Remove from running tasks
-            [self.tasksLock lock];
-            [self.runningTasks removeObjectForKey:taskId];
-            [self.tasksLock unlock];
+                       // Remove from running tasks
+                       [self.tasksLock lock];
+                       [self.runningTasks removeObjectForKey:taskId];
+                       [self.tasksLock unlock];
 
-            outPipe.fileHandleForReading.readabilityHandler = nil;
-            errPipe.fileHandleForReading.readabilityHandler = nil;
+                       outPipe.fileHandleForReading.readabilityHandler = nil;
+                       errPipe.fileHandleForReading.readabilityHandler = nil;
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-              [self emitOnShellCommandComplete:@{
-                @"taskId" : taskId,
-                @"exitCode" : @(t.terminationStatus)
-              }];
-            });
-          };
+                       dispatch_async(dispatch_get_main_queue(), ^{
+                         [self emitOnShellCommandComplete:@{
+                          @"taskId" : taskId,
+                          @"exitCode" : @(t.terminationStatus)
+                         }];
+                       });
+                     };
 
-          NSError *err = nil;
-          if (![task launchAndReturnError:&err]) {
-            [completionLock lock];
-            completed = YES;
-            [completionLock unlock];
+                     NSError *err = nil;
+                     if (![task launchAndReturnError:&err]) {
+                       [completionLock lock];
+                       completed = YES;
+                       [completionLock unlock];
 
-            [self.tasksLock lock];
-            [self.runningTasks removeObjectForKey:taskId];
-            [self.tasksLock unlock];
+                       [self.tasksLock lock];
+                       [self.runningTasks removeObjectForKey:taskId];
+                       [self.tasksLock unlock];
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-              [self emitOnShellCommandOutput:@{
-                @"taskId" : taskId,
-                @"output" : err.localizedDescription ?: @"launch error",
-                @"type" : @"stderr"
-              }];
-              [self emitOnShellCommandComplete:@{
-                @"taskId" : taskId,
-                @"exitCode" : @(-1)
-              }];
-            });
-            return;
-          }
+                       dispatch_async(dispatch_get_main_queue(), ^{
+                         [self emitOnShellCommandOutput:@{
+                          @"taskId" : taskId,
+                          @"output" : err.localizedDescription ?: @"launch error",
+                          @"type" : @"stderr"
+                         }];
+                         [self emitOnShellCommandComplete:@{
+                          @"taskId" : taskId,
+                          @"exitCode" : @(-1)
+                         }];
+                       });
+                       return;
+                     }
 
-          [task waitUntilExit];
-        }
-      });
+                     [task waitUntilExit];
+                   }
+                 });
 }
 
 - (NSNumber *)killTaskWithId:(NSString *)taskId {
-  NSLog(@"taskId: %@", taskId);
   [self.tasksLock lock];
   NSTask *task = self.runningTasks[taskId];
   if (task && task.isRunning) {
@@ -260,25 +218,25 @@ RCT_EXPORT_MODULE()
 
 /**
  * This method runs a command and returns the output as a string.
- * It's pretty darn fast, mostly written in C. 
+ * It's pretty darn fast, mostly written in C.
  */
 - (NSString *)_run_c:(NSString *)command {
   // Open a pipe to run the command
   FILE *pipe = popen([command UTF8String], "r");
   if (!pipe) return @"";
-  
+
   // Allocate a buffer to store the output
   char *buffer = (char *)malloc(1024);
   // Initial capacity is 1024 bytes, but we'll grow it as needed
   size_t capacity = 1024;
   // Current length
   size_t length = 0;
-  
+
   // TODO: Limit the output to 2MB and then start dropping output from the middle.
 
   // Temporary 128 byte buffer to read chunks from the output
   char temp_buffer[128];
-  
+
   // loop while the command is running
   while (fgets(temp_buffer, sizeof(temp_buffer), pipe) != NULL) {
     // Get the length of the total output so far
@@ -298,16 +256,16 @@ RCT_EXPORT_MODULE()
     // Add the length of the current chunk to the total length
     length += chunk_len;
   }
-  
+
   // Close and deallocate the pipe
   pclose(pipe);
-  
+
   // Convert the buffer to an NSString so we can return it
   NSString *result = [[NSString alloc] initWithBytes:buffer length:length encoding:NSUTF8StringEncoding] ?: @"";
-  
+
   // Free the buffer to avoid memory leaks
   free(buffer);
-  
+
   return result;
 }
 
@@ -317,10 +275,10 @@ RCT_EXPORT_MODULE()
 
     // Register for the NSApplicationWillTerminateNotification
     [[NSNotificationCenter defaultCenter]
-      addObserver:self
-      selector:@selector(_handleAppTermination:)
-      name:NSApplicationWillTerminateNotification
-      object:nil
+     addObserver:self
+     selector:@selector(_handleAppTermination:)
+     name:NSApplicationWillTerminateNotification
+     object:nil
     ];
   }
   [self.shutdownCommands addObject:command];
