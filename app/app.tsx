@@ -15,6 +15,8 @@ import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
+import { getAppMemUsage } from "./utils/system"
+import { useEffect, useState } from "react"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -31,6 +33,15 @@ function App(): React.JSX.Element {
   const [theme, setTheme] = useThemeName()
   const { colors } = useTheme(theme)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
+
+  const [appMemUsage, setAppMemUsage] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const memUsage = await getAppMemUsage()
+      setAppMemUsage(memUsage / 1024)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const { isConnected, error } = useServer()
 
@@ -53,7 +64,9 @@ function App(): React.JSX.Element {
                 error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
               ]}
             />
-            <Text style={$statusText(theme)}>App Connected {IRRunShellCommand.appPID()}</Text>
+            <Text style={$statusText(theme)}>
+              App Connected {IRRunShellCommand.appPID()} {appMemUsage.toFixed(1)}MB
+            </Text>
           </View>
           <View style={$divider(theme)} />
           <View style={$statusItem(theme)}>
