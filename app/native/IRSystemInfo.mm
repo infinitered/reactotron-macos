@@ -34,7 +34,7 @@ RCT_EXPORT_MODULE()
     [self.monitoringTimer invalidate];
     self.monitoringTimer = [NSTimer scheduledTimerWithTimeInterval:_samplingInterval
                                                             target:self
-                                                          selector:@selector(logMemoryUsage)
+                                                          selector:@selector(monitorAllSystemInfo)
                                                           userInfo:nil
                                                            repeats:YES];
   }
@@ -47,7 +47,7 @@ RCT_EXPORT_MODULE()
   dispatch_async(dispatch_get_main_queue(), ^{
     self.monitoringTimer = [NSTimer scheduledTimerWithTimeInterval:self.samplingInterval
                                                             target:self
-                                                          selector:@selector(logMemoryUsage)
+                                                          selector:@selector(monitorAllSystemInfo)
                                                           userInfo:nil
                                                            repeats:YES];
   });
@@ -63,23 +63,76 @@ RCT_EXPORT_MODULE()
   }
 }
 
-- (void)logMemoryUsage {
+- (void)monitorAllSystemInfo {
+  NSDictionary *mem = [self logMemoryUsage];
+  NSNumber *cpu = [self logCPUUsage];
+
+  [self emitOnSystemInfo:@{
+    @"rss": mem[@"rss"],
+    @"vsz": mem[@"vsz"],
+    @"cpu": cpu,
+  }];
+}
+
+- (nullable NSDictionary<NSString*, NSNumber*> *)logMemoryUsage {
   task_t task = mach_task_self();
   mach_task_basic_info info;
   mach_msg_type_number_t count = MACH_TASK_BASIC_INFO_COUNT;
+  kern_return_t kern_return = task_info(task,
+                                        MACH_TASK_BASIC_INFO,
+                                        (task_info_t)&info,
+                                        &count);
 
-  if (task_info(task, MACH_TASK_BASIC_INFO, (task_info_t)&info, &count) == KERN_SUCCESS) {
-    double rss_mb = (double)info.resident_size / (1024.0 * 1024.0);
-    double vsz_mb = (double)info.virtual_size / (1024.0 * 1024.0);
-    NSLog(@"[IRSystemInfo] Memory Usage - RSS: %.2f MB, VSZ: %.2f MB", rss_mb, vsz_mb);
-    [self emitOnSystemInfo:@{
-      @"rss" : [NSNumber numberWithDouble: rss_mb],
-      @"vsz" : [NSNumber numberWithDouble: vsz_mb],
-    }];
-
-  } else {
+  if (kern_return != KERN_SUCCESS) {
     NSLog(@"[IRSystemInfo] Failed to get memory information.");
+    return nil;
   }
+
+  double rss_mb = (double)info.resident_size / (1024.0 * 1024.0);
+  double vsz_mb = (double)info.virtual_size / (1024.0 * 1024.0);
+
+  NSLog(@"[IRSystemInfo] Memory Usage - RSS: %.2f MB, VSZ: %.2f MB", rss_mb,
+        vsz_mb);
+
+  NSDictionary<NSString *, NSNumber *> *result =
+  @{@"rss" : @(rss_mb), @"vsz" : @(vsz_mb)};
+
+  return result;
+}
+
+- (NSNumber *)logCPUUsage {
+  task_t task = mach_task_self();
+  thread_array_t threads;
+  mach_msg_type_number_t count;
+
+  if (task_threads(task, &threads, &count) != KERN_SUCCESS) {
+    NSLog(@"IRSystemInfo: Failed to get thread information");
+    return @0.0;
+  }
+
+  double totalCPU = 0.0;
+
+  for (mach_msg_type_number_t i = 0; i < count; i++) {
+    thread_basic_info_data_t info;
+    mach_msg_type_number_t infoCount = THREAD_BASIC_INFO_COUNT;
+
+    if (thread_info(threads[i], THREAD_BASIC_INFO, (thread_info_t)&info, &infoCount) == KERN_SUCCESS) {
+      if (!(info.flags & TH_FLAGS_IDLE)) {
+        // TEST
+        NSLog(@"thread %i, %.2f%%", i, (double)info.cpu_usage / TH_USAGE_SCALE * 100.0);
+        totalCPU += (double)info.cpu_usage / TH_USAGE_SCALE * 100.0;
+      }
+    }
+  }
+
+  for (mach_msg_type_number_t i = 0; i < count; i++) {
+    mach_port_deallocate(mach_task_self(), threads[i]);
+  }
+  vm_deallocate(mach_task_self(), (vm_offset_t)threads, count * sizeof(thread_t));
+
+  NSLog(@"[IRSystemInfo] CPU Usage: %.2f%%", totalCPU);
+
+  return [NSNumber numberWithDouble:totalCPU];
 }
 
 @end
