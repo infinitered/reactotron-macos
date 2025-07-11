@@ -5,15 +5,7 @@
  * @format
  */
 
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
-  ViewStyle,
-  TextStyle,
-  EventSubscription,
-} from "react-native"
+import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
 
 import { useServer } from "./state/useServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
@@ -23,9 +15,7 @@ import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
-import IRSystemInfo from "../specs/NativeIRSystemInfo"
-
-import { useEffect, useRef } from "react"
+import { useSystemInfo } from "./utils/system"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -44,22 +34,6 @@ function App(): React.JSX.Element {
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
   const { isConnected, error } = useServer()
-
-  // LEON: testing system info --->
-  const systemInfoSubscription = useRef<EventSubscription | null>(null)
-
-  useEffect(() => {
-    IRSystemInfo.startMonitoring()
-    systemInfoSubscription.current = IRSystemInfo.onSystemInfo((info) => {
-      console.tron.log({ info })
-    })
-
-    return () => {
-      systemInfoSubscription.current?.remove()
-      IRSystemInfo.stopMonitoring()
-    }
-  }, [])
-  // LEON: testing system info <---
 
   return (
     <View style={$container(theme)}>
