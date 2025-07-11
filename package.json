@@ -93,7 +93,7 @@
       ],
       "react/prop-types": 0,
       "react-native/no-raw-text": 0,
-      "~DISABLED~/reactotron/no-tron-in-production": "error",
+      "reactotron/no-tron-in-production": "off",
       "comma-dangle": 0,
       "no-global-assign": 0,
       "quotes": 0,
