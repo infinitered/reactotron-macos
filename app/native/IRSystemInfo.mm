@@ -23,6 +23,10 @@ RCT_EXPORT_MODULE()
   return self;
 }
 
+- (void)dealloc {
+  [self stopMonitoring];
+}
+
 - (void)setSamplingInterval:(NSTimeInterval)samplingInterval {
   _samplingInterval = samplingInterval;
 
@@ -76,10 +80,6 @@ RCT_EXPORT_MODULE()
   } else {
     NSLog(@"[IRSystemInfo] Failed to get memory information.");
   }
-}
-
-- (void)dealloc {
-  [self stopMonitoring];
 }
 
 @end
