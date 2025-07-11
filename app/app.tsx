@@ -5,7 +5,15 @@
  * @format
  */
 
-import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
+import {
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+  ViewStyle,
+  TextStyle,
+  EventSubscription,
+} from "react-native"
 
 import { useServer } from "./state/useServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
@@ -15,8 +23,9 @@ import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
-import { getAppMemUsage } from "./utils/system"
-import { useEffect, useState } from "react"
+import IRSystemInfo from "../specs/NativeIRSystemInfo"
+
+import { useEffect, useRef } from "react"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -34,16 +43,23 @@ function App(): React.JSX.Element {
   const { colors } = useTheme(theme)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
-  const [appMemUsage, setAppMemUsage] = useState(0)
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const memUsage = await getAppMemUsage()
-      setAppMemUsage(memUsage / 1024)
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
   const { isConnected, error } = useServer()
+
+  // LEON: testing system info --->
+  const systemInfoSubscription = useRef<EventSubscription | null>(null)
+
+  useEffect(() => {
+    IRSystemInfo.startMonitoring()
+    systemInfoSubscription.current = IRSystemInfo.onSystemInfo((info) => {
+      console.tron.log({ info })
+    })
+
+    return () => {
+      systemInfoSubscription.current?.remove()
+      IRSystemInfo.stopMonitoring()
+    }
+  }, [])
+  // LEON: testing system info <---
 
   return (
     <View style={$container(theme)}>
@@ -64,9 +80,7 @@ function App(): React.JSX.Element {
                 error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
               ]}
             />
-            <Text style={$statusText(theme)}>
-              App Connected {IRRunShellCommand.appPID()} {appMemUsage.toFixed(1)}MB
-            </Text>
+            <Text style={$statusText(theme)}>App Connected {IRRunShellCommand.appPID()}</Text>
           </View>
           <View style={$divider(theme)} />
           <View style={$statusItem(theme)}>
