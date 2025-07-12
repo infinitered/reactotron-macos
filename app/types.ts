@@ -57,3 +57,14 @@ export type LogPayload =
       message: string
     }
   | ErrorLogPayload
+
+export type LogEntry = {
+  type: "log"
+  important: boolean
+  connectionId: number
+  messageId: number
+  date: string
+  deltaTime: number
+  clientId: string
+  payload: LogPayload
+}

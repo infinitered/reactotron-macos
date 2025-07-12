@@ -1,14 +1,19 @@
-import { ScrollView, Text } from "react-native"
+import { FlatList, Text } from "react-native"
 import { useGlobal } from "../state/useGlobal"
+import { LogEntry } from "../types"
 
 export function LogViewer() {
-  const [logs] = useGlobal("logs", [])
+  const [logs] = useGlobal<LogEntry[]>("logs", [])
 
   return (
-    <ScrollView>
-      {logs.map((log, index) => (
-        <Text key={index}>{log.message[0]}</Text>
-      ))}
-    </ScrollView>
+    <FlatList<LogEntry>
+      data={logs}
+      renderItem={({ item }) => <LogEntryView entry={item} />}
+      keyExtractor={(item) => item.messageId.toString()}
+    />
   )
+}
+
+function LogEntryView({ entry }: { entry: LogEntry }) {
+  return <Text>{entry.payload.message[0]}</Text>
 }

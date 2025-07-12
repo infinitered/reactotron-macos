@@ -59,7 +59,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 
     if (data.type === "command") {
       if (data.cmd.type === "clear") setLogs([])
-      if (data.cmd.type === "log") setLogs((prev) => [...prev, data.cmd.payload])
+      if (data.cmd.type === "log") setLogs((prev) => [...prev, data.cmd])
     }
 
     if (__DEV__) {
