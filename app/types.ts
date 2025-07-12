@@ -33,3 +33,27 @@ export type ClientData = {
   reactotronCoreClientVersion: string
   address: string
 }
+
+export interface ErrorStackFrame {
+  fileName: string
+  functionName: string
+  lineNumber: number
+  columnNumber: number | null
+}
+
+export interface ErrorLogPayload {
+  level: "error"
+  message: string
+  stack: Error["stack"] | string[] | ErrorStackFrame[]
+}
+
+export type LogPayload =
+  | {
+      level: "debug"
+      message: string
+    }
+  | {
+      level: "warn"
+      message: string
+    }
+  | ErrorLogPayload

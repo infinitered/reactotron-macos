@@ -25,11 +25,6 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
-function ReactotronHeader() {
-  const [activeTab] = useGlobal("activeTab", "Example1", { persist: true })
-  return <HeaderTitle title={"Reactotron " + activeTab} />
-}
-
 function App(): React.JSX.Element {
   const [theme, setTheme] = useThemeName()
   const { colors } = useTheme(theme)
@@ -55,7 +50,7 @@ function App(): React.JSX.Element {
             <ClientTab key={id} clientId={id} />
           ))}
         </View>
-        <ReactotronHeader />
+        <HeaderTitle title={"Reactotron"} />
 
         {/* Status Row */}
         <View style={$statusRow(theme)}>
@@ -69,11 +64,6 @@ function App(): React.JSX.Element {
             <Text style={$statusText(theme)}>Server</Text>
             <Button onPress={() => sendToClient("showDevMenu", {}, clientIds[0])} title="Send" />
           </View>
-          {clientIds.map((id) => (
-            <View key={id} style={$statusItem(theme)}>
-              <Text style={$statusText(theme)}>{id}</Text>
-            </View>
-          ))}
           <View style={$divider(theme)} />
           <View style={$statusItem(theme)}>
             <View style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]} />
@@ -88,11 +78,6 @@ function App(): React.JSX.Element {
         />
       </Header>
       <View style={$contentContainer(theme)}>
-        {/* <ScrollView style={$scrollView(theme)}>
-          <View style={$dashboard(theme)}>
-            <SystemInfo />
-          </View>
-        </ScrollView> */}
         <LogViewer />
       </View>
     </View>
@@ -115,8 +100,9 @@ const $tabContainer = withTheme<ViewStyle>(({ spacing }) => ({
   gap: spacing.md,
 }))
 
-const $contentContainer = withTheme<ViewStyle>(() => ({
+const $contentContainer = withTheme<ViewStyle>(({ spacing }) => ({
   flex: 1,
+  padding: spacing.md,
 }))
 
 const $scrollView = withTheme<ViewStyle>(() => ({
