@@ -5,17 +5,18 @@
  * @format
  */
 
-import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
+import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle, Button } from "react-native"
 
-import { useServer } from "./state/useServer"
+import { sendToClient } from "./state/useServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { Tab } from "./components/Tab"
 import Header from "./components/Header"
 import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
-import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
-import { useSystemInfo } from "./utils/system"
+import { SystemInfo } from "./components/SystemInfo"
+import { ServerState } from "./state/ServerState"
+import { LogViewer } from "./components/LogViewer"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -31,12 +32,15 @@ function ReactotronHeader() {
 function App(): React.JSX.Element {
   const [theme, setTheme] = useThemeName()
   const { colors } = useTheme(theme)
+  const [isConnected] = useGlobal("isConnected", false)
+  const [error] = useGlobal("error", null)
+  const [clientIds] = useGlobal("clientIds", [])
+  const [_logs] = useGlobal("logs", [])
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
-
-  const { isConnected, error } = useServer()
 
   return (
     <View style={$container(theme)}>
+      <ServerState />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <Header>
         <View style={$tabContainer(theme)}>
@@ -54,13 +58,14 @@ function App(): React.JSX.Element {
                 error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
               ]}
             />
-            <Text style={$statusText(theme)}>App Connected {IRRunShellCommand.appPID()}</Text>
+            <Text style={$statusText(theme)}>Server</Text>
+            <Button onPress={() => sendToClient("showDevMenu", {}, clientIds[0])} title="Send" />
           </View>
-          <View style={$divider(theme)} />
-          <View style={$statusItem(theme)}>
-            <View style={[$dot(theme), false ? $dotGreen(theme) : $dotGray(theme)]} />
-            <Text style={$statusText(theme)}>Client Connected</Text>
-          </View>
+          {clientIds.map((id) => (
+            <View key={id} style={$statusItem(theme)}>
+              <Text style={$statusText(theme)}>{id}</Text>
+            </View>
+          ))}
           <View style={$divider(theme)} />
           <View style={$statusItem(theme)}>
             <View style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]} />
@@ -74,11 +79,13 @@ function App(): React.JSX.Element {
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         />
       </Header>
-
       <View style={$contentContainer(theme)}>
         <ScrollView style={$scrollView(theme)}>
-          <View style={$dashboard(theme)}></View>
+          <View style={$dashboard(theme)}>
+            <SystemInfo />
+          </View>
         </ScrollView>
+        <LogViewer />
       </View>
     </View>
   )
@@ -160,15 +167,6 @@ const $statusText = withTheme<TextStyle>(({ colors }) => ({
   fontSize: 16,
   color: colors.mainText,
   fontWeight: "600",
-}))
-
-const $title = withTheme<TextStyle>(({ colors }) => ({
-  fontSize: 22,
-  fontWeight: "bold",
-  marginBottom: 28,
-  textAlign: "center",
-  color: colors.mainText,
-  letterSpacing: 0.2,
 }))
 
 export default App

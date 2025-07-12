@@ -34,6 +34,9 @@ function debounce_persist(delay: number) {
   _debounce_persist_timeout = setTimeout(save_globals, delay)
 }
 
+type SetValueFn<T> = (prev: T) => T
+type SetValue<T> = T | SetValueFn<T>
+
 /**
  * Trying for the simplest possible global state management.
  * Use anywhere and it'll share the same state globally, and rerender any component that uses it.
@@ -43,49 +46,63 @@ function debounce_persist(delay: number) {
  * // Can pass an option to decide whether to persist this state or not. Defaults to false.
  * const [value, setValue] = useGlobal("my-state", "initial-value", { persist: true })
  *
- * // There's also a convenience hook for persisted globals.
- * const [value, setValue] = useSavedGlobal("my-state", "initial-value")
- *
  */
 export function useGlobal<T = unknown>(
   id: string,
   initialValue: T,
   { persist = false }: UseGlobalOptions = {},
-): [T, (value: T) => void] {
-  // Initialize this global if it doesn't exist.
-  if (globals[id] === undefined) globals[id] = initialValue
-
-  // Prepare to rerender any component that uses this global.
-  components_to_rerender[id] ||= []
-
+): [T, (value: SetValue<T>) => void] {
   // This is a dummy state to rerender any component that uses this global.
   const [_v, setRender] = useState([])
 
-  // We provide our own setter to ensure that the state is updated globally.
-  const setValue = useCallback(
-    (value: T) => {
-      globals[id] = value
-      if (persist) {
-        persisted_globals[id] = value
-        // debounce save to mmkv
-        debounce_persist(1000)
-      }
-      components_to_rerender[id].forEach((rerender) => rerender([]))
-    },
-    [globals, id],
-  )
-
-  // Subscribe & unsubscribe from these state changes
+  // Subscribe & unsubscribe from state changes for this ID.
   useEffect(() => {
+    components_to_rerender[id] ||= []
     components_to_rerender[id].push(setRender)
     return () => {
+      if (!components_to_rerender[id]) return
       components_to_rerender[id] = components_to_rerender[id].filter(
         (listener) => listener !== setRender,
       )
     }
   }, [id])
 
-  return [globals[id] as T, setValue]
+  // We use the withGlobal hook to do the actual work.
+  const [value] = withGlobal<T>(id, initialValue, persist)
+
+  // We use a callback to ensure that the setValue function is stable.
+  const setValue = useCallback(buildSetValue(id, persist), [id, persist])
+
+  return [value, setValue]
+}
+
+/**
+ * For global state used outside of a component. Can be used in a component with
+ * the same id string, using useGlobal.
+ */
+export function withGlobal<T>(
+  id: string,
+  initialValue: T,
+  persist: boolean,
+): [T, (value: SetValue<T>) => void] {
+  // Initialize this global if it doesn't exist.
+  if (globals[id] === undefined) globals[id] = initialValue
+
+  return [globals[id] as T, buildSetValue(id, persist)]
+}
+
+function buildSetValue<T>(id: string, persist: boolean) {
+  return (value: SetValue<T>) => {
+    // Call the setter function if it's a function.
+    if (typeof value === "function") value = (value as SetValueFn<T>)(globals[id] as T)
+    globals[id] = value
+    if (persist) {
+      persisted_globals[id] = value
+      // debounce save to mmkv
+      debounce_persist(1000)
+    }
+    components_to_rerender[id].forEach((rerender) => rerender([]))
+  }
 }
 
 /**
