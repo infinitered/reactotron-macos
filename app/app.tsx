@@ -7,7 +7,7 @@
 
 import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle, Button } from "react-native"
 
-import { sendToClient } from "./state/useServer"
+import { connectToServer, sendToClient } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { Tab } from "./components/Tab"
 import Header from "./components/Header"
@@ -15,8 +15,9 @@ import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 import { SystemInfo } from "./components/SystemInfo"
-import { ServerState } from "./state/ServerState"
 import { LogViewer } from "./components/LogViewer"
+import { useEffect } from "react"
+import { ClientTab } from "./components/ClientTab"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -32,20 +33,27 @@ function ReactotronHeader() {
 function App(): React.JSX.Element {
   const [theme, setTheme] = useThemeName()
   const { colors } = useTheme(theme)
+
+  // TODO: Move into discrete components to minimize full app rerenders
   const [isConnected] = useGlobal("isConnected", false)
   const [error] = useGlobal("error", null)
   const [clientIds] = useGlobal("clientIds", [])
   const [_logs] = useGlobal("logs", [])
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
+  // Connect to the server when the app mounts.
+  // This will update global state with the server's state
+  // and handle all websocket events.
+  useEffect(() => connectToServer(), [])
+
   return (
     <View style={$container(theme)}>
-      <ServerState />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <Header>
         <View style={$tabContainer(theme)}>
-          <Tab label="Example1" />
-          <Tab label="Example2" />
+          {clientIds.map((id) => (
+            <ClientTab key={id} clientId={id} />
+          ))}
         </View>
         <ReactotronHeader />
 
@@ -80,11 +88,11 @@ function App(): React.JSX.Element {
         />
       </Header>
       <View style={$contentContainer(theme)}>
-        <ScrollView style={$scrollView(theme)}>
+        {/* <ScrollView style={$scrollView(theme)}>
           <View style={$dashboard(theme)}>
             <SystemInfo />
           </View>
-        </ScrollView>
+        </ScrollView> */}
         <LogViewer />
       </View>
     </View>

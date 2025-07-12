@@ -83,7 +83,7 @@ export function useGlobal<T = unknown>(
 export function withGlobal<T>(
   id: string,
   initialValue: T,
-  persist: boolean,
+  { persist = false }: UseGlobalOptions = {},
 ): [T, (value: SetValue<T>) => void] {
   // Initialize this global if it doesn't exist.
   if (globals[id] === undefined) globals[id] = initialValue
@@ -101,6 +101,7 @@ function buildSetValue<T>(id: string, persist: boolean) {
       // debounce save to mmkv
       debounce_persist(1000)
     }
+    components_to_rerender[id] ||= []
     components_to_rerender[id].forEach((rerender) => rerender([]))
   }
 }
