@@ -1,96 +1,132 @@
-import { withGlobal } from "./useGlobal"
+const connectedReactotrons = []
+const connectedClients = []
 
-type Unsubscribe = () => void
+function addReactotronApp(socket) {
+  // Add the Reactotron app to the list of connected Reactotron apps
+  connectedReactotrons.push(socket)
 
-let _sendToClient: (message: string | object, payload?: object, clientId?: string) => void
+  // Send a message back to the Reactotron app to let it know it's connected
+  socket.send(JSON.stringify({ type: "reactotron.connected" }))
+  console.log("Reactotron app connected")
 
-const ws: { socket: WebSocket | null } = { socket: null }
-
-/**
- * Connects to the reactotron-core-server via websocket.
- *
- * Populates the following global state:
- * - isConnected: boolean
- * - error: Error | null
- * - clientIds: string[]
- * - logs: any[]
- *
- * This state is *not* persisted across app restarts.
- *
- * @param props.port - The port to connect to.
- */
-export function connectToServer(props: { port: number } = { port: 9292 }): Unsubscribe {
-  const [_c, setIsConnected] = withGlobal("isConnected", false)
-  const [_e, setError] = withGlobal<Error | null>("error", null)
-  const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
-  const [_l, setLogs] = withGlobal<any[]>("logs", [])
-
-  ws.socket = new WebSocket(`ws://localhost:${props.port}`)
-  if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
-
-  ws.socket.onopen = () => {
-    // Tell the server we are a Reactotron app, not a React client.
-    ws.socket?.send(
-      JSON.stringify({
-        type: "reactotron.subscribe",
-        payload: {
-          name: "TODO -- Add Name Here?",
-        },
-      }),
-    )
-  }
-  ws.socket.onerror = (event) => setError(new Error(`WebSocket error: ${event.message}`))
-
-  ws.socket.onmessage = (event) => {
-    const data = JSON.parse(event.data)
-
-    if (data.type === "reactotron.connected") setIsConnected(true)
-
-    if (data.type === "connectionEstablished") {
-      const clientId = data?.conn?.clientId
-      if (!clientIds.includes(clientId)) {
-        setClientIds((prev) => [...prev, clientId])
-      }
-
-      // Store the client data in global state
-      const [_, setClientData] = withGlobal(`client-${clientId}`, {})
-      setClientData(data?.conn)
-    }
-
-    if (data.type === "command") {
-      if (data.cmd.type === "clear") setLogs([])
-      if (data.cmd.type === "log") setLogs((prev) => [data.cmd, ...prev])
-    }
-
-    if (__DEV__) {
-      console.tron.logImportant({
-        type: "recievedAnyMessage",
-        data,
-      })
-    }
-  }
-
-  ws.socket.onclose = () => {
-    console.tron.log("Reactotron server disconnected")
-    setIsConnected(false)
-    setClientIds([])
-  }
-
-  _sendToClient = (message: string | object, payload?: object, clientId?: string) => {
-    if (!ws) {
-      console.tron.log("Not connected to Reactotron server")
-    } else {
-      ws.socket?.send(JSON.stringify({ type: message, payload, clientId }))
-    }
-  }
-
-  return () => {
-    ws.socket?.close()
-    ws.socket = null
-  }
+  // Send the updated list of connected clients to all connected Reactotron apps
+  const clients = connectedClients.map((c) => ({ clientId: c.clientId, name: c.name }))
+  connectedReactotrons.forEach((reactotronApp) => {
+    reactotronApp.send(JSON.stringify({ type: "connectedClients", clients }))
+    console.log("Sent connected clients to Reactotron app: ", clients)
+  })
 }
 
-export function sendToClient(message: string | object, payload?: object, clientId?: string) {
-  if (!_sendToClient) throw new Error("sendToClient not initialized ... did you call useServer?")
-  _sendToClient(message, payload, clientId)
+function forwardMessage(message, server) {
+  console.log("Reactotron app message: ", message)
+  // Forward to the Reactotron Core Server to send to client(s)
+  server.send(message.type, message.payload, message.clientId)
 }
+
+function interceptMessage(incoming, socket, server) {
+  const message = JSON.parse(incoming.toString())
+  if (connectedReactotrons.includes(socket)) forwardMessage(message, server)
+  if (message.type === "reactotron.subscribe") addReactotronApp(socket)
+}
+
+function startReactotronServer(opts = {}) {
+  const { createServer } = require("reactotron-core-server")
+
+  // configure a server
+  const server = createServer({
+    port: 9292, // default
+    ...opts,
+  })
+
+  server.start()
+
+  server.wss.on("connection", (socket, _request) => {
+    // Intercept messages sent to this socket so we can check if they're
+    //
+    socket.on("message", (m) => interceptMessage(m, socket, server))
+  })
+
+  // The server has started.
+  server.on("start", () => console.log("Reactotron started"))
+
+  // A client has connected, but we don't know who it is yet.
+  // server.on("connect", (conn) => console.log("Connected", conn))
+
+  // A client has connected and provided us the initial detail we want.
+  server.on("connectionEstablished", (conn) => {
+    // Add the client to the list of connected clients if it's not already in the list
+    if (!connectedClients.find((c) => c.clientId === conn.clientId)) connectedClients.push(conn)
+    console.log("Connected clients: ", connectedClients)
+
+    const clients = connectedClients
+    connectedReactotrons.forEach((reactotronApp) => {
+      // conn here is a ReactotronConnection object
+      // We will forward this to all connected Reactotron apps.
+      // https://github.com/infinitered/reactotron/blob/bba01082f882307773a01e4f90ccf25ccff76949/apps/reactotron-app/src/renderer/contexts/Standalone/useStandalone.ts#L18
+      reactotronApp.send(JSON.stringify({ type: "connectedClients", clients }))
+    })
+  })
+
+  // A command has arrived from the client. (Maybe?)
+  server.on("command", (cmd) => {
+    // send the command to all connected Reactotron apps
+    connectedReactotrons.forEach((reactotronApp) => {
+      console.log("Sending command to Reactotron app: ", cmd.type)
+      reactotronApp.send(JSON.stringify({ type: "command", cmd }))
+    })
+  })
+
+  // A client has disconnected.
+  server.on("disconnect", (conn) => {
+    console.log("Disconnected", conn)
+
+    // Forward the disconnect to all connected Reactotron apps
+    connectedReactotrons.forEach((reactotronApp) => {
+      // conn here is a ReactotronConnection object
+      // We will forward this to all connected Reactotron apps.
+      // https://github.com/infinitered/reactotron/blob/bba01082f882307773a01e4f90ccf25ccff76949/apps/reactotron-app/src/renderer/contexts/Standalone/useStandalone.ts#L18
+      reactotronApp.send(JSON.stringify({ type: "disconnect", conn }))
+
+      // Remove the client from the list of connected clients
+      connectedClients.splice(connectedClients.indexOf(conn), 1)
+    })
+  })
+
+  // The server has stopped.
+  server.on("stop", () => console.log("Reactotron stopped"))
+
+  // Port is already in use
+  server.on("portUnavailable", () => console.log("Port 9090 unavailable"))
+
+  // start the server
+  server.start()
+
+  // check to see if it started
+  if (!server.started) {
+    console.log("Server failed to start")
+    return
+  }
+
+  // // say hello when we connect (this is automatic, you don't send this)
+  // server.send("hello.server", {})
+
+  // // request some values from state
+  // server.send("state.values.request", { path: "user.givenName" })
+
+  // // request some keys from state
+  // server.send("state.keys.request", { path: "user" })
+
+  // // subscribe to some state paths so when then change, we get notified
+  // server.send("state.values.subscribe", { paths: ["user.givenName", "user"] })
+
+  // // stop the server
+  // server.stop()
+
+  // stop the server on SIGINT (metro shutdown)
+  process.on("SIGINT", () => {
+    server.stop()
+    process.exit(0)
+  })
+}
+
+module.exports = { startReactotronServer }
