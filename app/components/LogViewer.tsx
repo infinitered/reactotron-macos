@@ -32,7 +32,9 @@ function formatDelta(current: string, prev?: string) {
   return `+${delta}ms`
 }
 
-function LogEntryView({ entry, prevDate }: { entry: LogEntry; prevDate?: string }) {
+type LogEntryViewProps = { entry: LogEntry; prevDate?: string; clientId: string }
+
+function LogEntryView({ entry, prevDate, clientId }: LogEntryViewProps) {
   const [themeName] = useThemeName()
   const { colors, spacing, typography } = useTheme(themeName)
   const { payload } = entry
@@ -88,7 +90,7 @@ function LogEntryView({ entry, prevDate }: { entry: LogEntry; prevDate?: string 
             },
           ]}
         >
-          {delta}
+          +{entry.deltaTime}ms
         </Text>
       </View>
       <Text
