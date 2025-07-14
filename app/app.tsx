@@ -5,16 +5,14 @@
  * @format
  */
 
-import { ScrollView, StatusBar, Text, View, ViewStyle, TextStyle, Button } from "react-native"
+import { StatusBar, Text, View, ViewStyle, TextStyle, Button } from "react-native"
 
 import { connectToServer, sendToClient } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
-import { Tab } from "./components/Tab"
 import Header from "./components/Header"
 import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
-import { SystemInfo } from "./components/SystemInfo"
 import { LogViewer } from "./components/LogViewer"
 import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
@@ -103,24 +101,6 @@ const $tabContainer = withTheme<ViewStyle>(({ spacing }) => ({
 const $contentContainer = withTheme<ViewStyle>(({ spacing }) => ({
   flex: 1,
   padding: spacing.md,
-}))
-
-const $scrollView = withTheme<ViewStyle>(() => ({
-  flex: 1,
-}))
-
-const $dashboard = withTheme<ViewStyle>(({ colors, spacing }) => ({
-  margin: spacing.lg,
-  padding: spacing.xl,
-  backgroundColor: colors.cardBackground,
-  borderRadius: 20,
-  borderWidth: 1,
-  borderColor: colors.border,
-  shadowColor: "#000",
-  shadowOpacity: 0.06,
-  shadowRadius: 12,
-  shadowOffset: { width: 0, height: 4 },
-  gap: spacing.xl,
 }))
 
 const $statusRow = withTheme<ViewStyle>(({ spacing }) => ({
