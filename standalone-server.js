@@ -1,3 +1,11 @@
+/**
+ * This is a standalone Reactotron relay server.
+ *
+ * TODO:
+ * * Store full info about a client in here so we can pass it along to connected Reactotron apps.
+ * * Figure out why portUnavailable is being called when it is not, in fact, unavailable.
+ */
+
 const connectedReactotrons = []
 const connectedClients = []
 
@@ -13,12 +21,10 @@ function addReactotronApp(socket) {
   const clients = connectedClients.map((c) => ({ clientId: c.clientId, name: c.name }))
   connectedReactotrons.forEach((reactotronApp) => {
     reactotronApp.send(JSON.stringify({ type: "connectedClients", clients }))
-    console.log("Sent connected clients to Reactotron app: ", clients)
   })
 }
 
 function forwardMessage(message, server) {
-  console.log("Reactotron app message: ", message)
   // Forward to the Reactotron Core Server to send to client(s)
   server.send(message.type, message.payload, message.clientId)
 }
@@ -34,15 +40,14 @@ function startReactotronServer(opts = {}) {
 
   // configure a server
   const server = createServer({
-    port: 9292, // default
+    port: opts.port || 9292, // default
     ...opts,
   })
 
   server.start()
 
   server.wss.on("connection", (socket, _request) => {
-    // Intercept messages sent to this socket so we can check if they're
-    //
+    // Intercept messages sent to this socket to check for Reactotron apps
     socket.on("message", (m) => interceptMessage(m, socket, server))
   })
 
@@ -56,7 +61,6 @@ function startReactotronServer(opts = {}) {
   server.on("connectionEstablished", (conn) => {
     // Add the client to the list of connected clients if it's not already in the list
     if (!connectedClients.find((c) => c.clientId === conn.clientId)) connectedClients.push(conn)
-    console.log("Connected clients: ", connectedClients)
 
     const clients = connectedClients
     connectedReactotrons.forEach((reactotronApp) => {
@@ -88,7 +92,8 @@ function startReactotronServer(opts = {}) {
       reactotronApp.send(JSON.stringify({ type: "disconnect", conn }))
 
       // Remove the client from the list of connected clients
-      connectedClients.splice(connectedClients.indexOf(conn), 1)
+      const delIndex = connectedClients.findIndex((c) => c.clientId === conn.clientId)
+      if (delIndex !== -1) connectedClients.splice(delIndex, 1)
     })
   })
 

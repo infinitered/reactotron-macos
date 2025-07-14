@@ -57,16 +57,23 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       setClientData(data?.conn)
     }
 
+    if (data.type === "connectedClients") {
+      data.clients.forEach((client: any) => {
+        // Store the client data in global state
+        const clientId = client.clientId
+        const [_, setClientData] = withGlobal(`client-${clientId}`, {})
+        setClientData(client)
+      })
+      setClientIds(data.clients.map((client: any) => client.clientId))
+    }
+
     if (data.type === "command") {
       if (data.cmd.type === "clear") setLogs([])
       if (data.cmd.type === "log") setLogs((prev) => [data.cmd, ...prev])
     }
 
     if (__DEV__) {
-      console.tron.logImportant({
-        type: "recievedAnyMessage",
-        data,
-      })
+      console.tron.log(data)
     }
   }
 
