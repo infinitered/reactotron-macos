@@ -5,6 +5,7 @@
   "scripts": {
     "all": "npm run pod && npm run macos",
     "macos": "RCT_NEW_ARCH_ENABLED=1 react-native run-macos",
+    "macos-release": "RCT_NEW_ARCH_ENABLED=1 react-native run-macos --configuration Release",
     "pod": "RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
     "lint": "eslint .",
     "start": "react-native start",
