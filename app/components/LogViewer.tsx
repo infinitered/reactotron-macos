@@ -1,4 +1,5 @@
-import { FlatList, Text, View, ViewStyle, TextStyle } from "react-native"
+import { Text, View, ViewStyle, TextStyle } from "react-native"
+import { LegendList, LegendListRenderItemProps } from "@legendapp/list"
 import { useGlobal } from "../state/useGlobal"
 import { LogEntry } from "../types"
 import { useThemeName, withTheme } from "../theme/theme"
@@ -6,10 +7,12 @@ import { useThemeName, withTheme } from "../theme/theme"
 export function LogViewer() {
   const [logs] = useGlobal<LogEntry[]>("logs", [])
   return (
-    <FlatList<LogEntry>
+    <LegendList<LogEntry>
       data={logs}
-      renderItem={({ item }) => <LogEntryView entry={item} />}
+      renderItem={LogEntryView}
       keyExtractor={(item) => item.messageId.toString()}
+      recycleItems
+      estimatedItemSize={48}
     />
   )
 }
@@ -23,9 +26,9 @@ function formatTime(dateString: string) {
   )
 }
 
-function LogEntryView({ entry }: { entry: LogEntry }) {
+function LogEntryView({ item }: LegendListRenderItemProps<LogEntry>) {
   const [themeName] = useThemeName()
-  const { payload } = entry
+  const { payload, date, deltaTime } = item
 
   // Determine log level and color
   let level: string = "DEBUG"
@@ -39,13 +42,13 @@ function LogEntryView({ entry }: { entry: LogEntry }) {
     levelColor = "danger"
   }
 
-  const time = formatTime(entry.date)
+  const time = formatTime(date)
 
   return (
     <View style={$logEntryContainer(themeName)}>
       <View style={$timeDeltaColumn}>
         <Text style={$timeText(themeName)}>{time}</Text>
-        <Text style={$deltaText(themeName)}>+{entry.deltaTime}ms</Text>
+        <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>
       </View>
       <Text style={$levelTextWithColor(themeName, levelColor)}>{level}</Text>
       <Text style={$messageText(themeName)}>
