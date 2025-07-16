@@ -5,9 +5,9 @@ PODS:
   - FBLazyVector (0.78.3)
   - fmt (11.0.2)
   - glog (0.3.5)
-  - hermes-engine (0.78.2):
-    - hermes-engine/Pre-built (= 0.78.2)
-  - hermes-engine/Pre-built (0.78.2)
+  - hermes-engine (0.78.3):
+    - hermes-engine/Pre-built (= 0.78.3)
+  - hermes-engine/Pre-built (0.78.3)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1768,7 +1768,7 @@ SPEC CHECKSUMS:
   FBLazyVector: b61b46a4137164b884a21e2ae3e289e1ccef5700
   fmt: f6af2d677a106e3e44c9536a4c0c7f03ab53c854
   glog: b7594b792ee4e02ed1f44b01d046ca25fa713e3d
-  hermes-engine: 2771b98fb813fdc6f92edd7c9c0035ecabf9fee7
+  hermes-engine: b5c9cfbe6415f1b0b24759f2942c8f33e9af6347
   RCT-Folly: e8b53d8c0d2d9df4a6a8b0a368a1a91fc62a88cb
   RCTDeprecation: cf39863b43871c2031050605fb884019b6193910
   RCTRequired: 8e45f166ea2d154c59dd209c5bb710ad3ac0e752
@@ -1826,7 +1826,7 @@ SPEC CHECKSUMS:
   React-timing: 603df0b59afb508934070c569cc568ef72778420
   React-utils: 272bde9a8aa4037b23e2c9bf4b44e9a9a6cbdfaf
   ReactAppDependencyProvider: a12262458b50521ba56afb93f4cc875732f9d643
-  ReactCodegen: cbf5c996897eace54eba4f094ce9bcdae1cef466
+  ReactCodegen: a07e3e7055a29a63471f7372cdac070a9299a476
   ReactCommon: 6da1953722466adfd0f0bdf5eb5f5551ff53aae1
   SocketRocket: 03f7111df1a343b162bf5b06ead333be808e1e0a
   Yoga: f89a870053f1a8fbee8c98e35a1b9eff44ce2015

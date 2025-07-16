@@ -15,7 +15,7 @@ export type Theme = {
   isDark: boolean
 }
 
-export function useTheme(theme: ThemeName): Theme {
+export function useTheme(theme: ThemeName = "light"): Theme {
   return {
     colors: { ...colorsLight, ...(theme === "dark" ? colorsDark : {}) },
     spacing: spacing,
