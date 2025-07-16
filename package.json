@@ -15,7 +15,7 @@
     "@expo-google-fonts/space-grotesk": "^0.3.0",
     "@legendapp/list": "^1.1.4",
     "react": "19.0.0",
-    "react-native": "0.78.2",
+    "react-native": "0.78.3",
     "react-native-macos": "^0.78.3",
     "react-native-mmkv": "^3.3.0"
   },
