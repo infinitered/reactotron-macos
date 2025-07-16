@@ -2,6 +2,7 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTDevloadingViewSetEnabled.h>
+#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 
 @implementation AppDelegate
 
@@ -17,6 +18,9 @@
   // Sometimes the "loading bar" gets stuck on and you have to kill the app to fix it;
   // by turning it off here, we avoid that issue
   RCTDevLoadingViewSetEnabled(false);
+
+  // Enable Fabric views
+  self.dependencyProvider = [RCTAppDependencyProvider new];
 
   return [super applicationDidFinishLaunching:notification];
 }

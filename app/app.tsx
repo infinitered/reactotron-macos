@@ -14,9 +14,10 @@ import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 //import { LogViewer } from "./components/LogViewer"
-import { LogViewerTest } from "./components/LogViewerTest"
+// import { LogViewerTest } from "./components/LogViewerTest"
 import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
+import { Tabs } from "./components/Tabs"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -77,7 +78,7 @@ function App(): React.JSX.Element {
         />
       </Header>
       <View style={$contentContainer(theme)}>
-        <LogViewerTest />
+        <Tabs />
       </View>
     </View>
   )

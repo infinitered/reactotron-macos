@@ -113,7 +113,12 @@
   },
   "codegenConfig": {
     "name": "AppSpec",
-    "type": "modules",
-    "jsSrcsDir": "specs"
+    "type": "all",
+    "jsSrcsDir": "specs",
+    "ios": {
+      "componentProvider": {
+        "IRTabComponentView": "IRTabComponentView"
+      }
+    }
   }
 }

@@ -16,6 +16,7 @@
 		5D89968E2E1FB9000013E4F5 /* IRSystemInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5D89968D2E1FB9000013E4F5 /* IRSystemInfo.mm */; };
 		E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DD2E135F5D003B7988 /* IRFontList.mm */; };
 		E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */; };
+		E91EFF1D2E28306B00D4D687 /* IRTabComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91EFF1C2E28306B00D4D687 /* IRTabComponentView.mm */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
 		E9DA40442E14ED0100D3A986 /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = E9DA40432E14ED0100D3A986 /* ProcessUtils.c */; };
 /* End PBXBuildFile section */
@@ -38,6 +39,8 @@
 		E91662DD2E135F5D003B7988 /* IRFontList.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../app/native/IRFontList.mm; sourceTree = SOURCE_ROOT; };
 		E91662DE2E135F5D003B7988 /* IRRunShellCommand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRRunShellCommand.h; path = ../app/native/IRRunShellCommand.h; sourceTree = SOURCE_ROOT; };
 		E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRRunShellCommand.mm; path = ../app/native/IRRunShellCommand.mm; sourceTree = SOURCE_ROOT; };
+		E91EFF1B2E28306B00D4D687 /* IRTabComponentView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRTabComponentView.h; path = ../app/native/IRTabComponentView.h; sourceTree = SOURCE_ROOT; };
+		E91EFF1C2E28306B00D4D687 /* IRTabComponentView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRTabComponentView.mm; path = ../app/native/IRTabComponentView.mm; sourceTree = SOURCE_ROOT; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
 		E9DA40422E14ED0100D3A986 /* ProcessUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../app/native/ProcessUtils.h; sourceTree = SOURCE_ROOT; };
 		E9DA40432E14ED0100D3A986 /* ProcessUtils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../app/native/ProcessUtils.c; sourceTree = SOURCE_ROOT; };
@@ -99,6 +102,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				E91EFF1B2E28306B00D4D687 /* IRTabComponentView.h */,
+				E91EFF1C2E28306B00D4D687 /* IRTabComponentView.mm */,
 				5D89968C2E1FB9000013E4F5 /* IRSystemInfo.h */,
 				5D89968D2E1FB9000013E4F5 /* IRSystemInfo.mm */,
 				E9DA40422E14ED0100D3A986 /* ProcessUtils.h */,
@@ -293,6 +298,7 @@
 				514201582437B4B40078DB4F /* main.m in Sources */,
 				5D89968E2E1FB9000013E4F5 /* IRSystemInfo.mm in Sources */,
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
+				E91EFF1D2E28306B00D4D687 /* IRTabComponentView.mm in Sources */,
 				E9DA40442E14ED0100D3A986 /* ProcessUtils.c in Sources */,
 				E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */,
 				E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */,
