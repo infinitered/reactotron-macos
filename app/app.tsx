@@ -13,11 +13,11 @@ import Header from "./components/Header"
 import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
-//import { LogViewer } from "./components/LogViewer"
+import { LogViewer } from "./components/LogViewer"
 // import { LogViewerTest } from "./components/LogViewerTest"
 import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
-import { Tabs } from "./components/Tabs"
+// import { Tabs } from "./components/Tabs"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -51,8 +51,6 @@ function App(): React.JSX.Element {
           ))}
         </View>
         <HeaderTitle title={"Reactotron"} />
-
-        {/* Status Row */}
         <View style={$statusRow(theme)}>
           <View style={$statusItem(theme)}>
             <View
@@ -78,7 +76,8 @@ function App(): React.JSX.Element {
         />
       </Header>
       <View style={$contentContainer(theme)}>
-        <Tabs />
+        {/* <Tabs /> */}
+        <LogViewer />
       </View>
     </View>
   )

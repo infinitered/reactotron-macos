@@ -69,7 +69,7 @@ using namespace facebook::react;
     i++;
   }
   // Remove old unused tabs
-  // [self removeOldTabs:newTabs];
+  [self removeOldTabs:newTabs];
 }
 
 - (void)removeOldTabs:(const std::vector<IRTabComponentViewTabsStruct>)newTabs
@@ -83,7 +83,6 @@ using namespace facebook::react;
 
 - (void)addTabItem:(NSString *)tabId title:(NSString *)tabTitle
 {
-  NSLog(@"Adding tab: %@ %@", tabId, tabTitle);
   IRTabViewItem *tabItem = [[IRTabViewItem alloc] init];
   tabItem.tabId = tabId;
   tabItem.label = tabTitle;
@@ -119,8 +118,6 @@ using namespace facebook::react;
   _tabView.frame = self.bounds;
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
 - (void)mountChildComponentView:(NSView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)index {
     NSLog(@"Mounting tab child %@ at %@", childComponentView.reactTag, @(index));
   
@@ -146,6 +143,5 @@ using namespace facebook::react;
 - (void)unmountChildComponentView:(NSView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)_index {
     [childComponentView removeFromSuperview];
 }
-#pragma clang diagnostic pop
 
 @end 
