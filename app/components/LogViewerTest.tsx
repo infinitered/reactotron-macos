@@ -5,10 +5,11 @@ import {
   useMemo,
   Profiler,
   ProfilerOnRenderCallback,
+  ReactElement,
 } from "react"
 import { View, Text, TouchableOpacity, Alert, ViewStyle, TextStyle } from "react-native"
 import { FlatList } from "react-native"
-import { LegendList } from "@legendapp/list"
+import { LegendList as LegendListBase, type LegendListProps } from "@legendapp/list"
 import { useThemeName, withTheme } from "../theme/theme"
 
 interface LogEntry {
@@ -26,6 +27,12 @@ interface TestConfig {
   itemHeight: number
   testDuration: number
   updateFrequency: number
+}
+
+// Type correction for LegendList. `skipLibCheck` in tsconfig.json might be better.
+function LegendList<T>(props: LegendListProps<T>): ReactElement | null {
+  const node = LegendListBase<T>(props)
+  return (node as unknown as ReactElement) ?? null
 }
 
 const onRenderCallback: ProfilerOnRenderCallback = (
