@@ -8,38 +8,24 @@ import { useState } from "react"
  */
 export function Tabs() {
   const [theme] = useThemeName()
-  const [tabs, setTabs] = useState([
-    { id: "home", title: "Home" },
-    { id: "settings", title: "Settings" },
-  ])
 
   return (
     <IRTabComponentView
       style={$tabs(theme)}
-      tabs={tabs}
+      tabs={[
+        { id: "home", title: "Home" },
+        { id: "settings", title: "Settings" },
+      ]}
       onTabSelected={(event) => {
         console.log("selectedTabId", event.nativeEvent.selectedTabId)
       }}
     >
       <View style={$tab(theme)} key="home" id="home">
         <Text>Home</Text>
-        <Button
-          title="Add Tab"
-          onPress={() => {
-            console.log("add tab")
-            const tabNum = tabs.length + 1
-            setTabs([...tabs, { id: `my-tab${tabNum}`, title: `Tab ${tabNum}` }])
-          }}
-          style={$addTabButton(theme)}
-        />
       </View>
-      {tabs.slice(1).map((tab) => (
-        <View style={$tab(theme)} key={tab.id} id={tab.id}>
-          <Text>
-            {tab.title} {tab.id}
-          </Text>
-        </View>
-      ))}
+      <View style={$tab(theme)} key="settings" id="settings">
+        <Text>Settings</Text>
+      </View>
     </IRTabComponentView>
   )
 }
