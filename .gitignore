@@ -16,6 +16,8 @@ web-build/
 
 ## Editors
 .vscode
+.cursor
+buildServer.json # for sweetpad
 
 ## Secrets
 *.keystore

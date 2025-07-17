@@ -12,8 +12,12 @@ using namespace facebook::react;
 @interface IRTabComponentView () <RCTIRTabComponentViewViewProtocol>
 @end
 
+// Custom tab view item that includes a tabId
+@implementation IRTabViewItem : NSTabViewItem
+@end
+
 @implementation IRTabComponentView {
-  NSTextField *_label;
+  NSTabView *_tabView;
 }
 
 // Required static method for Fabric.
@@ -21,78 +25,127 @@ using namespace facebook::react;
 
 - (instancetype)init
 {
-  if (self = [super init]) {
-    // Create a simple text label
-    _label = [[NSTextField alloc] init];
-    _label.stringValue = @"LET'S GO CUSTOM FABRIC VIEW";
-    _label.alignment = NSTextAlignmentCenter;
-    _label.font = [NSFont systemFontOfSize:26];
-    _label.textColor = [NSColor blackColor];
-    _label.backgroundColor = [NSColor clearColor];
-    _label.bordered = NO;
-    _label.editable = NO;
-    _label.selectable = NO;
-    
-    [self addSubview:_label];
-  }
+  if (!(self = [super init])) return nil;
+  
+  _tabView = [[NSTabView alloc] init];
+  _tabView.tabViewType = NSTopTabsBezelBorder;
+  [self addSubview:_tabView];
+  
   return self;
 }
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
-  NSLog(@"IRTabComponentView: updateProps called");
-  
   // const auto &oldViewProps = *std::static_pointer_cast<IRTabComponentViewProps const>(_props);
   const auto &newViewProps = *std::static_pointer_cast<IRTabComponentViewProps const>(props);
 
-  // Log the props we receive
-  NSLog(@"IRTabComponentView: tabs count = %zu", newViewProps.tabs.size());
-  NSLog(@"IRTabComponentView: selectedTabId = %s", newViewProps.selectedTabId.c_str());
-  
-  // Update label text to show we received props
-  // Unclear whether we need the dispatch_async here?
-  dispatch_async(dispatch_get_main_queue(), ^{
-    NSString *labelText = [NSString stringWithFormat:@"IT WORKS (%@ tabs)", [NSString stringWithFormat:@"%i", (int)self.bounds.size.width]];
-    self->_label.stringValue = labelText;
-  });
-
+  [self updateTabs:newViewProps.tabs];
   [super updateProps:props oldProps:oldProps];
+}
+
+- (void)updateTabs:(const std::vector<IRTabComponentViewTabsStruct>)newTabs
+{
+  // Update existing tabs and add new ones
+  int i = 0;
+  for (const auto &tab : newTabs) {
+    NSString *tabId = [NSString stringWithUTF8String:tab.id.c_str()];
+    NSString *tabTitle = [NSString stringWithUTF8String:tab.title.c_str()];
+    
+    NSInteger existingIndex = [self getIndexForTabId:tabId];
+    if (existingIndex < 0) {
+      // check for a dummy index instead that we can fill
+      existingIndex = [self getIndexForTabId:[NSString stringWithFormat:@"tab-%@", @(i)]];
+    }
+    if (existingIndex >= 0) {
+      // Update existing tab
+      NSLog(@"Updating tab: %@ %@", tabId, tabTitle);
+      IRTabViewItem *tabItem = (IRTabViewItem *)_tabView.tabViewItems[existingIndex];
+      tabItem.tabId = tabId; // just in case
+      tabItem.label = tabTitle;
+    } else {
+      // Add new tab
+      [self addTabItem:tabId title:tabTitle];
+    }
+    i++;
+  }
+  // Remove old unused tabs
+  // [self removeOldTabs:newTabs];
+}
+
+- (void)removeOldTabs:(const std::vector<IRTabComponentViewTabsStruct>)newTabs
+{
+  // Loop through the current views
+  for (IRTabViewItem *tabItem in _tabView.tabViewItems) {
+    // If this tabId doesn't exist in the newTabs, then remove it from the tabs
+    if (![self tabId: tabItem.tabId existsIn:newTabs]) [_tabView removeTabViewItem:tabItem];
+  }
+}
+
+- (void)addTabItem:(NSString *)tabId title:(NSString *)tabTitle
+{
+  NSLog(@"Adding tab: %@ %@", tabId, tabTitle);
+  IRTabViewItem *tabItem = [[IRTabViewItem alloc] init];
+  tabItem.tabId = tabId;
+  tabItem.label = tabTitle;
+  tabItem.view = [[NSView alloc] init];
+  [_tabView addTabViewItem:tabItem];
+}
+
+- (NSInteger)getIndexForTabId:(NSString *)tabId
+{
+  NSInteger existingIndex = -1;
+  for (NSInteger i = 0; i < _tabView.tabViewItems.count; i++) {
+    IRTabViewItem *tabItem = (IRTabViewItem *)_tabView.tabViewItems[i];
+    if ([tabItem.tabId isEqualToString:tabId]) {
+      existingIndex = i;
+      break;
+    }
+  }
+  return existingIndex;
+}
+
+- (bool)tabId:(NSString *)tabId existsIn:(const std::vector<IRTabComponentViewTabsStruct>)newTabsCPP
+{
+  for (const auto &tab : newTabsCPP) {
+    NSString *title = [NSString stringWithUTF8String:tab.id.c_str()];
+    if ([tabId isEqualToString: title]) return YES;
+  }
+  return NO;
 }
 
 - (void)layoutSubviews
 {
   [super layoutSubviews];
-  
-  NSLog(@"IRTabComponentView: layoutSubviews called, bounds = %@", NSStringFromRect(self.bounds));
-  
-  // Center the label in the view
-  [self performOnMainThread:@selector(layoutLabel)];
+  _tabView.frame = self.bounds;
 }
 
-- (void)layoutLabel
-{
-  NSRect bounds = self.bounds;
-  NSRect labelFrame = [_label.stringValue
-    boundingRectWithSize:NSMakeSize(CGFLOAT_MAX, CGFLOAT_MAX)
-    options:NSStringDrawingUsesLineFragmentOrigin
-    attributes:@{NSFontAttributeName: _label.font}
-  ];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-missing-super-calls"
+- (void)mountChildComponentView:(NSView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)index {
+    NSLog(@"Mounting tab child %@ at %@", childComponentView.reactTag, @(index));
   
-  labelFrame.origin.x = (bounds.size.width - labelFrame.size.width) / 2;
-  labelFrame.origin.y = (bounds.size.height - labelFrame.size.height) / 2;
-  
-  _label.frame = labelFrame;
-}
-
-// Ensure a method is called on the main thread
-- (void)performOnMainThread:(SEL)selector {
-    if ([NSThread isMainThread]) {
-      [self performSelector:selector];
-    } else {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [self performSelector:selector];
-      });
+    // Make sure we actually have a tab at this index
+    if (index >= _tabView.tabViewItems.count) {
+      // Go ahead and create a dummy tab there
+      NSString *dummyId = [NSString stringWithFormat:@"tab-%@", @(index)];
+      NSString *dummyTitle = [NSString stringWithFormat:@"Tab %@", @(index)];
+      [self addTabItem:dummyId title:dummyTitle];
     }
+
+    // Find the container view for this tab
+    NSView *container = _tabView.tabViewItems[index].view;
+    
+    // Add the child component view to the container
+    [container addSubview:childComponentView];
+
+    // Resize the child component view to fit the container
+    childComponentView.frame = container.bounds;
+    childComponentView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 }
+
+- (void)unmountChildComponentView:(NSView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)_index {
+    [childComponentView removeFromSuperview];
+}
+#pragma clang diagnostic pop
 
 @end 
