@@ -13,8 +13,8 @@ import Header from "./components/Header"
 import { HeaderTitle } from "./components/HeaderTitle"
 import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
-import { LogViewer } from "./components/LogViewer"
-// import { LogViewerTest } from "./components/LogViewerTest"
+//import { LogViewer } from "./components/LogViewer"
+import { LogViewerTest } from "./components/LogViewerTest"
 import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
 // import { Tabs } from "./components/Tabs"
@@ -77,7 +77,7 @@ function App(): React.JSX.Element {
       </Header>
       <View style={$contentContainer(theme)}>
         {/* <Tabs /> */}
-        <LogViewer />
+        <LogViewerTest />
       </View>
     </View>
   )
