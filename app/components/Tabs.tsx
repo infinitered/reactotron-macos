@@ -1,7 +1,6 @@
-import { Button, Text, View, ViewStyle } from "react-native"
+import { Text, View, type ViewStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
 import IRTabComponentView from "../../specs/IRTabNativeComponent"
-import { useState } from "react"
 
 /**
  * Experimental; probably will change.
@@ -38,11 +37,4 @@ const $tab = withTheme<ViewStyle>(({}) => ({
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
-}))
-
-const $addTabButton = withTheme<ViewStyle>(({}) => ({
-  marginTop: 10,
-  backgroundColor: "red",
-  width: 100,
-  height: 100,
 }))

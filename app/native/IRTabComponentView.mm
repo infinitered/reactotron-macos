@@ -128,12 +128,9 @@ using namespace facebook::react;
       NSString *dummyTitle = [NSString stringWithFormat:@"Tab %@", @(index)];
       [self addTabItem:dummyId title:dummyTitle];
     }
-
-    // Find the container view for this tab
-    NSView *container = _tabView.tabViewItems[index].view;
     
-    // Add the child component view to the container
-    [container addSubview:childComponentView];
+    // Set this tab's view
+    _tabView.tabViewItems[index].view = childComponentView;
 
     // Resize the child component view to fit the container
     childComponentView.frame = container.bounds;
@@ -141,7 +138,8 @@ using namespace facebook::react;
 }
 
 - (void)unmountChildComponentView:(NSView<RCTComponentViewProtocol>*)childComponentView index:(NSInteger)_index {
-    [childComponentView removeFromSuperview];
+    // Remove the child component view from the tab
+    _tabView.tabViewItems[_index].view = nil;
 }
 
 @end 
