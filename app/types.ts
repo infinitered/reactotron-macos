@@ -58,13 +58,47 @@ export type LogPayload =
     }
   | ErrorLogPayload
 
-export type Log = {
-  type: "log"
+export interface NetworkRequest {
+  url: string
+  method: string
+  data?: any
+  headers?: Record<string, string>
+}
+
+export interface NetworkResponse {
+  status: number
+  statusText: string
+  headers?: Record<string, string>
+  data?: any
+  duration: number
+}
+
+export interface NetworkPayload {
+  type: "api.request" | "api.response"
+  request?: NetworkRequest
+  response?: NetworkResponse
+  error?: string
+}
+
+// Unified timeline item type
+export type TimelineItemBase = {
+  id: string
   important: boolean
   connectionId: number
   messageId: number
   date: string
   deltaTime: number
   clientId: string
+}
+
+export type TimelineItemLog = TimelineItemBase & {
+  type: "log"
   payload: LogPayload
 }
+
+export type TimelineItemNetwork = TimelineItemBase & {
+  type: "api.request" | "api.response"
+  payload: NetworkPayload
+}
+
+export type TimelineItem = TimelineItemLog | TimelineItemNetwork

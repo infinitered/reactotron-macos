@@ -5,7 +5,7 @@
  * @format
  */
 
-import { StatusBar, Text, View, ViewStyle, TextStyle, Button } from "react-native"
+import { StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
 
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
@@ -15,7 +15,7 @@ import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
-import { TimelineScreen } from "./screens/TimelineScreen"
+import { TimelineScreen } from "./screens/Timeline/TimelineScreen"
 import { ClearLogsButton } from "./components/ClearLogsButton"
 
 if (__DEV__) {

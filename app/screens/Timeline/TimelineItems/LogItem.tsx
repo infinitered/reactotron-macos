@@ -1,14 +1,18 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
-import { Log } from "../../types"
-import { useGlobal } from "../../state/useGlobal"
-import TimelineRow from "./TimelineRow"
+import { TimelineItemLog } from "../../../types"
+import { useGlobal } from "../../../state/useGlobal"
+import TimelineRow from "../TimelineRow"
 
-type LogItemProps = { item: Log }
+type LogItemProps = { item: TimelineItemLog }
 
 /**
  * A single log item in the timeline.
  */
 export function LogItem({ item }: LogItemProps) {
+  console.tron.log("LogItem", item)
+  // Type guard to ensure this is a log item
+  if (item.type !== "log") return null
+
   const { payload, date, deltaTime, important } = item
   const [isOpen, setIsOpen] = useGlobal(`log-${item.messageId}-open`, false)
 
@@ -16,15 +20,15 @@ export function LogItem({ item }: LogItemProps) {
   let level: string = "DEBUG"
   let _levelColor: "neutral" | "primary" | "danger" = "neutral"
 
-  if (payload.level === "warn") {
+  if (payload?.level === "warn") {
     level = "WARN"
     _levelColor = "primary"
-  } else if (payload.level === "error") {
+  } else if (payload?.level === "error") {
     level = "ERROR"
     _levelColor = "danger"
   }
 
-  const message = Array.isArray(payload.message) ? payload.message[0] : payload.message
+  const message = Array.isArray(payload?.message) ? payload?.message[0] : payload?.message
   const preview =
     message.toString().substring(0, 100) + (message.toString().length > 100 ? "..." : "")
 
@@ -58,21 +62,21 @@ export function LogItem({ item }: LogItemProps) {
         <Text style={$messageLabel}>Message:</Text>
         <Text style={$messageText}>{message.toString()}</Text>
       </View>
-      {Array.isArray(payload.message) && payload.message.length > 1 && (
+      {Array.isArray(payload?.message) && payload?.message?.length > 1 && (
         <View style={$stackContainer}>
           <Text style={$messageLabel}>Stack:</Text>
-          {(payload.message as any[]).slice(1).map((line: any, idx: number) => (
+          {(payload?.message as any[]).slice(1).map((line: any, idx: number) => (
             <Text key={idx} style={$stackText}>
               {line.toString()}
             </Text>
           ))}
         </View>
       )}
-      {payload.level === "error" && "stack" in payload && (
+      {payload?.level === "error" && "stack" in payload && (
         <View style={$stackContainer}>
           <Text style={$messageLabel}>Stack Trace:</Text>
-          {Array.isArray(payload.stack) ? (
-            payload.stack.map((frame: any, idx: number) => (
+          {Array.isArray(payload?.stack) ? (
+            payload?.stack.map((frame: any, idx: number) => (
               <Text key={idx} style={$stackText}>
                 {typeof frame === "string"
                   ? frame
@@ -80,7 +84,7 @@ export function LogItem({ item }: LogItemProps) {
               </Text>
             ))
           ) : (
-            <Text style={$stackText}>{payload.stack}</Text>
+            <Text style={$stackText}>{payload?.stack}</Text>
           )}
         </View>
       )}

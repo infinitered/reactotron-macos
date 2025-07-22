@@ -1,4 +1,4 @@
-import { Log } from "../types"
+import { TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
 
 type Unsubscribe = () => void
@@ -7,6 +7,18 @@ let _sendToClient: (message: string | object, payload?: object, clientId?: strin
 
 const ws: { socket: WebSocket | null } = { socket: null }
 
+const emptyTimelineItem: TimelineItem = {
+  id: "",
+  type: "log",
+  important: false,
+  connectionId: 0,
+  messageId: 0,
+  date: "",
+  deltaTime: 0,
+  clientId: "",
+  payload: { level: "debug", message: "" },
+}
+
 /**
  * Connects to the reactotron-core-server via websocket.
  *
@@ -14,7 +26,8 @@ const ws: { socket: WebSocket | null } = { socket: null }
  * - isConnected: boolean
  * - error: Error | null
  * - clientIds: string[]
- * - logs: any[]
+ * - timelineIds: string[]
+ * - timeline-{id}: TimelineItem
  *
  * This state is *not* persisted across app restarts.
  *
@@ -24,7 +37,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
-  const [_l, setLogs] = withGlobal<Log[]>("logs", [], { persist: true })
+  const [_timelineIds, setTimelineIds] = withGlobal<string[]>("timelineIds", [], { persist: true })
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -69,8 +82,46 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     }
 
     if (data.type === "command") {
-      if (data.cmd.type === "clear") setLogs([])
-      if (data.cmd.type === "log") setLogs((prev) => [data.cmd, ...prev])
+      if (data.cmd.type === "clear") {
+        // Clear all timeline items
+        setTimelineIds((existingItems) => {
+          existingItems.forEach((id) => {
+            const [_, setTimelineItem] = withGlobal<TimelineItem>(
+              `timeline-${id}`,
+              emptyTimelineItem,
+              { persist: true },
+            )
+            setTimelineItem(null) // delete this item
+          })
+          return []
+        })
+      }
+
+      if (data.cmd.type === "log" || data.cmd.type === "api.response") {
+        const id = `${data.cmd.clientId}-${data.cmd.messageId}`
+        const timelineItem: TimelineItem = {
+          id,
+          type: data.cmd.type,
+          important: data.cmd.important,
+          connectionId: data.cmd.connectionId,
+          messageId: data.cmd.messageId,
+          date: data.cmd.date,
+          deltaTime: data.cmd.deltaTime,
+          clientId: data.cmd.clientId,
+          payload: data.cmd.payload,
+        }
+
+        console.tron.log("timelineItem", timelineItem)
+
+        // Add to timeline IDs
+        setTimelineIds((prev) => [id, ...prev])
+
+        // Store individual item details
+        const [_, setTimelineItem] = withGlobal(`timeline-${id}`, timelineItem, { persist: true })
+        setTimelineItem(timelineItem)
+      } else {
+        console.tron.log("unknown command", data.cmd)
+      }
     }
 
     if (__DEV__) {

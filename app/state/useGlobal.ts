@@ -84,7 +84,7 @@ export function withGlobal<T>(
   id: string,
   initialValue: T,
   { persist = false }: UseGlobalOptions = {},
-): [T, (value: SetValue<T>) => void] {
+): [T, (value: SetValue<T> | null) => void] {
   // Initialize this global if it doesn't exist.
   if (globals[id] === undefined) globals[id] = initialValue
 
@@ -92,15 +92,17 @@ export function withGlobal<T>(
 }
 
 function buildSetValue<T>(id: string, persist: boolean) {
-  return (value: SetValue<T>) => {
+  return (value: SetValue<T> | null) => {
     // Call the setter function if it's a function.
     if (typeof value === "function") value = (value as SetValueFn<T>)(globals[id] as T)
-    globals[id] = value
-    if (persist) {
-      persisted_globals[id] = value
-      // debounce save to mmkv
-      debounce_persist(300)
+    if (value === null) {
+      delete globals[id]
+      if (persist) delete persisted_globals[id]
+    } else {
+      globals[id] = value
+      if (persist) persisted_globals[id] = value
     }
+    if (persist) debounce_persist(300)
     components_to_rerender[id] ||= []
     components_to_rerender[id].forEach((rerender) => rerender([]))
   }
