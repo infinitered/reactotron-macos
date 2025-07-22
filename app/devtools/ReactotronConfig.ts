@@ -13,7 +13,7 @@ Reactotron.configure({
   onConnect: () => {
     /** since this file gets hot reloaded, let's clear the past logs every time we connect */
     Reactotron.clear()
-    Reactotron.log("Reactotron app connected to standalone server.")
+    Reactotron.log("Reactotron app connected to reactotron server.")
   },
 })
 
@@ -89,3 +89,5 @@ declare global {
  * Now that we've setup all our Reactotron configuration, let's connect!
  */
 Reactotron.connect()
+
+export { Reactotron }

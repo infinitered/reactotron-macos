@@ -58,7 +58,7 @@ export type LogPayload =
     }
   | ErrorLogPayload
 
-export type LogEntry = {
+export type Log = {
   type: "log"
   important: boolean
   connectionId: number
