@@ -99,7 +99,7 @@ function buildSetValue<T>(id: string, persist: boolean) {
     if (persist) {
       persisted_globals[id] = value
       // debounce save to mmkv
-      debounce_persist(1000)
+      debounce_persist(300)
     }
     components_to_rerender[id] ||= []
     components_to_rerender[id].forEach((rerender) => rerender([]))

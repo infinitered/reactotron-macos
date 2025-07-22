@@ -4,7 +4,8 @@ import type { Log } from "../types"
 import LogItem from "./LogItem"
 
 export function LogViewer() {
-  const [logs] = useGlobal<Log[]>("logs", [])
+  const [logs] = useGlobal<Log[]>("logs", [], { persist: true })
+  console.tron.log(logs)
   return (
     <FlatList<Log>
       data={logs}

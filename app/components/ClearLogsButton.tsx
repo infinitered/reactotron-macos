@@ -5,7 +5,7 @@ import { useCallback } from "react"
 
 export function ClearLogsButton() {
   // Using withGlobal so we don't rerender when the logs change
-  const [_logs, setLogs] = withGlobal<Log[]>("logs", [])
+  const [_logs, setLogs] = withGlobal<Log[]>("logs", [], { persist: true })
   const clearLogs = useCallback(() => setLogs([]), [setLogs])
 
   return <Button onPress={clearLogs} title="Clear" />

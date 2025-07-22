@@ -1,3 +1,4 @@
+import { Log } from "../types"
 import { withGlobal } from "./useGlobal"
 
 type Unsubscribe = () => void
@@ -23,7 +24,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
-  const [_l, setLogs] = withGlobal<any[]>("logs", [])
+  const [_l, setLogs] = withGlobal<Log[]>("logs", [], { persist: true })
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
