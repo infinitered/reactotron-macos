@@ -1,11 +1,11 @@
+// import { View, Text } from "react-native"
 import { FlatList } from "react-native"
-import { useGlobal } from "../state/useGlobal"
-import type { Log } from "../types"
-import LogItem from "./LogItem"
+import { useGlobal } from "../../state/useGlobal"
+import { Log } from "../../types"
+import { LogItem } from "./LogItem"
 
-export function LogViewer() {
+export function TimelineScreen() {
   const [logs] = useGlobal<Log[]>("logs", [], { persist: true })
-  console.tron.log(logs)
   return (
     <FlatList<Log>
       data={logs}

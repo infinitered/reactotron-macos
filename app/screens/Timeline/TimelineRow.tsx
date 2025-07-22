@@ -1,8 +1,8 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
-import { useThemeName, withTheme, type ThemeName, useTheme } from "../theme/theme"
-import ActionButton from "./ActionButton"
+import { useThemeName, withTheme, type ThemeName, useTheme } from "../../theme/theme"
+import ActionButton from "../../components/ActionButton"
 
-interface TimelineItemProps {
+type TimelineRowProps = {
   title: string
   date: Date | number
   deltaTime?: number
@@ -20,7 +20,7 @@ interface TimelineItemProps {
   children?: React.ReactNode
 }
 
-function TimelineItem({
+function TimelineRow({
   isOpen,
   setIsOpen,
   toolbar,
@@ -32,7 +32,7 @@ function TimelineItem({
   isTagged = false,
   responseStatusCode,
   children,
-}: TimelineItemProps) {
+}: TimelineRowProps) {
   const [themeName] = useThemeName()
 
   const time = formatTime(date)
@@ -192,4 +192,4 @@ const $childrenContainer: ViewStyle = {
   paddingBottom: 30,
 }
 
-export default TimelineItem
+export default TimelineRow

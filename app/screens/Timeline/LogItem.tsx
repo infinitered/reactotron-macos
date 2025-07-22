@@ -1,13 +1,14 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
-import { Log } from "../types"
-import { useGlobal } from "../state/useGlobal"
-import TimelineItem from "./TimelineItem"
+import { Log } from "../../types"
+import { useGlobal } from "../../state/useGlobal"
+import TimelineRow from "./TimelineRow"
 
-interface LogItemProps {
-  item: Log
-}
+type LogItemProps = { item: Log }
 
-function LogItem({ item }: LogItemProps) {
+/**
+ * A single log item in the timeline.
+ */
+export function LogItem({ item }: LogItemProps) {
   const { payload, date, deltaTime, important } = item
   const [isOpen, setIsOpen] = useGlobal(`log-${item.messageId}-open`, false)
 
@@ -42,7 +43,7 @@ function LogItem({ item }: LogItemProps) {
   ]
 
   return (
-    <TimelineItem
+    <TimelineRow
       title={level}
       date={new Date(date)}
       deltaTime={deltaTime}
@@ -83,7 +84,7 @@ function LogItem({ item }: LogItemProps) {
           )}
         </View>
       )}
-    </TimelineItem>
+    </TimelineRow>
   )
 }
 
@@ -111,5 +112,3 @@ const $stackText: TextStyle = {
   fontSize: 12,
   marginBottom: 2,
 }
-
-export default LogItem
