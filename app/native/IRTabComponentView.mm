@@ -86,7 +86,7 @@ using namespace facebook::react;
   IRTabViewItem *tabItem = [[IRTabViewItem alloc] init];
   tabItem.tabId = tabId;
   tabItem.label = tabTitle;
-  tabItem.view = [[NSView alloc] init];
+  tabItem.view = [[NSView alloc] init]; // this gets set to a new view in mountChildComponentView:index: below
   [_tabView addTabViewItem:tabItem];
 }
 
@@ -129,11 +129,10 @@ using namespace facebook::react;
       [self addTabItem:dummyId title:dummyTitle];
     }
     
-    // Set this tab's view
+    // Set this tab's view, which will mount it when the tab is selected
     _tabView.tabViewItems[index].view = childComponentView;
 
     // Resize the child component view to fit the container
-    childComponentView.frame = container.bounds;
     childComponentView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 }
 
