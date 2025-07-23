@@ -15,7 +15,8 @@ import ActionButton from "./components/ActionButton"
 import { useGlobal } from "./state/useGlobal"
 import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
-import { TimelineScreen } from "./screens/Timeline/TimelineScreen"
+//import { TimelineScreen } from "./screens/Timeline/TimelineScreen"
+import { TimelineScreen } from "./screens/Timeline/TimelineScreenTest"
 import { ClearLogsButton } from "./components/ClearLogsButton"
 
 if (__DEV__) {
