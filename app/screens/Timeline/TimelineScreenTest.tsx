@@ -10,6 +10,7 @@ import {
 import { View, Text, TouchableOpacity, Alert, ViewStyle, TextStyle } from "react-native"
 import { FlatList } from "react-native"
 import { LegendList } from "@legendapp/list"
+import { FlashList } from "@shopify/flash-list"
 import { useGlobal } from "../../state/useGlobal"
 import { TimelineItem, TimelineItemLog, TimelineItemNetwork, LogPayload } from "../../types"
 import { LogItem } from "./TimelineItems/LogItem"
@@ -34,10 +35,10 @@ interface TestConfig {
 }
 
 const TEST_CONFIGS: { [key: string]: TestConfig } = {
-  light: { itemCount: 1000, itemHeight: 60, testDuration: 10, updateFrequency: 5 },
-  medium: { itemCount: 5000, itemHeight: 60, testDuration: 15, updateFrequency: 10 },
-  heavy: { itemCount: 10000, itemHeight: 60, testDuration: 20, updateFrequency: 20 },
-  extreme: { itemCount: 50000, itemHeight: 60, testDuration: 30, updateFrequency: 50 },
+  light: { itemCount: 1000, itemHeight: 60, testDuration: 5, updateFrequency: 5 },
+  medium: { itemCount: 5000, itemHeight: 60, testDuration: 5, updateFrequency: 10 },
+  heavy: { itemCount: 10000, itemHeight: 60, testDuration: 5, updateFrequency: 20 },
+  extreme: { itemCount: 50000, itemHeight: 60, testDuration: 5, updateFrequency: 500 },
 }
 
 const onRenderCallback: ProfilerOnRenderCallback = (id, phase, actualDuration) => {
@@ -116,7 +117,7 @@ export function TimelineScreen() {
     persist: false,
   })
   const [selectedConfig, setSelectedConfig] = useState<keyof typeof TEST_CONFIGS>("light")
-  const [currentList, setCurrentList] = useState<"legend" | "flatlist">("legend")
+  const [currentList, setCurrentList] = useState<"legend" | "flatlist" | "flashlist">("legend")
   const [isRunning, setIsRunning] = useState(false)
   const hasLoggedInitialRender = useRef(false)
   const config = TEST_CONFIGS[selectedConfig]
@@ -142,7 +143,7 @@ export function TimelineScreen() {
   }, [config, setTimeline])
 
   const switchList = useCallback(
-    (listType: "legend" | "flatlist") => {
+    (listType: "legend" | "flatlist" | "flashlist") => {
       if (isRunning) {
         Alert.alert("Test in Progress", "Wait till the test is over!")
         return
@@ -170,6 +171,14 @@ export function TimelineScreen() {
           hasLoggedInitialRender.current = true
         }
       },
+    }
+
+    if (currentList === "flashlist") {
+      return (
+        <Profiler id="FlashList" onRender={onRenderCallback}>
+          <FlashList<string> {...listProps} estimatedItemSize={config.itemHeight} />
+        </Profiler>
+      )
     }
 
     if (currentList === "legend") {
@@ -212,6 +221,16 @@ export function TimelineScreen() {
           <TouchableOpacity
             style={[
               $listButton(themeName),
+              currentList === "flatlist" && $selectedListButton(themeName),
+            ]}
+            onPress={() => switchList("flatlist")}
+            disabled={isRunning}
+          >
+            <Text style={$listButtonText(themeName)}>FlatList</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              $listButton(themeName),
               currentList === "legend" && $selectedListButton(themeName),
             ]}
             onPress={() => switchList("legend")}
@@ -222,12 +241,12 @@ export function TimelineScreen() {
           <TouchableOpacity
             style={[
               $listButton(themeName),
-              currentList === "flatlist" && $selectedListButton(themeName),
+              currentList === "flashlist" && $selectedListButton(themeName),
             ]}
-            onPress={() => switchList("flatlist")}
+            onPress={() => switchList("flashlist")}
             disabled={isRunning}
           >
-            <Text style={$listButtonText(themeName)}>FlatList</Text>
+            <Text style={$listButtonText(themeName)}>FlashList</Text>
           </TouchableOpacity>
         </View>
 
