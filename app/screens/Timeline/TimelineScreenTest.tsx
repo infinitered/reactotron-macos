@@ -5,6 +5,7 @@ import {
   useMemo,
   Profiler,
   ProfilerOnRenderCallback,
+  useRef,
 } from "react"
 import { View, Text, TouchableOpacity, Alert, ViewStyle, TextStyle } from "react-native"
 import { FlatList } from "react-native"
@@ -54,7 +55,6 @@ function addRandomTimelineItems(
     const messageId = Math.floor(Date.now() * Math.random())
     const id = `${messageId}`
 
-    // Create the base object for every item
     const baseItem = {
       id,
       messageId,
@@ -84,15 +84,8 @@ function addRandomTimelineItems(
         type: "api.response",
         payload: {
           type: "api.response",
-          request: {
-            url: "/users/profile",
-            method: "GET",
-          },
-          response: {
-            status: 200,
-            statusText: "OK",
-            duration: Math.random() * 500,
-          },
+          request: { url: "/users/profile", method: "GET" },
+          response: { status: 200, statusText: "OK", duration: Math.random() * 500 },
         },
       } as TimelineItemNetwork
     }
@@ -122,10 +115,10 @@ export function TimelineScreen() {
   const [timeline, setTimeline] = useGlobal<TimelineState>("timeline", INITIAL_TIMELINE_STATE, {
     persist: false,
   })
-
   const [selectedConfig, setSelectedConfig] = useState<keyof typeof TEST_CONFIGS>("light")
   const [currentList, setCurrentList] = useState<"legend" | "flatlist">("legend")
   const [isRunning, setIsRunning] = useState(false)
+  const hasLoggedInitialRender = useRef(false)
   const config = TEST_CONFIGS[selectedConfig]
 
   useEffect(() => {
@@ -139,6 +132,9 @@ export function TimelineScreen() {
   }, [isRunning, config, setTimeline])
 
   const startStressTest = useCallback(() => {
+    hasLoggedInitialRender.current = false
+    console.time("initialRenderTime")
+
     setTimeline(INITIAL_TIMELINE_STATE)
     addRandomTimelineItems(config.itemCount, setTimeline)
     setIsRunning(true)
@@ -148,7 +144,7 @@ export function TimelineScreen() {
   const switchList = useCallback(
     (listType: "legend" | "flatlist") => {
       if (isRunning) {
-        Alert.alert("Test in Progress", "Please wait for the current test to complete.")
+        Alert.alert("Test in Progress", "Wait till the test is over!")
         return
       }
       setCurrentList(listType)
@@ -168,6 +164,12 @@ export function TimelineScreen() {
       renderItem,
       keyExtractor: (id: string) => id,
       style: $list(themeName),
+      onLayout: () => {
+        if (!hasLoggedInitialRender.current) {
+          console.timeEnd("initialRenderTime")
+          hasLoggedInitialRender.current = true
+        }
+      },
     }
 
     if (currentList === "legend") {
@@ -190,7 +192,6 @@ export function TimelineScreen() {
       <View style={$header(themeName)}>
         <Text style={$title(themeName)}>Timeline Performance Test</Text>
 
-        {/* Config and List Selectors */}
         <View style={$configSelector}>
           {Object.keys(TEST_CONFIGS).map((configKey) => (
             <TouchableOpacity
