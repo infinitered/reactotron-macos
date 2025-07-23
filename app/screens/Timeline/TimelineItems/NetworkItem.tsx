@@ -72,6 +72,8 @@ export function NetworkItem({ item }: NetworkItemProps) {
     },
   ]
 
+  const tree = objectToTree({ payload })
+
   return (
     <TimelineRow
       title={status}
@@ -88,7 +90,7 @@ export function NetworkItem({ item }: NetworkItemProps) {
     >
       <View style={$payloadContainer}>
         <Text style={$sectionLabel}>Payload:</Text>
-        <TreeView data={objectToTree(payload, "payload")} />
+        <TreeView data={tree} />
       </View>
     </TimelineRow>
   )

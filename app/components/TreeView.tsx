@@ -4,6 +4,7 @@ import { useGlobal } from "../state/useGlobal"
 
 export type TreeNode = {
   key: string
+  path: string
   label: string
   value?: any
   children?: TreeNode[]
@@ -19,6 +20,8 @@ type TreeViewProps = {
 
 export function TreeView({ data, level = 0, onNodePress }: TreeViewProps) {
   const [themeName] = useThemeName()
+
+  console.tron.log("TreeView", data)
 
   return (
     <View style={$container}>
@@ -43,13 +46,12 @@ type TreeNodeComponentProps = {
 }
 
 function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComponentProps) {
-  const [isExpanded, setIsExpanded] = useGlobal(`tree-node-${node.key}`, node.isExpanded ?? false)
-  const hasChildren = node.children && node.children.length > 0
+  // Use the node's path for a truly unique key
+  const uniqueKey = `tree-node-${node.path}`
+  const [isExpanded, setIsExpanded] = useGlobal(uniqueKey, node.isExpanded ?? false)
 
   const handlePress = () => {
-    if (hasChildren) {
-      setIsExpanded(!isExpanded)
-    }
+    if (isExpandable(node)) setIsExpanded(!isExpanded)
     onNodePress?.(node)
   }
 
@@ -67,14 +69,38 @@ function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComp
       return <Text style={$booleanValue(themeName)}>{value.toString()}</Text>
     } else if (value === null) {
       return <Text style={$nullValue(themeName)}>null</Text>
+    } else if (type === "undefined") {
+      return <Text style={$undefinedValue(themeName)}>undefined</Text>
     } else if (Array.isArray(value)) {
-      return <Text style={$arrayValue(themeName)}>[{value.length} items]</Text>
+      if (value.length === 0) return <Text style={$arrayValue(themeName)}>[empty]</Text>
+
+      const maxPreview = 3
+      const previewItems = value.slice(0, maxPreview)
+      const remaining = value.length - maxPreview
+
+      const previewText = previewItems
+        .map((item) => {
+          return item.toString()
+        })
+        .join(", ")
+
+      const suffix = remaining > 0 ? `, ...${remaining} more` : ""
+      return (
+        <Text style={$arrayValue(themeName)}>
+          [{previewText}
+          {suffix}]
+        </Text>
+      )
     } else if (type === "object") {
       const keys = Object.keys(value)
       return <Text style={$objectValue(themeName)}>{`{${keys.length} keys}`}</Text>
     }
 
     return <Text style={$defaultValue(themeName)}>{String(value)}</Text>
+  }
+
+  if (isExpandable(node)) {
+    console.tron.log("Expandable children for " + node.label, node.children?.[0]?.children)
   }
 
   return (
@@ -86,13 +112,13 @@ function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComp
           ))}
         </View>
 
-        {hasChildren && <Text style={$expandIcon(themeName)}>{isExpanded ? "▼" : "▶"}</Text>}
+        {isExpandable(node) && <Text style={$expandIcon(themeName)}>{isExpanded ? "▼" : "▶"}</Text>}
 
         <Text style={$nodeLabel(themeName)}>{node.label}</Text>
         {renderValue()}
       </Pressable>
 
-      {hasChildren && isExpanded && (
+      {isExpandable(node) && isExpanded && (
         <TreeView data={node.children!} level={level + 1} onNodePress={onNodePress} />
       )}
     </View>
@@ -100,60 +126,55 @@ function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComp
 }
 
 // Helper function to convert objects/arrays to tree structure
-export function objectToTree(obj: any, label = "root"): TreeNode[] {
+export function objectToTree(obj: any, label = "root", path = ""): TreeNode[] {
   if (obj === null) {
-    return [{ key: "null", label, value: null, type: "null" }]
+    return [{ key: "null", path: `${path}-null`, label, value: null, type: "null" }]
   }
 
   if (obj === undefined) {
-    return [{ key: "undefined", label, value: undefined, type: "undefined" }]
+    return [
+      { key: "undefined", path: `${path}-undefined`, label, value: undefined, type: "undefined" },
+    ]
   }
 
   if (typeof obj === "string" || typeof obj === "number" || typeof obj === "boolean") {
-    return [{ key: "value", label, value: obj, type: typeof obj as any }]
+    return [{ key: "value", path: `${path}-value`, label, value: obj, type: typeof obj as any }]
   }
 
   if (Array.isArray(obj)) {
-    return [
-      {
-        key: "array",
-        label,
-        value: obj,
-        type: "array",
-        children: obj.map((item, index) => ({
-          key: `array-${index}`,
-          label: `[${index}]`,
-          value: item,
-          type: typeof item as any,
-          children:
-            typeof item === "object" && item !== null
-              ? objectToTree(item, `[${index}]`)
-              : undefined,
-        })),
-      },
-    ]
+    return obj.map((item, index) => ({
+      key: `array-${index}`,
+      path: `${path}-array-${index}`,
+      label: `[${index}]`,
+      value: item,
+      type: typeof item as any,
+      children:
+        typeof item === "object" && item !== null
+          ? objectToTree(item, `[${index}]`, `${path}-array-${index}`)
+          : undefined,
+    }))
   }
 
   if (typeof obj === "object") {
-    return [
-      {
-        key: "object",
-        label,
-        value: obj,
-        type: "object",
-        children: Object.entries(obj).map(([key, value]) => ({
-          key: `object-${key}`,
-          label: key,
-          value,
-          type: typeof value as any,
-          children:
-            typeof value === "object" && value !== null ? objectToTree(value, key) : undefined,
-        })),
-      },
-    ]
+    return Object.entries(obj).map(([key, value]) => ({
+      key: `object-${key}`,
+      path: `${path}-object-${key}`,
+      label: key,
+      value,
+      type: typeof value as any,
+      children:
+        typeof value === "object" && value !== null
+          ? objectToTree(value, key, `${path}-object-${key}`)
+          : undefined,
+    }))
   }
 
-  return [{ key: "unknown", label, value: obj, type: "undefined" }]
+  return [{ key: "unknown", path: `${path}-unknown`, label, value: obj, type: "undefined" }]
+}
+
+// An expandable object is one that is not a string, number, boolean, undefined, or null
+function isExpandable(node: TreeNode): boolean {
+  return Boolean(node.children && node.children.length > 0)
 }
 
 const $container: ViewStyle = {
@@ -216,7 +237,13 @@ const $booleanValue = withTheme<TextStyle>((_theme) => ({
 }))
 
 const $nullValue = withTheme<TextStyle>(({ colors }) => ({
-  color: colors.neutral,
+  color: colors.neutralVery,
+  fontFamily: "Courier",
+  fontSize: 12,
+}))
+
+const $undefinedValue = withTheme<TextStyle>(({ colors }) => ({
+  color: colors.neutralVery,
   fontFamily: "Courier",
   fontSize: 12,
 }))
