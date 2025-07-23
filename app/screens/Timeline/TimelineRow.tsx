@@ -4,6 +4,7 @@ import ActionButton from "../../components/ActionButton"
 
 type TimelineRowProps = {
   title: string
+  titleColor?: string
   date: Date | number
   deltaTime?: number
   preview: string
@@ -27,6 +28,7 @@ function TimelineRow({
   date,
   deltaTime,
   title,
+  titleColor,
   preview,
   isImportant = false,
   isTagged = false,
@@ -47,7 +49,7 @@ function TimelineRow({
         <View style={$titleContainer}>
           <View style={$titleText(themeName, isImportant)}>
             {isTagged && <Text style={$tagIcon}>🏷️</Text>}
-            <Text style={$titleLabel(themeName, isImportant)}>
+            <Text style={[$titleLabel(themeName, isImportant), { color: titleColor }]}>
               {title} {responseStatusCode ? `(${responseStatusCode})` : ""}
             </Text>
           </View>

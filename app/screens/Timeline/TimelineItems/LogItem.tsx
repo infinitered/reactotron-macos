@@ -2,6 +2,8 @@ import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { TimelineItemLog } from "../../../types"
 import { useGlobal } from "../../../state/useGlobal"
 import TimelineRow from "../TimelineRow"
+import { TreeView, objectToTree } from "../../../components/TreeView"
+import { withTheme } from "../../../theme/theme"
 
 type LogItemProps = { item: TimelineItemLog }
 
@@ -58,61 +60,22 @@ export function LogItem({ item }: LogItemProps) {
       isImportant={important}
       isTagged={important}
     >
-      <View style={$messageContainer}>
-        <Text style={$messageLabel}>Message:</Text>
-        <Text style={$messageText}>{message.toString()}</Text>
+      <View style={$payloadContainer}>
+        <Text style={$sectionLabel}>Payload:</Text>
+        <TreeView data={objectToTree(payload, "payload")} />
       </View>
-      {Array.isArray(payload?.message) && payload?.message?.length > 1 && (
-        <View style={$stackContainer}>
-          <Text style={$messageLabel}>Stack:</Text>
-          {(payload?.message as any[]).slice(1).map((line: any, idx: number) => (
-            <Text key={idx} style={$stackText}>
-              {line.toString()}
-            </Text>
-          ))}
-        </View>
-      )}
-      {payload?.level === "error" && "stack" in payload && (
-        <View style={$stackContainer}>
-          <Text style={$messageLabel}>Stack Trace:</Text>
-          {Array.isArray(payload?.stack) ? (
-            payload?.stack.map((frame: any, idx: number) => (
-              <Text key={idx} style={$stackText}>
-                {typeof frame === "string"
-                  ? frame
-                  : `${frame.functionName} (${frame.fileName}:${frame.lineNumber})`}
-              </Text>
-            ))
-          ) : (
-            <Text style={$stackText}>{payload?.stack}</Text>
-          )}
-        </View>
-      )}
     </TimelineRow>
   )
 }
 
-const $messageContainer: ViewStyle = {
+const $payloadContainer: ViewStyle = {
   marginBottom: 16,
 }
 
-const $messageLabel: TextStyle = {
-  fontSize: 12,
+const $sectionLabel = withTheme<TextStyle>(({ colors }) => ({
+  fontSize: 14,
   fontWeight: "bold",
   marginBottom: 8,
-  opacity: 0.7,
-}
-
-const $messageText: TextStyle = {
-  fontSize: 14,
-  flex: 1,
-}
-
-const $stackContainer: ViewStyle = {
-  marginBottom: 16,
-}
-
-const $stackText: TextStyle = {
-  fontSize: 12,
-  marginBottom: 2,
-}
+  color: colors.mainText,
+  opacity: 0.8,
+}))
