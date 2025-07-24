@@ -17,6 +17,30 @@ import { LogItem } from "./TimelineItems/LogItem"
 import { NetworkItem } from "./TimelineItems/NetworkItem"
 import { useThemeName, withTheme } from "../../theme/theme"
 
+// For testing on release build
+/*
+const timers: { [key: string]: number } = {}
+
+let tempBuf: string[] = []
+
+export const time = (label: string): void => {
+  timers[label] = performance.now()
+}
+
+export const timeEnd = (label: string): void => {
+  const startTime = timers[label]
+  if (startTime) {
+    const totalTime = performance.now() - startTime
+    tempBuf.push(totalTime.toFixed(2))
+    if (tempBuf.length >= 10) {
+      Alert.alert(tempBuf.toString())
+      tempBuf = []
+    }
+    delete timers[label]
+  }
+}
+ */
+
 interface TimelineState {
   ids: string[]
   items: { [id: string]: TimelineItem }
@@ -35,10 +59,10 @@ interface TestConfig {
 }
 
 const TEST_CONFIGS: { [key: string]: TestConfig } = {
-  light: { itemCount: 1000, itemHeight: 60, testDuration: 5, updateFrequency: 5 },
-  medium: { itemCount: 5000, itemHeight: 60, testDuration: 5, updateFrequency: 10 },
-  heavy: { itemCount: 10000, itemHeight: 60, testDuration: 5, updateFrequency: 20 },
-  extreme: { itemCount: 50000, itemHeight: 60, testDuration: 5, updateFrequency: 500 },
+  light: { itemCount: 1000, itemHeight: 60, testDuration: 10, updateFrequency: 10 },
+  medium: { itemCount: 10000, itemHeight: 60, testDuration: 10, updateFrequency: 100 },
+  heavy: { itemCount: 100000, itemHeight: 60, testDuration: 10, updateFrequency: 1000 },
+  extreme: { itemCount: 190000, itemHeight: 60, testDuration: 10, updateFrequency: 10000 },
 }
 
 const onRenderCallback: ProfilerOnRenderCallback = (id, phase, actualDuration) => {
@@ -135,6 +159,8 @@ export function TimelineScreen() {
   const startStressTest = useCallback(() => {
     hasLoggedInitialRender.current = false
     console.time("initialRenderTime")
+    // For release build
+    //time("initialRenderTime")
 
     setTimeline(INITIAL_TIMELINE_STATE)
     addRandomTimelineItems(config.itemCount, setTimeline)
@@ -168,6 +194,8 @@ export function TimelineScreen() {
       onLayout: () => {
         if (!hasLoggedInitialRender.current) {
           console.timeEnd("initialRenderTime")
+          // For release build
+          //timeEnd("initialRenderTime")
           hasLoggedInitialRender.current = true
         }
       },
