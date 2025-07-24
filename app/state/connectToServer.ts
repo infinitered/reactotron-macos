@@ -1,11 +1,12 @@
 import { TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
 
-type Unsubscribe = () => void
+type UnsubscribeFn = () => void
+type SendToClientFn = (message: string | object, payload?: object, clientId?: string) => void
+type WebSocketState = { socket: WebSocket | null }
 
-let _sendToClient: (message: string | object, payload?: object, clientId?: string) => void
-
-const ws: { socket: WebSocket | null } = { socket: null }
+let _sendToClient: SendToClientFn
+const ws: WebSocketState = { socket: null }
 
 /**
  * Connects to the reactotron-core-server via websocket.
@@ -14,14 +15,11 @@ const ws: { socket: WebSocket | null } = { socket: null }
  * - isConnected: boolean
  * - error: Error | null
  * - clientIds: string[]
- * - timelineIds: string[]
- * - timeline-{id}: TimelineItem
+ * - timelineItems: TimelineItem[]
  *
- * This state is *not* persisted across app restarts.
- *
- * @param props.port - The port to connect to.
+ * @param props.port - The port to connect to. Defaults to 9292.
  */
-export function connectToServer(props: { port: number } = { port: 9292 }): Unsubscribe {
+export function connectToServer(props: { port: number } = { port: 9292 }): UnsubscribeFn {
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
@@ -32,19 +30,15 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
 
+  // Tell the server we are a Reactotron app, not a React client.
   ws.socket.onopen = () => {
-    // Tell the server we are a Reactotron app, not a React client.
-    ws.socket?.send(
-      JSON.stringify({
-        type: "reactotron.subscribe",
-        payload: {
-          name: "TODO -- Add Name Here?",
-        },
-      }),
-    )
+    ws.socket?.send(JSON.stringify({ type: "reactotron.subscribe", payload: {} }))
   }
+
+  // Handle errors
   ws.socket.onerror = (event) => setError(new Error(`WebSocket error: ${event.message}`))
 
+  // Handle messages coming from the server, intended to be sent to the client or Reactotron app.
   ws.socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
 
@@ -75,49 +69,33 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       if (data.cmd.type === "clear") setTimelineItems([])
 
       if (data.cmd.type === "log" || data.cmd.type === "api.response") {
-        const id = `${data.cmd.clientId}-${data.cmd.messageId}`
-        const timelineItem: TimelineItem = {
-          id,
-          type: data.cmd.type,
-          important: data.cmd.important,
-          connectionId: data.cmd.connectionId,
-          messageId: data.cmd.messageId,
-          date: data.cmd.date,
-          deltaTime: data.cmd.deltaTime,
-          clientId: data.cmd.clientId,
-          payload: data.cmd.payload,
-        }
-
-        console.tron.log("timelineItem", timelineItem)
+        // Add a unique ID to the timeline item
+        data.cmd.id = `${data.cmd.clientId}-${data.cmd.messageId}`
 
         // Add to timeline IDs
         setTimelineItems((prev) => {
-          // Mutating existing array is faster, and we don't care if it's not a copy.
-          prev.unshift(timelineItem)
-          return prev
+          prev.unshift(data.cmd) // mutating is faster
+          return prev // don't worry, it'll still rerender
         })
       } else {
         console.tron.log("unknown command", data.cmd)
       }
     }
 
-    if (__DEV__) {
-      console.tron.log(data)
-    }
+    console.tron.log(data)
   }
 
+  // Clean up after disconnect
   ws.socket.onclose = () => {
     console.tron.log("Reactotron server disconnected")
     setIsConnected(false)
     setClientIds([])
   }
 
+  // Send a message to the server (which will be forwarded to the client)
   _sendToClient = (message: string | object, payload?: object, clientId?: string) => {
-    if (!ws) {
-      console.tron.log("Not connected to Reactotron server")
-    } else {
-      ws.socket?.send(JSON.stringify({ type: message, payload, clientId }))
-    }
+    if (!ws?.socket) return console.tron.log("Not connected to Reactotron server")
+    ws.socket.send(JSON.stringify({ type: message, payload, clientId }))
   }
 
   return () => {
@@ -127,6 +105,6 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 }
 
 export function sendToClient(message: string | object, payload?: object, clientId?: string) {
-  if (!_sendToClient) throw new Error("sendToClient not initialized ... did you call useServer?")
+  if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
   _sendToClient(message, payload, clientId)
 }
