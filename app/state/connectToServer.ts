@@ -7,18 +7,6 @@ let _sendToClient: (message: string | object, payload?: object, clientId?: strin
 
 const ws: { socket: WebSocket | null } = { socket: null }
 
-const emptyTimelineItem: TimelineItem = {
-  id: "",
-  type: "log",
-  important: false,
-  connectionId: 0,
-  messageId: 0,
-  date: "",
-  deltaTime: 0,
-  clientId: "",
-  payload: { level: "debug", message: "" },
-}
-
 /**
  * Connects to the reactotron-core-server via websocket.
  *
@@ -37,7 +25,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
-  const [_timelineIds, setTimelineIds] = withGlobal<string[]>("timelineIds", [], { persist: true })
+  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
+    persist: true,
+  })
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -82,20 +72,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     }
 
     if (data.type === "command") {
-      if (data.cmd.type === "clear") {
-        // Clear all timeline items
-        setTimelineIds((existingItems) => {
-          existingItems.forEach((id) => {
-            const [_, setTimelineItem] = withGlobal<TimelineItem>(
-              `timeline-${id}`,
-              emptyTimelineItem,
-              { persist: true },
-            )
-            setTimelineItem(null) // delete this item
-          })
-          return []
-        })
-      }
+      if (data.cmd.type === "clear") setTimelineItems([])
 
       if (data.cmd.type === "log" || data.cmd.type === "api.response") {
         const id = `${data.cmd.clientId}-${data.cmd.messageId}`
@@ -114,11 +91,11 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         console.tron.log("timelineItem", timelineItem)
 
         // Add to timeline IDs
-        setTimelineIds((prev) => [id, ...prev])
-
-        // Store individual item details
-        const [_, setTimelineItem] = withGlobal(`timeline-${id}`, timelineItem, { persist: true })
-        setTimelineItem(timelineItem)
+        setTimelineItems((prev) => {
+          // Mutating existing array is faster, and we don't care if it's not a copy.
+          prev.unshift(timelineItem)
+          return prev
+        })
       } else {
         console.tron.log("unknown command", data.cmd)
       }

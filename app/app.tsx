@@ -6,6 +6,7 @@
  */
 
 import { StatusBar, Text, View, ViewStyle, TextStyle } from "react-native"
+import { TextInput } from "react-native-macos"
 
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
@@ -17,8 +18,6 @@ import { useEffect } from "react"
 import { ClientTab } from "./components/ClientTab"
 import { TimelineScreen } from "./screens/Timeline/TimelineScreen"
 import { ClearLogsButton } from "./components/ClearLogsButton"
-import IRRunShellCommand from "../specs/NativeIRRunShellCommand"
-import IRKeyboard from "../specs/NativeIRKeyboard"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -41,13 +40,6 @@ function App(): React.JSX.Element {
   // and handle all websocket events.
   useEffect(() => connectToServer(), [])
 
-  useEffect(() => {
-    IRKeyboard.startListening()
-    return () => {
-      IRKeyboard.stopListening()
-    }
-  }, [])
-
   return (
     <View style={$container(theme)}>
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
@@ -56,10 +48,13 @@ function App(): React.JSX.Element {
           {clientIds.map((id) => (
             <ClientTab key={id} clientId={id} />
           ))}
-          <Text>{IRRunShellCommand.appPath()}</Text>
         </View>
         <HeaderTitle title={"Reactotron"} />
         <View style={$statusRow(theme)}>
+          <View>
+            <TextInput value={"SEARCHING"} placeholder="Search" style={{ width: 100 }} />
+            <Text>Search</Text>
+          </View>
           <View style={$statusItem(theme)}>
             <View
               style={[

@@ -1,8 +1,7 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { TimelineItemNetwork } from "../../../types"
-import { useGlobal } from "../../../state/useGlobal"
 import TimelineRow from "../TimelineRow"
-import { TreeView, objectToTree } from "../../../components/TreeView"
+import { TreeView } from "../../../components/TreeView"
 import { useTheme, useThemeName } from "../../../theme/theme"
 
 type NetworkItemProps = { item: TimelineItemNetwork }
@@ -15,7 +14,7 @@ export function NetworkItem({ item }: NetworkItemProps) {
   if (item.type !== "api.response") return null
 
   const { payload, date, deltaTime, important } = item
-  const [isOpen, setIsOpen] = useGlobal(`network-${item.messageId}-open`, false)
+
   const [themeName] = useThemeName()
   const { colors } = useTheme(themeName)
 
@@ -72,17 +71,14 @@ export function NetworkItem({ item }: NetworkItemProps) {
     },
   ]
 
-  const tree = objectToTree({ payload })
-
   return (
     <TimelineRow
+      id={item.messageId.toString()}
       title={status}
       titleColor={statusColor}
       date={new Date(date)}
       deltaTime={deltaTime}
       preview={preview}
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
       toolbar={toolbar}
       isImportant={important}
       isTagged={important}
@@ -90,7 +86,7 @@ export function NetworkItem({ item }: NetworkItemProps) {
     >
       <View style={$payloadContainer}>
         <Text style={$sectionLabel}>Payload:</Text>
-        <TreeView data={tree} />
+        <TreeView data={{ payload }} />
       </View>
     </TimelineRow>
   )

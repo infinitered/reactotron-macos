@@ -1,8 +1,7 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { TimelineItemLog } from "../../../types"
-import { useGlobal } from "../../../state/useGlobal"
 import TimelineRow from "../TimelineRow"
-import { TreeView, objectToTree } from "../../../components/TreeView"
+import { TreeView } from "../../../components/TreeView"
 import { useThemeName, withTheme } from "../../../theme/theme"
 
 type LogItemProps = { item: TimelineItemLog }
@@ -14,11 +13,8 @@ export function LogItem({ item }: LogItemProps) {
   const [themeName] = useThemeName()
   const { payload, date, deltaTime, important } = item
 
-  console.tron.log("LogItem", item)
   // Type guard to ensure this is a log item
   if (item.type !== "log") return null
-
-  const [isOpen, setIsOpen] = useGlobal(`log-${item.messageId}-open`, false)
 
   // Determine log level and color
   let level: string = "DEBUG"
@@ -50,23 +46,20 @@ export function LogItem({ item }: LogItemProps) {
     },
   ]
 
-  const tree = objectToTree({ payload })
-
   return (
     <TimelineRow
+      id={item.messageId.toString()}
       title={level}
       date={new Date(date)}
       deltaTime={deltaTime}
       preview={preview}
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
       toolbar={toolbar}
       isImportant={important}
       isTagged={important}
     >
       <View style={$payloadContainer}>
         <Text style={$sectionLabel(themeName)}>Payload:</Text>
-        <TreeView data={tree} />
+        <TreeView data={{ payload }} />
       </View>
     </TimelineRow>
   )

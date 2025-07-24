@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import IRRunShellCommand from "../../specs/NativeIRRunShellCommand"
-import IRSystemInfo, { SystemInfo, type SystemInfoMemory } from "../../specs/NativeIRSystemInfo"
+import IRSystemInfo, { SystemInfo } from "../../specs/NativeIRSystemInfo"
+import IRKeyboard, { KeyboardEvent } from "../../specs/NativeIRKeyboard"
 import type { EventSubscription } from "react-native"
 
 /**
@@ -31,6 +32,29 @@ export function useSystemInfo(onInfo: (info: SystemInfo) => void) {
       _sysInfoSubscribers--
       systemInfoSubscription.current?.remove()
       if (_sysInfoSubscribers === 0) IRSystemInfo.stopMonitoring()
+    }
+  }, [])
+}
+
+/**
+ * Subscribe to keyboard events.
+ *
+ * @param onKeyboardEvent - Callback to receive keyboard events.
+ * @returns A function to unsubscribe from keyboard events.
+ */
+let _keyboardSubscribers: number = 0
+export function useKeyboardEvents(onKeyboardEvent: (event: KeyboardEvent) => void) {
+  const keyboardSubscription = useRef<EventSubscription | null>(null)
+
+  useEffect(() => {
+    _keyboardSubscribers++
+    if (_keyboardSubscribers === 1) IRKeyboard.startListening()
+    keyboardSubscription.current = IRKeyboard.onKeyboardEvent(onKeyboardEvent)
+
+    return () => {
+      _keyboardSubscribers--
+      keyboardSubscription.current?.remove()
+      if (_keyboardSubscribers === 0) IRKeyboard.stopListening()
     }
   }, [])
 }

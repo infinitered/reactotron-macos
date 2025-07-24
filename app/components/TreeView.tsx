@@ -1,64 +1,135 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
 import { useThemeName, withTheme, type ThemeName } from "../theme/theme"
-import { useGlobal } from "../state/useGlobal"
+import { useState } from "react"
 
-export type TreeNode = {
-  key: string
-  path: string
-  label: string
-  value?: any
-  children?: TreeNode[]
-  isExpanded?: boolean
-  type?: "string" | "number" | "boolean" | "object" | "array" | "null" | "undefined"
-}
+// max level to avoid infinite recursion
+const MAX_LEVEL = 10
+
+const TreeViewSymbol = Symbol("TreeView")
 
 type TreeViewProps = {
-  data: TreeNode[]
+  data: any
+  path?: string[]
   level?: number
-  onNodePress?: (node: TreeNode) => void
+  onNodePress?: (node: { path: string[]; value: any; key: string }) => void
 }
 
-export function TreeView({ data, level = 0, onNodePress }: TreeViewProps) {
+export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewProps) {
   const [themeName] = useThemeName()
 
-  console.tron.log("TreeView", data)
+  const node: TreeNodeComponentProps = {
+    path,
+    key: "unknown",
+    label: "unknown",
+    value: data,
+    level,
+    themeName,
+  }
+
+  if (Array.isArray(data)) {
+    // loop through the array and create a tree node for each item
+    return (
+      <View style={$container}>
+        {data.map((item, index) => (
+          <TreeNodeComponent
+            key={`${index}`}
+            path={[...path, `${index}`]}
+            label={`[${index}]`}
+            value={item}
+            level={level}
+            onNodePress={onNodePress}
+            themeName={themeName}
+          />
+        ))}
+      </View>
+    )
+  }
+
+  if (typeof data === "object") {
+    // loop through the object and create a tree node for each key
+    return (
+      <View style={$container}>
+        {Object.entries(data).map(([key, value]) => (
+          <TreeNodeComponent
+            key={key}
+            path={[...path, key]}
+            label={key}
+            value={value}
+            level={level}
+            onNodePress={onNodePress}
+            themeName={themeName}
+          />
+        ))}
+      </View>
+    )
+  }
+
+  if (data === null) {
+    node.key = "null"
+    node.label = "null"
+    node.value = null
+  }
+
+  if (data === undefined) {
+    node.key = "undefined"
+    node.label = "undefined"
+    node.value = undefined
+  }
+
+  if (typeof data === "string" || typeof data === "number" || typeof data === "boolean") {
+    node.key = "value"
+    node.label = "value"
+    node.value = data
+  }
 
   return (
     <View style={$container}>
-      {data.map((node) => (
-        <TreeNodeComponent
-          key={node.key}
-          node={node}
-          level={level}
-          onNodePress={onNodePress}
-          themeName={themeName}
-        />
-      ))}
+      <TreeNodeComponent
+        {...node}
+        key={node.key}
+        path={[...path, node.key]}
+        level={level + 1}
+        onNodePress={onNodePress}
+      />
     </View>
   )
 }
 
 type TreeNodeComponentProps = {
-  node: TreeNode
+  path: string[]
+  key: string
+  label: string
+  value: any
   level: number
-  onNodePress?: (node: TreeNode) => void
+  onNodePress?: (node: { path: string[]; value: any; key: string }) => void
   themeName: ThemeName
 }
 
-function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComponentProps) {
-  // Use the node's path for a truly unique key
-  const uniqueKey = `tree-node-${node.path}`
-  const [isExpanded, setIsExpanded] = useGlobal(uniqueKey, node.isExpanded ?? false)
+function TreeNodeComponent({
+  path,
+  label,
+  value,
+  level,
+  onNodePress,
+  themeName,
+}: TreeNodeComponentProps) {
+  // We'll track whether the node should be expanded or not in a symbol, but use this to rerender
+  const [_a, rerender] = useState([])
+
+  const isExpanded = (value && typeof value === "object" && value[TreeViewSymbol]) ?? false
 
   const handlePress = () => {
-    if (isExpandable(node)) setIsExpanded(!isExpanded)
-    onNodePress?.(node)
+    if (value && typeof value === "object") {
+      value[TreeViewSymbol] = !value[TreeViewSymbol]
+      rerender([])
+    }
+
+    onNodePress?.({ path, value, key: label })
   }
 
   const renderValue = () => {
-    if (node.value === undefined) return null
+    if (value === undefined) return null
 
-    const value = node.value
     const type = typeof value
 
     if (type === "string") {
@@ -99,9 +170,7 @@ function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComp
     return <Text style={$defaultValue(themeName)}>{String(value)}</Text>
   }
 
-  if (isExpandable(node)) {
-    console.tron.log("Expandable children for " + node.label, node.children?.[0]?.children)
-  }
+  const isExpandable = value && typeof value === "object" && Object.keys(value).length > 0
 
   return (
     <View style={$nodeContainer}>
@@ -112,69 +181,25 @@ function TreeNodeComponent({ node, level, onNodePress, themeName }: TreeNodeComp
           ))}
         </View>
 
-        {isExpandable(node) && <Text style={$expandIcon(themeName)}>{isExpanded ? "▼" : "▶"}</Text>}
+        {isExpandable && <Text style={$expandIcon(themeName)}>{isExpanded ? "▼" : "▶"}</Text>}
 
-        <Text style={$nodeLabel(themeName)}>{node.label}</Text>
+        <Text style={$nodeLabel(themeName)}>{label}</Text>
         {renderValue()}
       </Pressable>
 
-      {isExpandable(node) && isExpanded && (
-        <TreeView data={node.children!} level={level + 1} onNodePress={onNodePress} />
+      {isExpandable && isExpanded && level < MAX_LEVEL && (
+        <TreeView
+          data={value}
+          path={[...path, label]}
+          level={level + 1}
+          onNodePress={onNodePress}
+        />
+      )}
+      {isExpandable && isExpanded && level >= MAX_LEVEL && (
+        <Text style={$defaultValue(themeName)}>{JSON.stringify(value, null, 2)}</Text>
       )}
     </View>
   )
-}
-
-// Helper function to convert objects/arrays to tree structure
-export function objectToTree(obj: any, label = "root", path = ""): TreeNode[] {
-  if (obj === null) {
-    return [{ key: "null", path: `${path}-null`, label, value: null, type: "null" }]
-  }
-
-  if (obj === undefined) {
-    return [
-      { key: "undefined", path: `${path}-undefined`, label, value: undefined, type: "undefined" },
-    ]
-  }
-
-  if (typeof obj === "string" || typeof obj === "number" || typeof obj === "boolean") {
-    return [{ key: "value", path: `${path}-value`, label, value: obj, type: typeof obj as any }]
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map((item, index) => ({
-      key: `array-${index}`,
-      path: `${path}-array-${index}`,
-      label: `[${index}]`,
-      value: item,
-      type: typeof item as any,
-      children:
-        typeof item === "object" && item !== null
-          ? objectToTree(item, `[${index}]`, `${path}-array-${index}`)
-          : undefined,
-    }))
-  }
-
-  if (typeof obj === "object") {
-    return Object.entries(obj).map(([key, value]) => ({
-      key: `object-${key}`,
-      path: `${path}-object-${key}`,
-      label: key,
-      value,
-      type: typeof value as any,
-      children:
-        typeof value === "object" && value !== null
-          ? objectToTree(value, key, `${path}-object-${key}`)
-          : undefined,
-    }))
-  }
-
-  return [{ key: "unknown", path: `${path}-unknown`, label, value: obj, type: "undefined" }]
-}
-
-// An expandable object is one that is not a string, number, boolean, undefined, or null
-function isExpandable(node: TreeNode): boolean {
-  return Boolean(node.children && node.children.length > 0)
 }
 
 const $container: ViewStyle = {

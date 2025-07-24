@@ -1,15 +1,15 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
 import { useThemeName, withTheme, type ThemeName, useTheme } from "../../theme/theme"
 import ActionButton from "../../components/ActionButton"
+import { useGlobal } from "../../state/useGlobal"
 
 type TimelineRowProps = {
+  id: string
   title: string
   titleColor?: string
   date: Date | number
   deltaTime?: number
   preview: string
-  isOpen: boolean
-  setIsOpen: (isOpen: boolean) => void
   toolbar?: {
     icon: React.ElementType<{ size: number }>
     tip: string
@@ -22,11 +22,10 @@ type TimelineRowProps = {
 }
 
 function TimelineRow({
-  isOpen,
-  setIsOpen,
   toolbar,
   date,
   deltaTime,
+  id,
   title,
   titleColor,
   preview,
@@ -36,6 +35,7 @@ function TimelineRow({
   children,
 }: TimelineRowProps) {
   const [themeName] = useThemeName()
+  const [isOpen, setIsOpen] = useGlobal(`timeline-${id}-open`, false, { persist: true })
 
   const time = formatTime(date)
 
