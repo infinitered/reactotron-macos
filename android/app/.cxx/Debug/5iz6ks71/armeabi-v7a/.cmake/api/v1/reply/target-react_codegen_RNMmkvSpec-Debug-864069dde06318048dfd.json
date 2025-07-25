@@ -1,0 +1,244 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./RNMmkvSpec-generated.cpp.o"
+		},
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./react/renderer/components/RNMmkvSpec/ComponentDescriptors.cpp.o"
+		},
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./react/renderer/components/RNMmkvSpec/EventEmitters.cpp.o"
+		},
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./react/renderer/components/RNMmkvSpec/Props.cpp.o"
+		},
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./react/renderer/components/RNMmkvSpec/RNMmkvSpecJSI-generated.cpp.o"
+		},
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./react/renderer/components/RNMmkvSpec/ShadowNodes.cpp.o"
+		},
+		{
+			"path" : "RNMmkvSpec_autolinked_build/CMakeFiles/react_codegen_RNMmkvSpec.dir/./react/renderer/components/RNMmkvSpec/States.cpp.o"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_compile_options",
+			"target_include_directories",
+			"target_link_libraries"
+		],
+		"files" : 
+		[
+			"/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 11,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 28,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 17,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 19,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-DLOG_TAG=\\\"ReactNative\\\""
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-fexceptions"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-frtti"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-std=c++20"
+				},
+				{
+					"backtrace" : 2,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_NO_CONFIG=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_HAVE_CLOCK_GETTIME=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_USE_LIBCPP=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_CFG_NO_COROUTINES=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_MOBILE=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_HAVE_RECVMMSG=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_HAVE_PTHREAD=1"
+				},
+				{
+					"backtrace" : 0,
+					"fragment" : "-DFOLLY_HAVE_XSI_STRERROR_R=1"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 3,
+					"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/."
+				},
+				{
+					"backtrace" : 3,
+					"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "/Users/blackgoat/.gradle/caches/8.12/transforms/bbbd7faada6db350ac59925f93ab342e/transformed/fbjni-0.7.0/prefab/modules/fbjni/include"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "/Users/blackgoat/.gradle/caches/8.12/transforms/ef4e6d0c763dee663cc0052678189bb4/transformed/react-android-0.78.3-debug/prefab/modules/jsi/include"
+				},
+				{
+					"backtrace" : 4,
+					"isSystem" : true,
+					"path" : "/Users/blackgoat/.gradle/caches/8.12/transforms/ef4e6d0c763dee663cc0052678189bb4/transformed/react-android-0.78.3-debug/prefab/modules/reactnative/include"
+				}
+			],
+			"language" : "CXX",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			],
+			"sysroot" : 
+			{
+				"path" : "/Users/blackgoat/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/sysroot"
+			}
+		}
+	],
+	"id" : "react_codegen_RNMmkvSpec::@7541eabbae598da31a69",
+	"name" : "react_codegen_RNMmkvSpec",
+	"paths" : 
+	{
+		"build" : "RNMmkvSpec_autolinked_build",
+		"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/RNMmkvSpec-generated.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec/ComponentDescriptors.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec/EventEmitters.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec/Props.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec/RNMmkvSpecJSI-generated.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec/ShadowNodes.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/react/renderer/components/RNMmkvSpec/States.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "OBJECT_LIBRARY"
+}

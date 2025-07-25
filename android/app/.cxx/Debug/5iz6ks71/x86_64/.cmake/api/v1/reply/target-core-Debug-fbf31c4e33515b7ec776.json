@@ -1,0 +1,537 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "RNMmkvSpec_cxxmodule_autolinked_build/core/libcore.a"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_include_directories",
+			"set_target_properties"
+		],
+		"files" : 
+		[
+			"/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 72,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 149,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 157,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D__BIONIC_NO_PAGE_SIZE_MACRO -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC"
+				},
+				{
+					"fragment" : "-std=c++20"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 2,
+					"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					3
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				4,
+				5,
+				7,
+				8,
+				10,
+				11,
+				13,
+				14,
+				16,
+				18,
+				20,
+				22,
+				23,
+				25,
+				27,
+				28,
+				29,
+				31,
+				32,
+				33,
+				34,
+				35,
+				37,
+				38,
+				41,
+				43,
+				45,
+				47,
+				49,
+				54,
+				58
+			],
+			"sysroot" : 
+			{
+				"path" : "/Users/blackgoat/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/sysroot"
+			}
+		}
+	],
+	"id" : "core::@1b9a7d546b295b7d0867",
+	"name" : "core",
+	"nameOnDisk" : "libcore.a",
+	"paths" : 
+	{
+		"build" : "RNMmkvSpec_cxxmodule_autolinked_build/core",
+		"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				0,
+				3,
+				6,
+				9,
+				12,
+				15,
+				17,
+				19,
+				21,
+				24,
+				26,
+				30,
+				36,
+				39,
+				40,
+				42,
+				44,
+				46,
+				48,
+				50,
+				51,
+				52,
+				53,
+				55,
+				56,
+				57,
+				59
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				4,
+				5,
+				7,
+				8,
+				10,
+				11,
+				13,
+				14,
+				16,
+				18,
+				20,
+				22,
+				23,
+				25,
+				27,
+				28,
+				29,
+				31,
+				32,
+				33,
+				34,
+				35,
+				37,
+				38,
+				41,
+				43,
+				45,
+				47,
+				49,
+				54,
+				58
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKV.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKV.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKV_Android.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKV_IO.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKV_IO.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKV_OSX.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKVLog.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKVLog.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKVLog_Android.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedInputData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedInputData.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedInputData_OSX.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedInputDataCrypt.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedInputDataCrypt.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedInputDataCrypt_OSX.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedOutputData.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CodedOutputData.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/KeyValueHolder.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/KeyValueHolder.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/PBUtility.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/PBUtility.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MiniPBCoder.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MiniPBCoder.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MiniPBCoder_OSX.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMBuffer.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMBuffer.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/InterProcessLock.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/InterProcessLock.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/InterProcessLock_Win32.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/InterProcessLock_Android.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MemoryFile.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MemoryFile.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MemoryFile_Android.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MemoryFile_Linux.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MemoryFile_Win32.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MemoryFile_OSX.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/ThreadLock.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/ThreadLock.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/ThreadLock_Win32.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKVMetaInfo.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/AESCrypt.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/AESCrypt.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_aes.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_aes_core.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_aes_locl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_cfb128.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_opensslconf.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_md5_dgst.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_md5_locl.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_md5_one.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_md5.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_md32_common.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/aes/openssl/openssl_arm_arch.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/crc32/Checksum.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/crc32/crc32_armv8.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/crc32/zlib/zconf.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/crc32/zlib/zutil.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/crc32/zlib/crc32.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/crc32/zlib/crc32.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/MMKVPredef.h",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

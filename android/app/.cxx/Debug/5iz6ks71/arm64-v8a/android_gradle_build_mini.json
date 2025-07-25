@@ -1,0 +1,68 @@
+{
+  "buildFiles": [
+    "/Volumes/pain/projects/reactotron-macos/android/app/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Volumes/pain/projects/reactotron-macos/node_modules/@shopify/flash-list/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core/CMakeLists.txt",
+    "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/CMakeLists.txt",
+    "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni/CMakeLists.txt",
+    "/Volumes/pain/projects/reactotron-macos/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/blackgoat/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Volumes/pain/projects/reactotron-macos/android/app/.cxx/Debug/5iz6ks71/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/blackgoat/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Volumes/pain/projects/reactotron-macos/android/app/.cxx/Debug/5iz6ks71/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "core::@1b9a7d546b295b7d0867": {
+      "artifactName": "core",
+      "abi": "arm64-v8a",
+      "output": "/Volumes/pain/projects/reactotron-macos/android/app/.cxx/Debug/5iz6ks71/arm64-v8a/RNMmkvSpec_cxxmodule_autolinked_build/core/libcore.a",
+      "runtimeFiles": []
+    },
+    "react-native-mmkv::@4ae6a1e65d3e68ba0197": {
+      "artifactName": "react-native-mmkv",
+      "abi": "arm64-v8a",
+      "output": "/Volumes/pain/projects/reactotron-macos/android/app/build/intermediates/cxx/Debug/5iz6ks71/obj/arm64-v8a/libreact-native-mmkv.so",
+      "runtimeFiles": [
+        "/Users/blackgoat/.gradle/caches/8.12/transforms/bbbd7faada6db350ac59925f93ab342e/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so",
+        "/Users/blackgoat/.gradle/caches/8.12/transforms/ef4e6d0c763dee663cc0052678189bb4/transformed/react-android-0.78.3-debug/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+        "/Users/blackgoat/.gradle/caches/8.12/transforms/ef4e6d0c763dee663cc0052678189bb4/transformed/react-android-0.78.3-debug/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so"
+      ]
+    },
+    "react_codegen_rnflashlist::@c1d6cf6af84cbabf418f": {
+      "artifactName": "react_codegen_rnflashlist",
+      "abi": "arm64-v8a",
+      "runtimeFiles": []
+    },
+    "appmodules::@6890427a1f51a3e7e1df": {
+      "artifactName": "appmodules",
+      "abi": "arm64-v8a",
+      "output": "/Volumes/pain/projects/reactotron-macos/android/app/build/intermediates/cxx/Debug/5iz6ks71/obj/arm64-v8a/libappmodules.so",
+      "runtimeFiles": [
+        "/Volumes/pain/projects/reactotron-macos/android/app/build/intermediates/cxx/Debug/5iz6ks71/obj/arm64-v8a/libreact-native-mmkv.so",
+        "/Users/blackgoat/.gradle/caches/8.12/transforms/bbbd7faada6db350ac59925f93ab342e/transformed/fbjni-0.7.0/prefab/modules/fbjni/libs/android.arm64-v8a/libfbjni.so",
+        "/Users/blackgoat/.gradle/caches/8.12/transforms/ef4e6d0c763dee663cc0052678189bb4/transformed/react-android-0.78.3-debug/prefab/modules/jsi/libs/android.arm64-v8a/libjsi.so",
+        "/Users/blackgoat/.gradle/caches/8.12/transforms/ef4e6d0c763dee663cc0052678189bb4/transformed/react-android-0.78.3-debug/prefab/modules/reactnative/libs/android.arm64-v8a/libreactnative.so"
+      ]
+    },
+    "react_codegen_AppSpec::@d7e081e776fcf37281b1": {
+      "artifactName": "react_codegen_AppSpec",
+      "abi": "arm64-v8a",
+      "runtimeFiles": []
+    },
+    "react_codegen_RNMmkvSpec::@7541eabbae598da31a69": {
+      "artifactName": "react_codegen_RNMmkvSpec",
+      "abi": "arm64-v8a",
+      "runtimeFiles": []
+    }
+  }
+}

@@ -1,0 +1,219 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3,
+						5
+					],
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "rnflashlist_autolinked_build",
+					"jsonFile" : "directory-rnflashlist_autolinked_build-Debug-2f6be116e7a000292c58.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/@shopify/flash-list/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "RNMmkvSpec_autolinked_build",
+					"jsonFile" : "directory-RNMmkvSpec_autolinked_build-Debug-024739dae48d47f9b3b5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "RNMmkvSpec_cxxmodule_autolinked_build",
+					"childIndexes" : 
+					[
+						4
+					],
+					"jsonFile" : "directory-RNMmkvSpec_cxxmodule_autolinked_build-Debug-4b99d1b2b5ed01bcb11b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.9.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/android",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "RNMmkvSpec_cxxmodule_autolinked_build/core",
+					"jsonFile" : "directory-RNMmkvSpec_cxxmodule_autolinked_build.core-Debug-4dba7746656ddbeb2fd5.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10.0"
+					},
+					"parentIndex" : 3,
+					"projectIndex" : 2,
+					"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native-mmkv/MMKV/Core",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "codegen_app_build",
+					"jsonFile" : "directory-codegen_app_build-Debug-e6186b472a9c09ac4415.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.13"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/Volumes/pain/projects/reactotron-macos/android/app/build/generated/source/codegen/jni",
+					"targetIndexes" : 
+					[
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2,
+						5
+					],
+					"name" : "appmodules",
+					"targetIndexes" : 
+					[
+						0,
+						3,
+						4,
+						5
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						2
+					],
+					"directoryIndexes" : 
+					[
+						3
+					],
+					"name" : "ReactNativeMmkv",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4
+					],
+					"name" : "core",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "appmodules::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-appmodules-Debug-8d10fde6e7c079dcef0a.json",
+					"name" : "appmodules",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "core::@1b9a7d546b295b7d0867",
+					"jsonFile" : "target-core-Debug-3d1a5a0459ffc0ff3e74.json",
+					"name" : "core",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "react-native-mmkv::@4ae6a1e65d3e68ba0197",
+					"jsonFile" : "target-react-native-mmkv-Debug-a7dba86291570a936b4b.json",
+					"name" : "react-native-mmkv",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "react_codegen_AppSpec::@d7e081e776fcf37281b1",
+					"jsonFile" : "target-react_codegen_AppSpec-Debug-f91b1e9029ce7aca3d61.json",
+					"name" : "react_codegen_AppSpec",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "react_codegen_RNMmkvSpec::@7541eabbae598da31a69",
+					"jsonFile" : "target-react_codegen_RNMmkvSpec-Debug-864069dde06318048dfd.json",
+					"name" : "react_codegen_RNMmkvSpec",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "react_codegen_rnflashlist::@c1d6cf6af84cbabf418f",
+					"jsonFile" : "target-react_codegen_rnflashlist-Debug-2a8264bca1fd60242957.json",
+					"name" : "react_codegen_rnflashlist",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Volumes/pain/projects/reactotron-macos/android/app/.cxx/Debug/5iz6ks71/armeabi-v7a",
+		"source" : "/Volumes/pain/projects/reactotron-macos/node_modules/react-native/ReactAndroid/cmake-utils/default-app-setup"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
