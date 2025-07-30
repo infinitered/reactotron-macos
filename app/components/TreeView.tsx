@@ -1,6 +1,8 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
 import { useThemeName, withTheme, type ThemeName } from "../theme/theme"
 import { useState } from "react"
+import { traverse } from "../utils/traverse"
+import IRKeyboard from "../../specs/NativeIRKeyboard"
 
 // max level to avoid infinite recursion
 const MAX_LEVEL = 10
@@ -121,6 +123,16 @@ function TreeNodeComponent({
   const handlePress = () => {
     if (value && typeof value === "object") {
       value[TreeViewSymbol] = !value[TreeViewSymbol]
+      if (IRKeyboard.shift()) {
+        // if shift is pressed, all the children should be expanded/contracted too
+        // traverse the tree and set TreeViewSymbol for all of them to the new value
+        traverse(value, (_key, node) => {
+          if (node && typeof node === "object") {
+            // set the symbol to the same value as the root parent
+            node[TreeViewSymbol] = value[TreeViewSymbol]
+          }
+        })
+      }
       rerender([])
     }
 
