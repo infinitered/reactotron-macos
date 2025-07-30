@@ -16,7 +16,7 @@ index bc24d3f..3fdda39 100644
   * Makes `setContentOffset:` method no-op when given `block` is executed.
   * The block is being executed synchronously.
 diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm
-index 4773f61..406a0de 100644
+index 4773f61..563dc06 100644
 --- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm
 +++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm
 @@ -59,12 +59,55 @@
@@ -259,3 +259,17 @@ index ec8136b..802a2be 100644
  }
  
  #if !TARGET_OS_OSX // [macOS]
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+index fd43f3b..f67a335 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+@@ -91,7 +91,8 @@ static NSSet<NSNumber *> *returnKeyTypesSet;
+     _ignoreNextTextInputCall = NO;
+     _comingFromJS = NO;
+     _didMoveToWindow = NO;
+-    _originalTypingAttributes = [_backedTextInputView.typingAttributes copy];
++    //_originalTypingAttributes = [_backedTextInputView.typingAttributes copy];
++    _originalTypingAttributes = @{};
+ 
+     [self addSubview:_backedTextInputView];
+ #if TARGET_OS_IOS // [macOS] [visionOS]
