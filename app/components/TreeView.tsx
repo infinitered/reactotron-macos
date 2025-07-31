@@ -31,7 +31,7 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
   if (Array.isArray(data)) {
     // loop through the array and create a tree node for each item
     return (
-      <View style={$container}>
+      <>
         {data.map((item, index) => (
           <TreeNodeComponent
             key={`${index}`}
@@ -43,14 +43,14 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
             themeName={themeName}
           />
         ))}
-      </View>
+      </>
     )
   }
 
   if (typeof data === "object") {
     // loop through the object and create a tree node for each key
     return (
-      <View style={$container}>
+      <>
         {Object.entries(data).map(([key, value]) => (
           <TreeNodeComponent
             key={key}
@@ -62,7 +62,7 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
             themeName={themeName}
           />
         ))}
-      </View>
+      </>
     )
   }
 
@@ -85,15 +85,13 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
   }
 
   return (
-    <View style={$container}>
-      <TreeNodeComponent
-        {...node}
-        key={node.key}
-        path={[...path, node.key]}
-        level={level + 1}
-        onNodePress={onNodePress}
-      />
-    </View>
+    <TreeNodeComponent
+      {...node}
+      key={node.key}
+      path={[...path, node.key]}
+      level={level + 1}
+      onNodePress={onNodePress}
+    />
   )
 }
 
@@ -205,10 +203,6 @@ function TreeNodeComponent({
       )}
     </>
   )
-}
-
-const $container: ViewStyle = {
-  flex: 1,
 }
 
 const $nodeRow = (level: number): ViewStyle => ({
