@@ -118,10 +118,11 @@ function TreeNodeComponent({
   // We'll track whether the node should be expanded or not in a symbol, but use this to rerender
   const [_a, rerender] = useState([])
 
-  const isExpanded = (value && typeof value === "object" && value[TreeViewSymbol]) ?? false
+  const isExpandable = value && typeof value === "object" && Object.keys(value).length > 0
+  const isExpanded = (isExpandable && value[TreeViewSymbol]) ?? false
 
   const handlePress = () => {
-    if (value && typeof value === "object") {
+    if (isExpandable) {
       value[TreeViewSymbol] = !value[TreeViewSymbol]
       if (IRKeyboard.shift()) {
         // if shift is pressed, all the children should be expanded/contracted too
@@ -182,17 +183,9 @@ function TreeNodeComponent({
     return <Text style={$defaultValue(themeName)}>{String(value)}</Text>
   }
 
-  const isExpandable = value && typeof value === "object" && Object.keys(value).length > 0
-
   return (
-    <View style={$nodeContainer}>
-      <Pressable style={$nodeRow} onPress={handlePress}>
-        <View style={$indentContainer}>
-          {Array.from({ length: level }).map((_, i) => (
-            <View key={i} style={$indentLine(themeName)} />
-          ))}
-        </View>
-
+    <>
+      <Pressable style={$nodeRow(level)} onPress={handlePress}>
         {isExpandable && <Text style={$expandIcon(themeName)}>{isExpanded ? "▼" : "▶"}</Text>}
 
         <Text style={$nodeLabel(themeName)}>{label}</Text>
@@ -210,7 +203,7 @@ function TreeNodeComponent({
       {isExpandable && isExpanded && level >= MAX_LEVEL && (
         <Text style={$defaultValue(themeName)}>{JSON.stringify(value, null, 2)}</Text>
       )}
-    </View>
+    </>
   )
 }
 
@@ -218,28 +211,13 @@ const $container: ViewStyle = {
   flex: 1,
 }
 
-const $nodeContainer: ViewStyle = {
-  flex: 1,
-}
-
-const $nodeRow: ViewStyle = {
+const $nodeRow = (level: number): ViewStyle => ({
   flexDirection: "row",
   alignItems: "center",
   paddingVertical: 2,
   paddingHorizontal: 4,
-}
-
-const $indentContainer: ViewStyle = {
-  flexDirection: "row",
-  alignItems: "center",
-}
-
-const $indentLine = withTheme<ViewStyle>(({ colors }) => ({
-  width: 16,
-  height: 1,
-  backgroundColor: colors.neutralVery,
-  marginRight: 4,
-}))
+  marginLeft: level * 16 + 4,
+})
 
 const $expandIcon = withTheme<TextStyle>(({ colors }) => ({
   color: colors.mainText,

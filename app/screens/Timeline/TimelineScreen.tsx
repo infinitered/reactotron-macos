@@ -5,7 +5,10 @@ import { TimelineItem } from "../../types"
 import { LogItem } from "./TimelineItems/LogItem"
 import { NetworkItem } from "./TimelineItems/NetworkItem"
 
-const TimelineRow = ({ item }: { item: TimelineItem }) => {
+/**
+ * Renders the correct component for each timeline item.
+ */
+const TimelineItemRenderer = ({ item }: { item: TimelineItem }) => {
   if (!item) return null
 
   if (item.type === "log") return <LogItem item={item} />
@@ -20,7 +23,7 @@ export function TimelineScreen() {
   return (
     <FlatList<TimelineItem>
       data={timelineItems}
-      renderItem={({ item }) => <TimelineRow item={item} />}
+      renderItem={({ item }) => <TimelineItemRenderer item={item} />}
       keyExtractor={(item) => item.id}
     />
   )
