@@ -1,6 +1,6 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { TimelineItemNetwork } from "../../../types"
-import TimelineRow from "../TimelineRow"
+import { ExpandableRow } from "../ExpandableRow"
 import { TreeView } from "../../../components/TreeView"
 import { useTheme, useThemeName } from "../../../theme/theme"
 
@@ -72,7 +72,7 @@ export function NetworkItem({ item }: NetworkItemProps) {
   ]
 
   return (
-    <TimelineRow
+    <ExpandableRow
       id={item.messageId.toString()}
       title={status}
       titleColor={statusColor}
@@ -88,7 +88,7 @@ export function NetworkItem({ item }: NetworkItemProps) {
         <Text style={$sectionLabel}>Payload:</Text>
         <TreeView data={{ payload }} />
       </View>
-    </TimelineRow>
+    </ExpandableRow>
   )
 }
 
