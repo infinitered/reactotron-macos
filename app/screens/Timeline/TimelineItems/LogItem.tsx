@@ -59,7 +59,7 @@ export function LogItem({ item }: LogItemProps) {
     >
       <View style={$payloadContainer}>
         <Text style={$sectionLabel(themeName)}>Payload:</Text>
-        <TreeView data={{ payload }} />
+        <TreeView data={payload} />
       </View>
     </ExpandableRow>
   )

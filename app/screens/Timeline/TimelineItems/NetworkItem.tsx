@@ -86,7 +86,7 @@ export function NetworkItem({ item }: NetworkItemProps) {
     >
       <View style={$payloadContainer}>
         <Text style={$sectionLabel}>Payload:</Text>
-        <TreeView data={{ payload }} />
+        <TreeView data={payload} />
       </View>
     </ExpandableRow>
   )
