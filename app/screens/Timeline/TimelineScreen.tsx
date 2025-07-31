@@ -1,5 +1,5 @@
 // import { View, Text } from "react-native"
-import { FlatList } from "react-native"
+import { LegendList } from "@legendapp/list"
 import { useGlobal } from "../../state/useGlobal"
 import { TimelineItem } from "../../types"
 import { LogItem } from "./TimelineItems/LogItem"
@@ -18,10 +18,11 @@ export function TimelineScreen() {
   const [timelineItems] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
 
   return (
-    <FlatList<TimelineItem>
+    <LegendList<TimelineItem>
       data={timelineItems}
       renderItem={({ item }) => <TimelineRow item={item} />}
       keyExtractor={(item) => item.id}
+      recycleItems
     />
   )
 }
