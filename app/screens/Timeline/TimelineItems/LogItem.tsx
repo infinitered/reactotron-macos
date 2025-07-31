@@ -1,6 +1,6 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { TimelineItemLog } from "../../../types"
-import TimelineRow from "../TimelineRow"
+import { ExpandableRow } from "../ExpandableRow"
 import { TreeView } from "../../../components/TreeView"
 import { useThemeName, withTheme } from "../../../theme/theme"
 
@@ -47,7 +47,7 @@ export function LogItem({ item }: LogItemProps) {
   ]
 
   return (
-    <TimelineRow
+    <ExpandableRow
       id={item.messageId.toString()}
       title={level}
       date={new Date(date)}
@@ -61,7 +61,7 @@ export function LogItem({ item }: LogItemProps) {
         <Text style={$sectionLabel(themeName)}>Payload:</Text>
         <TreeView data={{ payload }} />
       </View>
-    </TimelineRow>
+    </ExpandableRow>
   )
 }
 

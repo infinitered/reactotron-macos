@@ -3,7 +3,7 @@ import { useThemeName, withTheme, type ThemeName, useTheme } from "../../theme/t
 import ActionButton from "../../components/ActionButton"
 import { useGlobal } from "../../state/useGlobal"
 
-type TimelineRowProps = {
+type ExpandableRowProps = {
   id: string
   title: string
   titleColor?: string
@@ -21,7 +21,7 @@ type TimelineRowProps = {
   children?: React.ReactNode
 }
 
-function TimelineRow({
+export function ExpandableRow({
   toolbar,
   date,
   deltaTime,
@@ -33,7 +33,7 @@ function TimelineRow({
   isTagged = false,
   responseStatusCode,
   children,
-}: TimelineRowProps) {
+}: ExpandableRowProps) {
   const [themeName] = useThemeName()
   const [isOpen, setIsOpen] = useGlobal(`timeline-${id}-open`, false, { persist: true })
 
@@ -193,5 +193,3 @@ const $childrenContainer: ViewStyle = {
   paddingHorizontal: 40,
   paddingBottom: 30,
 }
-
-export default TimelineRow
