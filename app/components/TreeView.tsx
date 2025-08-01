@@ -1,4 +1,4 @@
-import { Text, type ViewStyle, type TextStyle, Pressable } from "react-native"
+import { Text, type ViewStyle, type TextStyle, Pressable, View } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
 import { useState } from "react"
 import { traverse } from "../utils/traverse"
@@ -48,13 +48,29 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
     const type = typeof data
 
     if (type === "string") {
-      return <Text style={$stringValue(themeName)}>&quot;{data}&quot;</Text>
+      return (
+        <Text pointerEvents="none" style={$stringValue(themeName)}>
+          &quot;{data}&quot;
+        </Text>
+      )
     } else if (type === "number") {
-      return <Text style={$numberValue(themeName)}>{data}</Text>
+      return (
+        <Text pointerEvents="none" style={$numberValue(themeName)}>
+          {data}
+        </Text>
+      )
     } else if (type === "boolean") {
-      return <Text style={$booleanValue(themeName)}>{data.toString()}</Text>
+      return (
+        <Text pointerEvents="none" style={$booleanValue(themeName)}>
+          {data.toString()}
+        </Text>
+      )
     } else if (data === null) {
-      return <Text style={$nullValue(themeName)}>null</Text>
+      return (
+        <Text pointerEvents="none" style={$nullValue(themeName)}>
+          null
+        </Text>
+      )
     } else if (Array.isArray(data)) {
       if (data.length === 0) return <Text style={$arrayValue(themeName)}>[empty]</Text>
 
@@ -73,10 +89,16 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
       )
     } else if (type === "object") {
       const keys = Object.keys(data)
-      return <Text style={$objectValue(themeName)}>{`{${keys.length} keys}`}</Text>
+      return (
+        <Text pointerEvents="none" style={$objectValue(themeName)}>{`{${keys.length} keys}`}</Text>
+      )
     }
 
-    return <Text style={$defaultValue(themeName)}>{String(data)}</Text>
+    return (
+      <Text pointerEvents="none" style={$defaultValue(themeName)}>
+        {String(data)}
+      </Text>
+    )
   }
 
   // Get children for rendering
@@ -112,7 +134,9 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
           />
         ))}
       {isExpandable && isExpanded && level >= MAX_LEVEL && (
-        <Text style={$defaultValue(themeName)}>{JSON.stringify(data, null, 2)}</Text>
+        <Text pointerEvents="none" style={$defaultValue(themeName)}>
+          {JSON.stringify(data, null, 2)}
+        </Text>
       )}
     </>
   )
@@ -135,55 +159,55 @@ const $expandIcon = withTheme<TextStyle>(({ colors }) => ({
 
 const $nodeLabel = withTheme<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
-  fontFamily: typography.code.normal,
+  // fontFamily: typography.code.normal,
   fontSize: typography.body,
   marginRight: 8,
 }))
 
 const $stringValue = withTheme<TextStyle>((_theme) => ({
   color: "#4CAF50",
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $numberValue = withTheme<TextStyle>((_theme) => ({
   color: "#2196F3",
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $booleanValue = withTheme<TextStyle>((_theme) => ({
   color: "#FF9800",
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $nullValue = withTheme<TextStyle>(({ colors }) => ({
   color: colors.neutralVery,
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $undefinedValue = withTheme<TextStyle>(({ colors }) => ({
   color: colors.neutralVery,
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $arrayValue = withTheme<TextStyle>((_theme) => ({
   color: "#9C27B0",
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $objectValue = withTheme<TextStyle>((_theme) => ({
   color: "#607D8B",
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $defaultValue = withTheme<TextStyle>(({ colors }) => ({
   color: colors.mainText,
-  fontFamily: "Courier",
+  // fontFamily: "Courier",
   fontSize: 12,
 }))

@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "all": "npm run pod && npm run macos",
-    "macos": "RCT_NEW_ARCH_ENABLED=1 react-native run-macos",
-    "macos-release": "RCT_NEW_ARCH_ENABLED=1 react-native run-macos --configuration Release",
-    "pod": "RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
+    "macos": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos",
+    "macos-release": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release",
+    "pod": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
     "lint": "eslint .",
-    "start": "react-native start",
+    "start": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/scripts/packager.sh start",
     "test": "jest",
     "postinstall": "patch-package"
   },
@@ -16,7 +16,6 @@
     "@expo-google-fonts/space-grotesk": "^0.3.0",
     "@legendapp/list": "^1.1.4",
     "react": "19.0.0",
-    "react-native": "0.78.3",
     "react-native-macos": "^0.78.3",
     "react-native-mmkv": "^3.3.0"
   },

@@ -1,6 +1,7 @@
 // import { View, Text } from "react-native"
+import { Text, type TextStyle } from "react-native"
 import { useGlobal } from "../../state/useGlobal"
-import { TimelineItem } from "../../types"
+import { TimelineItem, TimelineItemNetwork } from "../../types"
 import { LogItem } from "./TimelineItems/LogItem"
 import { NetworkItem } from "./TimelineItems/NetworkItem"
 import { LegendList } from "@legendapp/list"
@@ -28,5 +29,33 @@ export function TimelineScreen() {
       estimatedItemSize={150} // TODO: better estimate pls
       recycleItems // Not sure if this is better
     />
+    // <NetworkItem item={timelineItems[0] as TimelineItemNetwork} />
+    // <>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    //   <Text style={$stringValue}>Hello</Text>
+    // </>
   )
+}
+
+const $stringValue: TextStyle = {
+  color: "#4CAF50",
+  // fontFamily: "Courier",
+  fontSize: 12,
 }

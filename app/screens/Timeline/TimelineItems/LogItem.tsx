@@ -1,4 +1,4 @@
-import { Text, View, type ViewStyle, type TextStyle } from "react-native"
+import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
 import { TimelineItemLog } from "../../../types"
 import { ExpandableRow } from "../ExpandableRow"
 import { TreeView } from "../../../components/TreeView"
@@ -57,10 +57,10 @@ export function LogItem({ item }: LogItemProps) {
       isImportant={important}
       isTagged={important}
     >
-      <View style={$payloadContainer}>
+      <Pressable style={$payloadContainer}>
         <Text style={$sectionLabel(themeName)}>Payload:</Text>
         <TreeView data={payload} />
-      </View>
+      </Pressable>
     </ExpandableRow>
   )
 }
