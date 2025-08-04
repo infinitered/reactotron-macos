@@ -75,7 +75,7 @@ function startReactotronServer(opts = {}) {
   server.on("command", (cmd) => {
     // send the command to all connected Reactotron apps
     connectedReactotrons.forEach((reactotronApp) => {
-      console.log("Sending command to Reactotron app: ", cmd.type)
+      console.log("Sending command to Reactotron app: ", cmd.type, reactotronApp.id)
       reactotronApp.send(JSON.stringify({ type: "command", cmd }))
     })
   })

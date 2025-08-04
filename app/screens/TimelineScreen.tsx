@@ -25,7 +25,7 @@ export function TimelineScreen() {
       data={timelineItems}
       renderItem={({ item }) => <TimelineItemRenderer item={item} />}
       keyExtractor={(item) => item.id}
-      estimatedItemSize={150} // TODO: better estimate pls
+      estimatedItemSize={120} // TODO: better estimate pls
       recycleItems // Not sure if this is better
     />
   )

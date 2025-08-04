@@ -1,0 +1,329 @@
+#!/bin/bash
+
+# Color constants
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+DKGRAY='\033[1;30m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Print help screen
+show_help() {
+  echo -e "${BOLD}${CYAN}Reactotron TurboModule Generator${NC}"
+  echo ""
+  echo -e "${BOLD}Usage:${NC}"
+  echo "  ./bin/turbomodule <command> <module_name>"
+  echo ""
+  echo -e "${BOLD}Commands:${NC}"
+  echo -e "  ${GREEN}add${NC}     Create a new TurboModule"
+  echo -e "  ${RED}remove${NC}   Remove an existing TurboModule (alias: rm)"
+  echo -e "  ${BLUE}help${NC}    Show this help screen"
+  echo ""
+  echo -e "${BOLD}Examples:${NC}"
+  echo "  ./bin/turbomodule add IRMyNewThing"
+  echo "  ./bin/turbomodule remove IRMyNewThing"
+  echo "  ./bin/turbomodule rm IRMyNewThing"
+  echo ""
+  echo -e "${BOLD}What it does:${NC}"
+  echo "  • Creates .h and .mm files in ./app/native/"
+  echo "  • Creates TypeScript spec in ./specs/"
+  echo "  • Auto-links files into Xcode project"
+  echo "  • Includes sync method, async method, and events"
+  echo ""
+}
+
+# Print colored output
+print_success() { echo -e "${GREEN}✓${NC} $1"; }
+print_error() { echo -e "${RED}✗${NC} $1"; }
+print_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
+print_info() { echo -e "${BLUE}ℹ${NC} $1"; }
+print_step() { echo -e "${MAGENTA}→${NC} $1"; }
+
+# Check if git tree is clean
+check_git_status() {
+  if ! git diff-index --quiet HEAD --; then
+    print_warning "Git tree is not clean. You have uncommitted changes."
+    echo ""
+    echo -e "${YELLOW}Current changes:${NC}"
+    git status --porcelain
+    echo ""
+    read -p "Do you want to continue? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      print_error "Aborted."
+      exit 1
+    fi
+  fi
+}
+
+# Create git checkpoint
+create_checkpoint() {
+  local checkpoint_name="turbomodule-checkpoint-$(date +%s)"
+  git stash push -m "$checkpoint_name" --include-untracked
+  echo "$checkpoint_name"
+}
+
+# Restore from checkpoint
+restore_checkpoint() {
+  local checkpoint_name="$1"
+  local stash_id=$(git stash list | grep "$checkpoint_name" | head -1 | cut -d: -f1)
+  if [[ -n "$stash_id" ]]; then
+    git stash pop "$stash_id"
+    print_success "Restored from checkpoint"
+  else
+    print_warning "Could not find checkpoint to restore"
+  fi
+}
+
+# Validate module name
+validate_module_name() {
+  local name="$1"
+  if [[ -z "$name" ]]; then
+    print_error "Module name is required"
+    exit 1
+  fi
+  
+  if [[ ! "$name" =~ ^[A-Z][A-Za-z0-9]*$ ]]; then
+    print_error "Module name must start with uppercase letter and contain only letters/numbers"
+    exit 1
+  fi
+}
+
+# Generate header file
+generate_header() {
+  local module_name="$1"
+  local filename="app/native/${module_name}.h"
+  
+  cat > "$filename" << EOF
+#import <Foundation/Foundation.h>
+#import <AppSpec/AppSpec.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ${module_name} : Native${module_name}SpecBase <Native${module_name}Spec>
+
+@end
+
+NS_ASSUME_NONNULL_END
+EOF
+  print_success "Created $filename"
+}
+
+# Generate implementation file
+generate_implementation() {
+  local module_name="$1"
+  local filename="app/native/${module_name}.mm"
+  
+  cat > "$filename" << EOF
+#import "${module_name}.h"
+
+@implementation ${module_name}
+
+RCT_EXPORT_MODULE()
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::Native${module_name}SpecJSI>(params);
+}
+
+// Sync method example
+RCT_EXPORT_METHOD(getValue:(RCTResponseSenderBlock)callback)
+{
+  callback(@[@"Hello from ${module_name}!"]);
+}
+
+// Async method example
+RCT_EXPORT_METHOD(performAsyncTask:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    // Simulate async work
+    [NSThread sleepForTimeInterval:0.1];
+    
+    resolve(@{@"result": @"Async task completed"});
+  });
+}
+
+// Event emitter example
+RCT_EXPORT_METHOD(startEventStream)
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self emitOn${module_name}Event:@{
+      @"message": @"Event from ${module_name}",
+      @"timestamp": @([[NSDate date] timeIntervalSince1970])
+    }];
+  });
+}
+
+@end
+EOF
+  print_success "Created $filename"
+}
+
+# Generate TypeScript spec
+generate_spec() {
+  local module_name="$1"
+  local filename="specs/Native${module_name}.ts"
+  
+  cat > "$filename" << EOF
+import type { EventEmitter } from "react-native/Libraries/Types/CodegenTypes"
+import type { TurboModule } from "react-native"
+import { TurboModuleRegistry } from "react-native"
+
+export interface ${module_name}Event {
+  message: string
+  timestamp: number
+}
+
+export interface Spec extends TurboModule {
+  getValue(callback: (value: string) => void): void
+  performAsyncTask(): Promise<{ result: string }>
+  startEventStream(): void
+  readonly on${module_name}Event: EventEmitter<${module_name}Event>
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>("${module_name}")
+EOF
+  print_success "Created $filename"
+}
+
+# Link files using the ruby script
+link_files() {
+  local app_name="Reactotron-macOS"
+  local app_path="app"
+  
+  print_step "Linking files to Xcode project..."
+  ruby ./bin/linker.rb "$app_name" "$app_path"
+}
+
+# Add new TurboModule
+add_module() {
+  local module_name="$1"
+  
+  print_info "Creating TurboModule: $module_name"
+  
+  # Check git status
+  check_git_status
+  
+  # Create checkpoint
+  print_step "Creating git checkpoint..."
+  local checkpoint=$(create_checkpoint)
+  
+  # Validate module name
+  validate_module_name "$module_name"
+  
+  # Check if files already exist
+  if [[ -f "app/native/${module_name}.h" ]] || [[ -f "app/native/${module_name}.mm" ]] || [[ -f "specs/Native${module_name}.ts" ]]; then
+    print_error "Module $module_name already exists"
+    restore_checkpoint "$checkpoint"
+    exit 1
+  fi
+  
+  # Generate files
+  print_step "Generating files..."
+  generate_header "$module_name"
+  generate_implementation "$module_name"
+  generate_spec "$module_name"
+  
+  # Link files
+  link_files
+  
+  print_success "TurboModule $module_name created successfully!"
+  print_info "Files created:"
+  echo "  • app/native/${module_name}.h"
+  echo "  • app/native/${module_name}.mm"
+  echo "  • specs/Native${module_name}.ts"
+}
+
+# Remove TurboModule
+remove_module() {
+  local module_name="$1"
+  
+  print_info "Removing TurboModule: $module_name"
+  
+  # Check git status
+  check_git_status
+  
+  # Create checkpoint
+  print_step "Creating git checkpoint..."
+  local checkpoint=$(create_checkpoint)
+  
+  # Validate module name
+  validate_module_name "$module_name"
+  
+  # Check if files exist
+  local files_to_remove=(
+    "app/native/${module_name}.h"
+    "app/native/${module_name}.mm"
+    "specs/Native${module_name}.ts"
+  )
+  
+  local found_files=()
+  for file in "${files_to_remove[@]}"; do
+    if [[ -f "$file" ]]; then
+      found_files+=("$file")
+    fi
+  done
+  
+  if [[ ${#found_files[@]} -eq 0 ]]; then
+    print_error "Module $module_name not found"
+    restore_checkpoint "$checkpoint"
+    exit 1
+  fi
+  
+  # Remove files
+  print_step "Removing files..."
+  for file in "${found_files[@]}"; do
+    rm "$file"
+    print_success "Removed $file"
+  done
+  
+  # Link files to update Xcode project
+  link_files
+  
+  print_success "TurboModule $module_name removed successfully!"
+}
+
+# Main script logic
+main() {
+  local command="$1"
+  local module_name="$2"
+  
+  case "$command" in
+    "help"|"--help"|"-h")
+      show_help
+      ;;
+    "add")
+      if [[ -z "$module_name" ]]; then
+        print_error "Module name is required for 'add' command"
+        echo "Usage: ./bin/turbomodule add <module_name>"
+        exit 1
+      fi
+      add_module "$module_name"
+      ;;
+    "remove"|"rm")
+      if [[ -z "$module_name" ]]; then
+        print_error "Module name is required for 'remove' command"
+        echo "Usage: ./bin/turbomodule remove <module_name>"
+        exit 1
+      fi
+      remove_module "$module_name"
+      ;;
+    "")
+      show_help
+      ;;
+    *)
+      print_error "Unknown command: $command"
+      echo ""
+      show_help
+      exit 1
+      ;;
+  esac
+}
+
+# Run main function with all arguments
+main "$@"
+
