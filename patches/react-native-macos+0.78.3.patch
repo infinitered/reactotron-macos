@@ -1,37 +1,298 @@
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.h b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.h
+index bc24d3f..3fdda39 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.h
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.h
+@@ -54,6 +54,12 @@ NS_ASSUME_NONNULL_BEGIN
+ @property (nonatomic, assign) BOOL snapToEnd;
+ @property (nonatomic, copy) NSArray<NSNumber *> *snapToOffsets;
+ 
++#if TARGET_OS_OSX // [macOS
++- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated;
++- (void)zoomToRect:(CGRect)rect animated:(BOOL)animated;
++- (void)flashScrollIndicators;
++#endif // macOS]
++
+ /*
+  * Makes `setContentOffset:` method no-op when given `block` is executed.
+  * The block is being executed synchronously.
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm
+index 4773f61..563dc06 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTEnhancedScrollView.mm
+@@ -59,12 +59,55 @@
+       [weakSelf setPrivateDelegate:delegate];
+     }];
+     [_delegateSplitter addDelegate:self];
+-#endif // [macOS]
++#else // [macOS
++    self.hasHorizontalScroller = YES;
++    self.hasVerticalScroller = YES;
++    self.autohidesScrollers = YES;
++#endif // macOS]
+   }
+ 
+   return self;
+ }
+ 
++#if TARGET_OS_OSX // [macOS
++- (void)setFrame:(NSRect)frame
++{
++  // Preserving and revalidating `contentOffset`.
++  CGPoint originalOffset = self.contentOffset;
++
++  [super setFrame:frame];
++
++  UIEdgeInsets contentInset = self.contentInset;
++  CGSize contentSize = self.contentSize;
++
++  // If contentSize has not been measured yet we can't check bounds.
++  if (CGSizeEqualToSize(contentSize, CGSizeZero)) {
++    self.contentOffset = originalOffset;
++  } else {
++    CGSize boundsSize = self.bounds.size;
++    CGFloat xMaxOffset = contentSize.width - boundsSize.width + contentInset.right;
++    CGFloat yMaxOffset = contentSize.height - boundsSize.height + contentInset.bottom;
++    // Make sure offset doesn't exceed bounds. This can happen on screen rotation.
++    if ((originalOffset.x >= -contentInset.left) && (originalOffset.x <= xMaxOffset) &&
++        (originalOffset.y >= -contentInset.top) && (originalOffset.y <= yMaxOffset)) {
++      return;
++    }
++    self.contentOffset = CGPointMake(
++        MAX(-contentInset.left, MIN(xMaxOffset, originalOffset.x)),
++        MAX(-contentInset.top, MIN(yMaxOffset, originalOffset.y)));
++  }
++}
++
++- (NSSize)contentSize
++{
++  if (!self.documentView) {
++    return [super contentSize];
++  }
++
++  return self.documentView.frame.size;
++}
++#endif // macOS]
++
+ - (void)preserveContentOffsetWithBlock:(void (^)())block
+ {
+   if (!block) {
+@@ -110,17 +153,43 @@
+   if (_isSetContentOffsetDisabled) {
+     return;
+   }
++#if !TARGET_OS_OSX // [macOS]
+   super.contentOffset = CGPointMake(
+       RCTSanitizeNaNValue(contentOffset.x, @"scrollView.contentOffset.x"),
+       RCTSanitizeNaNValue(contentOffset.y, @"scrollView.contentOffset.y"));
++#else // [macOS
++  if (!NSEqualPoints(contentOffset, self.documentVisibleRect.origin)) {
++    [self.contentView scrollToPoint:contentOffset];
++    [self reflectScrolledClipView:self.contentView];
++  }
++#endif // macOS]
+ }
+ 
+-- (void)setFrame:(CGRect)frame
++
++#if TARGET_OS_OSX // [macOS
++- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+ {
+-  [super setFrame:frame];
+-  [self centerContentIfNeeded];
++  if (animated) {
++    [NSAnimationContext beginGrouping];
++    [[NSAnimationContext currentContext] setDuration:0.3];
++    [[self.contentView animator] setBoundsOrigin:contentOffset];
++    [NSAnimationContext endGrouping];
++  } else {
++    self.contentOffset = contentOffset;
++  }
++}
++
++- (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
++{
++  [self magnifyToFitRect:rect];
+ }
+ 
++- (void)flashScrollIndicators
++{
++  [self flashScrollers];
++}
++#endif // macOS]
++
+ - (void)didAddSubview:(RCTPlatformView *)subview // [macOS]
+ {
+   [super didAddSubview:subview];
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.h b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.h
+index 2eb12b8..caaf12d 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.h
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.h
+@@ -56,6 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
+     RCTGenericDelegateSplitter<id<UIScrollViewDelegate>> *scrollViewDelegateSplitter;
+ #endif // [macOS]
+ 
++#if TARGET_OS_OSX // [macOS
++@property (nonatomic, assign) UIEdgeInsets contentInset;
++#endif // macOS]
++
+ @end
+ 
+ /*
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.mm
+index ec8136b..802a2be 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.mm
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/ScrollView/RCTScrollViewComponentView.mm
+@@ -406,7 +406,11 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
+   MAP_SCROLL_VIEW_PROP(zoomScale);
+ 
+   if (oldScrollViewProps.contentInset != newScrollViewProps.contentInset) {
++#if !TARGET_OS_OSX // [macOS]
+     _scrollView.contentInset = RCTUIEdgeInsetsFromEdgeInsets(newScrollViewProps.contentInset);
++#else // [macOS
++    self.contentInset = RCTUIEdgeInsetsFromEdgeInsets(newScrollViewProps.contentInset);
++#endif // macOS]
+   }
+ 
+   RCTEnhancedScrollView *scrollView = (RCTEnhancedScrollView *)_scrollView;
+@@ -636,6 +640,22 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
+   _firstVisibleView = nil;
+ }
+ 
++#if TARGET_OS_OSX // [macOS
++#pragma mark - NSScrollView scroll notification
++
++- (void)scrollViewDocumentViewBoundsDidChange:(__unused NSNotification *)notification
++{
++  RCTEnhancedScrollView *scrollView = _scrollView;
++
++  if (scrollView.centerContent) {
++    // Update content centering through contentOffset setter
++    [scrollView setContentOffset:scrollView.contentOffset];
++  }
++
++  [self scrollViewDidScroll:scrollView];
++}
++#endif // macOS]
++
+ #pragma mark - UIScrollViewDelegate
+ 
+ #if !TARGET_OS_OSX // [macOS]
+@@ -773,17 +793,45 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
+ - (void)didMoveToWindow
+ {
+   [super didMoveToWindow];
+-#else // [macOS
+-- (void)viewDidMoveToWindow // [macOS]
+-{
+-  [super viewDidMoveToWindow];
+-#endif // [macOS]
+ 
+   if (!self.window) {
+     // The view is being removed, ensure that the scroll end event is dispatched
+     [self _handleScrollEndIfNeeded];
+   }
+ }
++#endif // [macOS]
++
++#if TARGET_OS_OSX // [macOS
++- (void)viewDidMoveToWindow
++{
++  [super viewDidMoveToWindow];
++
++  NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
++  if (self.window == nil) {
++    // Unregister scrollview's clipview bounds change notifications
++    [defaultCenter removeObserver:self
++                             name:NSViewBoundsDidChangeNotification
++                           object:_scrollView.contentView];
++  } else {
++    // Register for scrollview's clipview bounds change notifications so we can track scrolling
++    [defaultCenter addObserver:self
++                      selector:@selector(scrollViewDocumentViewBoundsDidChange:)
++                          name:NSViewBoundsDidChangeNotification
++                        object:_scrollView.contentView]; // NSClipView
++  }
++}
++
++- (void)setContentInset:(UIEdgeInsets)contentInset
++{
++  if (UIEdgeInsetsEqualToEdgeInsets(contentInset, _contentInset)) {
++    return;
++  }
++
++  _contentInset = contentInset;
++  _scrollView.contentInset = contentInset;
++  _scrollView.scrollIndicatorInsets = contentInset;
++}
++#endif // macOS]
+ 
+ - (void)_handleScrollEndIfNeeded
+ {
+@@ -859,9 +907,7 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
+ 
+ - (void)flashScrollIndicators
+ {
+-#if !TARGET_OS_OSX // [macOS]
+-  [_scrollView flashScrollIndicators];
+-#endif // [macOS]
++  [(RCTEnhancedScrollView *)_scrollView flashScrollIndicators]; // [macOS]
+ }
+ 
+ - (void)scrollTo:(double)x y:(double)y animated:(BOOL)animated
+@@ -960,7 +1006,7 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
+ 
+   [self _forceDispatchNextScrollEvent];
+ 
+-  [_scrollView setContentOffset:offset animated:animated];
++  [(RCTEnhancedScrollView *)_scrollView setContentOffset:offset animated:animated]; // [macOS]
+ 
+   if (!animated) {
+     // When not animated, the expected workflow in ``scrollViewDidEndScrollingAnimation`` after scrolling is not going
+@@ -971,9 +1017,7 @@ static inline UIViewAnimationOptions animationOptionsWithCurve(UIViewAnimationCu
+ 
+ - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated
+ {
+-#if !TARGET_OS_OSX // [macOS]
+-  [_scrollView zoomToRect:rect animated:animated];
+-#endif // [macOS]
++  [(RCTEnhancedScrollView *)_scrollView zoomToRect:rect animated:animated]; // [macOS]
+ }
+ 
+ #if !TARGET_OS_OSX // [macOS]
 diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
-index b5e5f3c..299d007 100644
+index b5e5f3c..0c59556 100644
 --- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
 +++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
-@@ -404,26 +404,9 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void)
+@@ -404,22 +404,24 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void)
        (RCTTextLayoutManager *)unwrapManagedObject(textLayoutManager->getNativeTextLayoutManager());
  
    CGRect frame = RCTCGRectFromRect(_layoutMetrics.getContentFrame());
 +  self.frame = frame;
 +  if (![self isVisibleInWindow]) return;
  
--#if !TARGET_OS_OSX // [macOS]
--  [nativeTextLayoutManager drawAttributedString:_state->getData().attributedString
--                            paragraphAttributes:_paragraphAttributes
--                                          frame:frame
--                              drawHighlightPath:^(UIBezierPath *highlightPath) {
+ #if !TARGET_OS_OSX // [macOS]
+   [nativeTextLayoutManager drawAttributedString:_state->getData().attributedString
+                             paragraphAttributes:_paragraphAttributes
+                                           frame:frame
+                               drawHighlightPath:^(UIBezierPath *highlightPath) {
 -                                if (highlightPath) {
 -                                  if (!self->_highlightLayer) {
 -                                    self->_highlightLayer = [CAShapeLayer layer];
--                                    self->_highlightLayer.fillColor = [RCTUIColor colorWithWhite:0 alpha:0.25].CGColor; // [macOS]
--                                    [self.layer addSublayer:self->_highlightLayer];
--                                  }
--                                  self->_highlightLayer.position = frame.origin;
--                                  self->_highlightLayer.path = highlightPath.CGPath;
--                                } else {
++                                  if (highlightPath) {
++                                    if (!self->_highlightLayer) {
++                                      self->_highlightLayer = [CAShapeLayer layer];
+                                     self->_highlightLayer.fillColor = [RCTUIColor colorWithWhite:0 alpha:0.25].CGColor; // [macOS]
+                                     [self.layer addSublayer:self->_highlightLayer];
+                                   }
+                                   self->_highlightLayer.position = frame.origin;
+                                   self->_highlightLayer.path = highlightPath.CGPath;
+                                 } else {
 -                                  [self->_highlightLayer removeFromSuperlayer];
--                                  self->_highlightLayer = nil;
--                                }
--                              }];
--#else // [macOS
-   NSTextStorage *textStorage = [nativeTextLayoutManager getTextStorageForAttributedString:_state->getData().attributedString paragraphAttributes:_paragraphAttributes size:frame.size];
- 
-   NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
-@@ -438,11 +421,30 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void)
++                                    [self->_highlightLayer removeFromSuperlayer];
+                                   self->_highlightLayer = nil;
+                                 }
+                               }];
+@@ -438,13 +440,33 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void)
  
    self.minSize = frame.size;
    self.maxSize = frame.size;
@@ -39,9 +300,9 @@ index b5e5f3c..299d007 100644
    [[self textStorage] setAttributedString:textStorage];
  
    [super drawRect:rect];
--#endif
-+}
-+
+ #endif
+ }
+ 
 +- (void)setFrame:(NSRect)frame {
 +    // If the frame is not changing, exit
 +    //if (NSEqualRects(self.frame, frame)) return;
@@ -61,22 +322,22 @@ index b5e5f3c..299d007 100644
 +    NSRect viewFrameInWindow = [self convertRect:self.frame toView:nil];
 +    NSRect visibleFrameOfWindow = self.window.contentView.visibleRect;
 +    return NSIntersectsRect(viewFrameInWindow, visibleFrameOfWindow);
- }
- 
++}
++
  #if TARGET_OS_OSX // [macOS
+ - (void)setNeedsDisplay
+ {
 diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-index fd43f3b..3a9ba95 100644
+index fd43f3b..b664625 100644
 --- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
 +++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-@@ -91,7 +91,11 @@ static NSSet<NSNumber *> *returnKeyTypesSet;
+@@ -91,7 +91,8 @@ static NSSet<NSNumber *> *returnKeyTypesSet;
      _ignoreNextTextInputCall = NO;
      _comingFromJS = NO;
      _didMoveToWindow = NO;
-+#if !TARGET_OS_OSX
-     _originalTypingAttributes = [_backedTextInputView.typingAttributes copy];
-+#else
+-    _originalTypingAttributes = [_backedTextInputView.typingAttributes copy];
++    //_originalTypingAttributes = [_backedTextInputView.typingAttributes copy];
 +    _originalTypingAttributes = @{};
-+#endif // [macOS]
  
      [self addSubview:_backedTextInputView];
  #if TARGET_OS_IOS // [macOS] [visionOS]
