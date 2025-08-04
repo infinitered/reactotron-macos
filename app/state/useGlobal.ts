@@ -4,7 +4,11 @@ import { MMKV } from "react-native-mmkv"
 type UseGlobalOptions = { persist?: boolean }
 
 const PERSISTED_KEY = "global-state"
-export const storage = new MMKV()
+export const storage = new MMKV({
+  // TODO: figure out if we can access "~/Library/Application Support/Reactotron/mmkv"?
+  path: "/tmp/reactotron/mmkv/",
+  id: "reactotron",
+})
 
 // Load the globals from MMKV.
 let _load_globals: any = {}

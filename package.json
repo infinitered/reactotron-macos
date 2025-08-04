@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "all": "npm run pod && npm run macos",
-    "macos": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos",
-    "macos-release": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release",
-    "pod": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
+    "macos": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos",
+    "macos-release": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release",
+    "pod": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 pod install --project-directory=macos",
     "lint": "eslint .",
-    "start": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/scripts/packager.sh start",
+    "start": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 ./node_modules/react-native-macos/scripts/packager.sh start",
     "test": "jest",
-    "postinstall": "patch-package"
+    "postinstall": "ln -sf $(pwd)/node_modules/react-native-macos $(pwd)/node_modules/react-native && patch-package"
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.3.0",
