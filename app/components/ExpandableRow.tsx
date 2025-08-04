@@ -1,7 +1,7 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
-import { useThemeName, withTheme, type ThemeName, useTheme } from "../../theme/theme"
-import ActionButton from "../../components/ActionButton"
-import { useGlobal } from "../../state/useGlobal"
+import { useThemeName, withTheme, type ThemeName, useTheme } from "../theme/theme"
+import ActionButton from "../components/ActionButton"
+import { useGlobal } from "../state/useGlobal"
 
 type ExpandableRowProps = {
   id: string

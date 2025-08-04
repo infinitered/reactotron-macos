@@ -10,7 +10,7 @@ import { StatusBar, View, ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect } from "react"
-import { TimelineScreen } from "./screens/Timeline/TimelineScreen"
+import { TimelineScreen } from "./screens/TimelineScreen"
 import { AppHeader } from "./components/AppHeader"
 
 if (__DEV__) {

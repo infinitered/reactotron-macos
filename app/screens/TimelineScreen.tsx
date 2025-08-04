@@ -1,8 +1,8 @@
 // import { View, Text } from "react-native"
-import { useGlobal } from "../../state/useGlobal"
-import { TimelineItem } from "../../types"
-import { TimelineLogItem } from "../../components/TimelineLogItem"
-import { TimelineNetworkItem } from "../../components/TimelineNetworkItem"
+import { useGlobal } from "../state/useGlobal"
+import { TimelineItem } from "../types"
+import { TimelineLogItem } from "../components/TimelineLogItem"
+import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { LegendList } from "@legendapp/list"
 
 /**
