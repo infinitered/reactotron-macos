@@ -2,53 +2,53 @@
 
 # Color constants
 RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
-CYAN='\033[0;36m'
-DKGRAY='\033[1;30m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+BLU='\033[0;34m'
+MAG='\033[0;35m'
+CYA='\033[0;36m'
+DGR='\033[1;30m'
+BLD='\033[1m'
+X='\033[0m' # No Color
 
 # Print help screen
 show_help() {
-  echo -e "${BOLD}${CYAN}Reactotron TurboModule Generator${NC}"
+  echo -e "${BLD}${CYA}Reactotron TurboModule Generator${X}"
   echo ""
-  echo -e "${BOLD}Usage:${NC}"
+  echo -e "${BLD}Usage:${X}"
   echo "  ./bin/turbomodule <command> <module_name>"
   echo ""
-  echo -e "${BOLD}Commands:${NC}"
-  echo -e "  ${GREEN}add${NC}     Create a new TurboModule"
-  echo -e "  ${RED}remove${NC}   Remove an existing TurboModule (alias: rm)"
-  echo -e "  ${BLUE}help${NC}    Show this help screen"
+  echo -e "${BLD}Commands:${X}"
+  echo -e "  ${GRN}add${X}      Create a new TurboModule"
+  echo -e "  ${RED}remove${X}   Remove an existing TurboModule (alias: rm)"
+  echo -e "  ${BLU}help${X}     Show this help screen"
   echo ""
-  echo -e "${BOLD}Examples:${NC}"
+  echo -e "${BLD}Examples:${X}"
   echo "  ./bin/turbomodule add IRMyNewThing"
   echo "  ./bin/turbomodule remove IRMyNewThing"
   echo "  ./bin/turbomodule rm IRMyNewThing"
   echo ""
-  echo -e "${BOLD}What it does:${NC}"
+  echo -e "${BLD}What it does:${X}"
   echo "  • Creates .h and .mm files in ./app/native/"
   echo "  • Creates TypeScript spec in ./specs/"
-  echo "  • Auto-links files into Xcode project"
+  echo "  • Auto-links files into Xcode project on pod install"
   echo "  • Includes sync method, async method, and events"
   echo ""
 }
 
 # Print colored output
-print_success() { echo -e "${GREEN}✓${NC} $1"; }
-print_error() { echo -e "${RED}✗${NC} $1"; }
-print_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
-print_info() { echo -e "${BLUE}ℹ${NC} $1"; }
-print_step() { echo -e "${MAGENTA}→${NC} $1"; }
+print_success() { echo -e "${GRN}✓${X} $1"; }
+print_error() { echo -e "${RED}✗${X} $1"; }
+print_warning() { echo -e "${YLW}⚠${X} $1"; }
+print_info() { echo -e "${BLU}ℹ${X} $1"; }
+print_step() { echo -e "${MAG}→${X} $1"; }
 
 # Check if git tree is clean
 check_git_status() {
   if ! git diff-index --quiet HEAD --; then
     print_warning "Git tree is not clean. You have uncommitted changes."
     echo ""
-    echo -e "${YELLOW}Current changes:${NC}"
+    echo -e "${YLW}Current changes:${X}"
     git status --porcelain
     echo ""
     read -p "Do you want to continue? (y/N): " -n 1 -r
@@ -93,114 +93,29 @@ validate_module_name() {
   fi
 }
 
-# Generate header file
-generate_header() {
+# Generate file from template
+generate_from_template() {
+  local template_content="ERROR"
   local module_name="$1"
-  local filename="app/native/${module_name}.h"
+  local template_path="$2"
+  local output_path="$3"
+  local template_name="$4"
   
-  cat > "$filename" << EOF
-#import <Foundation/Foundation.h>
-#import <AppSpec/AppSpec.h>
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface ${module_name} : Native${module_name}SpecBase <Native${module_name}Spec>
-
-@end
-
-NS_ASSUME_NONNULL_END
-EOF
-  print_success "Created $filename"
+  template_content=$(cat "$template_path")
+  local replaced_content=${template_content//$template_name/$module_name}
+  echo "$replaced_content" > "$output_path"
+  print_success "Created $output_path"
 }
 
-# Generate implementation file
-generate_implementation() {
-  local module_name="$1"
-  local filename="app/native/${module_name}.mm"
-  
-  cat > "$filename" << EOF
-#import "${module_name}.h"
-
-@implementation ${module_name}
-
-RCT_EXPORT_MODULE()
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::Native${module_name}SpecJSI>(params);
-}
-
-// Sync method example
-RCT_EXPORT_METHOD(getValue:(RCTResponseSenderBlock)callback)
-{
-  callback(@[@"Hello from ${module_name}!"]);
-}
-
-// Async method example
-RCT_EXPORT_METHOD(performAsyncTask:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-{
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    // Simulate async work
-    [NSThread sleepForTimeInterval:0.1];
-    
-    resolve(@{@"result": @"Async task completed"});
-  });
-}
-
-// Event emitter example
-RCT_EXPORT_METHOD(startEventStream)
-{
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [self emitOn${module_name}Event:@{
-      @"message": @"Event from ${module_name}",
-      @"timestamp": @([[NSDate date] timeIntervalSince1970])
-    }];
-  });
-}
-
-@end
-EOF
-  print_success "Created $filename"
-}
-
-# Generate TypeScript spec
-generate_spec() {
-  local module_name="$1"
-  local filename="specs/Native${module_name}.ts"
-  
-  cat > "$filename" << EOF
-import type { EventEmitter } from "react-native/Libraries/Types/CodegenTypes"
-import type { TurboModule } from "react-native"
-import { TurboModuleRegistry } from "react-native"
-
-export interface ${module_name}Event {
-  message: string
-  timestamp: number
-}
-
-export interface Spec extends TurboModule {
-  getValue(callback: (value: string) => void): void
-  performAsyncTask(): Promise<{ result: string }>
-  startEventStream(): void
-  readonly on${module_name}Event: EventEmitter<${module_name}Event>
-}
-
-export default TurboModuleRegistry.getEnforcing<Spec>("${module_name}")
-EOF
-  print_success "Created $filename"
-}
-
-# Link files using the ruby script
+# Link files using pod install
 link_files() {
-  local app_name="Reactotron-macOS"
-  local app_path="app"
-  
-  print_step "Linking files to Xcode project..."
-  ruby ./bin/linker.rb "$app_name" "$app_path"
+  print_step "Installing pods and linking files to Xcode project..."
+  npm run pod
 }
 
 # Add new TurboModule
 add_module() {
+  local checkpoint=""
   local module_name="$1"
   
   print_info "Creating TurboModule: $module_name"
@@ -210,7 +125,7 @@ add_module() {
   
   # Create checkpoint
   print_step "Creating git checkpoint..."
-  local checkpoint=$(create_checkpoint)
+  checkpoint=$(create_checkpoint)
   
   # Validate module name
   validate_module_name "$module_name"
@@ -224,9 +139,9 @@ add_module() {
   
   # Generate files
   print_step "Generating files..."
-  generate_header "$module_name"
-  generate_implementation "$module_name"
-  generate_spec "$module_name"
+  generate_from_template "$module_name" "./bin/templates/MyTemplate.h" "app/native/${module_name}.h" "MyTemplate"
+  generate_from_template "$module_name" "./bin/templates/MyTemplate.mm" "app/native/${module_name}.mm" "MyTemplate"
+  generate_from_template "$module_name" "./bin/templates/NativeMyTemplate.ts" "specs/Native${module_name}.ts" "MyTemplate"
   
   # Link files
   link_files
@@ -240,6 +155,7 @@ add_module() {
 
 # Remove TurboModule
 remove_module() {
+  local checkpoint=""
   local module_name="$1"
   
   print_info "Removing TurboModule: $module_name"
@@ -249,7 +165,7 @@ remove_module() {
   
   # Create checkpoint
   print_step "Creating git checkpoint..."
-  local checkpoint=$(create_checkpoint)
+  checkpoint=$(create_checkpoint)
   
   # Validate module name
   validate_module_name "$module_name"
