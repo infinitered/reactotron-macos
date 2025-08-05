@@ -5,10 +5,10 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 # More info here: https://github.com/jamonholmgren/react-native-colo-loco
 # In this case, we've included the linker.rb file in the bin folder so we
 # don't have to have another npm dependency.
-require File.join(File.dirname("../bin/linker.rb"))
+require_relative "../bin/linker.rb"
 link_colocated_native_files(
   app_name: 'Reactotron',
-  app_path: "../app",
+  app_path: "./app",
   exclude_targets: []
 )
 

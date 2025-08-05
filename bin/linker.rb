@@ -15,11 +15,11 @@ def link_colocated_native_files(options = {})
   project_path = "#{app_name}.xcodeproj"
 
   # if app_path/ios/Podfile exists, stop and warn the user
-  podfile_path = "#{app_path}/ios/Podfile"
+  podfile_path = "#{app_path}/macos/Podfile"
   if File.exist?(podfile_path)
     puts "React Native Colo Loco error:"
     puts "  Podfile found in #{podfile_path}. We don't support specifying"
-    puts "  the project root as your app_path."
+    puts "  the macos project root as your app_path."
     puts "  To fix this, change app_path to something like '../app'"
     puts "  (it is currently #{app_path})"
     puts "  Skipping linking of native files."
@@ -27,7 +27,17 @@ def link_colocated_native_files(options = {})
     return
   end
 
-  colocated_files = Dir.glob(File.join(app_path, '**/*.{h,m,c,swift}')).map { |file| Pathname.new(file).realpath }
+  if not File.exist?(app_path)
+    puts "React Native Colo Loco error:"
+    puts "  No files found in #{app_path}. Please check your app_path."
+    puts "  Skipping linking of native files."
+    puts ""
+    return
+  end
+  colocated_files = Dir.glob(File.join(app_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
+
+  puts "colocated_files: #{app_path} #{colocated_files}"
+  return
 
   # if there are any colocated files, let's add them
   if colocated_files.length > 0
