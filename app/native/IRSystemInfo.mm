@@ -1,15 +1,14 @@
 #import "IRSystemInfo.h"
 #import <mach/mach.h>
 
+// Private properties
 @interface IRSystemInfo ()
-
 @property (nonatomic, strong) NSTimer *monitoringTimer;
-
+@property (nonatomic, assign) NSTimeInterval samplingInterval;
 @end
 
-@implementation IRSystemInfo
-
-RCT_EXPORT_MODULE()
+// The actual implementation of IRSystemInfo.
+@implementation IRSystemInfo RCT_EXPORT_MODULE()
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
   return std::make_shared<facebook::react::NativeIRSystemInfoSpecJSI>(params);

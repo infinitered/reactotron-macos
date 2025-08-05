@@ -20,6 +20,7 @@ const ws: WebSocketState = { socket: null }
  * @param props.port - The port to connect to. Defaults to 9292.
  */
 export function connectToServer(props: { port: number } = { port: 9292 }): UnsubscribeFn {
+  const [reactotronAppId, setReactotronAppId] = withGlobal("reactotronAppId", randomUUID())
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])

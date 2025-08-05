@@ -7,7 +7,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 # don't have to have another npm dependency.
 require_relative "../bin/linker.rb"
 link_colocated_native_files(
-  app_name: 'Reactotron',
+  app_name: 'Reactotron-macOS',
   app_path: "#{Pod::Config.instance.installation_root}/../app",
   xcodeproj_path: "#{Pod::Config.instance.installation_root}/Reactotron.xcodeproj",
   exclude_targets: []
@@ -18,9 +18,6 @@ prepare_react_native_project!
 target 'Reactotron-macOS' do
   platform :macos, '11.0'
   use_native_modules!
-
-  # Flags change depending on the env values.
-  flags = get_default_flags()
 
   use_react_native!(
     :path => '../node_modules/react-native-macos',
