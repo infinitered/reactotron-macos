@@ -8,7 +8,8 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 require_relative "../bin/linker.rb"
 link_colocated_native_files(
   app_name: 'Reactotron',
-  app_path: "./app",
+  app_path: "#{Pod::Config.instance.installation_root}/../app",
+  xcodeproj_path: "#{Pod::Config.instance.installation_root}/Reactotron.xcodeproj",
   exclude_targets: []
 )
 

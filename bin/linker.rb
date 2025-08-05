@@ -11,8 +11,8 @@ def link_colocated_native_files(options = {})
 
   app_name = options[:app_name]
   app_path = options[:app_path]
+  xcodeproj_path = options[:xcodeproj_path]
   excluded_targets = options[:exclude_targets] || []
-  project_path = "#{app_name}.xcodeproj"
 
   # if app_path/ios/Podfile exists, stop and warn the user
   podfile_path = "#{app_path}/macos/Podfile"
@@ -36,12 +36,9 @@ def link_colocated_native_files(options = {})
   end
   colocated_files = Dir.glob(File.join(app_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
 
-  puts "colocated_files: #{app_path} #{colocated_files}"
-  return
-
   # if there are any colocated files, let's add them
   if colocated_files.length > 0
-    project = Xcodeproj::Project.open(project_path)
+    project = Xcodeproj::Project.open(xcodeproj_path)
     file_group = project[app_name]
 
     # check if the "Colocated" group exists
@@ -54,6 +51,7 @@ def link_colocated_native_files(options = {})
     if existing_group
       existing_group.files.each do |file|
         next if colocated_files.include?(file.real_path) # Skip files that are already in the colocated_files array
+        puts " - Removing #{file.real_path}"
         file.remove_from_project
       end
     end
@@ -64,7 +62,7 @@ def link_colocated_native_files(options = {})
     colocated_files.each do |file|
       next if colocated_group_files.include?(file)
     
-      puts "Adding #{file}"
+      puts " + Adding #{file}"
       new_file = colocated_group.new_file(file)
     
       # Check if this file specifies any Colo Loco targets
