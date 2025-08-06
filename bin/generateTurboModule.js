@@ -48,18 +48,18 @@ function parseTurbomoduleComment(filePath) {
     return null
   }
 
-  // Parse: @turbomodule ModuleName.methodName(): returnType
-  const pattern = /^\/\* @turbomodule ([A-Za-z0-9]+)\.([A-Za-z0-9]+)\(\): ([A-Za-z0-9]+)/
+  // Parse: @turbomodule ModuleName.methodName(args): returnType
+  const pattern = /^\/\* @turbomodule ([A-Za-z0-9]+)\.(.+)$/
   const match = turbomoduleLine.match(pattern)
 
   if (!match) {
     return null
   }
 
+  const fullSignature = match[2]
   return {
     moduleName: match[1],
-    methodName: match[2],
-    returnType: match[3],
+    fullSignature: fullSignature,
   }
 }
 
@@ -93,7 +93,7 @@ function extractNativeCode(filePath) {
 
 // Generate native files from turbomodule comment
 function generateNativeFiles(filePath, moduleInfo) {
-  const { moduleName, methodName, returnType } = moduleInfo
+  const { moduleName, fullSignature } = moduleInfo
 
   // Get directory of the TypeScript file
   const dirPath = path.dirname(filePath)
@@ -146,7 +146,7 @@ function generateNativeFiles(filePath, moduleInfo) {
   const tsTemplate = `import type { TurboModule } from "react-native"
 import { TurboModuleRegistry } from "react-native"
 export interface Spec extends TurboModule {
-  ${methodName}(): Promise<${returnType}>
+  ${fullSignature}
 }
 export default TurboModuleRegistry.getEnforcing<Spec>("${moduleName}")`
 
