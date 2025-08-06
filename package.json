@@ -115,11 +115,14 @@
   "codegenConfig": {
     "name": "AppSpec",
     "type": "all",
-    "jsSrcsDir": "app/native",
+    "jsSrcsDir": "app",
     "ios": {
       "componentProvider": {
         "IRTabComponentView": "IRTabComponentView"
       }
     }
-  }
+  },
+  "turbomodules": [
+    "app/utils/getUUID.ts"
+  ]
 }

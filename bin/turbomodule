@@ -16,23 +16,25 @@ show_help() {
   echo -e "${BLD}${CYA}Reactotron TurboModule Generator${X}"
   echo ""
   echo -e "${BLD}Usage:${X}"
-  echo "  ./bin/turbomodule <command> <module_name>"
+  echo "  ./bin/turbomodule <command> [module_name]"
   echo ""
   echo -e "${BLD}Commands:${X}"
   echo -e "  ${GRN}add${X}      Create a new TurboModule"
   echo -e "  ${RED}remove${X}   Remove an existing TurboModule (alias: rm)"
+  echo -e "  ${MAG}apply${X}    Build TurboModules from comments in package.json turbomodules"
   echo -e "  ${BLU}help${X}     Show this help screen"
   echo ""
   echo -e "${BLD}Examples:${X}"
   echo "  ./bin/turbomodule add IRMyNewThing"
   echo "  ./bin/turbomodule remove IRMyNewThing"
-  echo "  ./bin/turbomodule rm IRMyNewThing"
+  echo "  ./bin/turbomodule apply"
   echo ""
   echo -e "${BLD}What it does:${X}"
-  echo "  • Creates .h and .mm files in ./app/native/"
-  echo "  • Creates TypeScript spec in ./specs/"
+  echo "  • Creates .mm files in ./app/native/"
+  echo "  • Creates TypeScript spec in ./app/native/"
   echo "  • Auto-links files into Xcode project on pod install"
   echo "  • Includes sync method, async method, and events"
+  echo "  • apply: Generates native files from @turbomodule comments"
   echo ""
 }
 
@@ -189,6 +191,150 @@ remove_module() {
   print_success "TurboModule $module_name removed successfully!"
 }
 
+# Parse turbomodule comment and extract module info
+parse_turbomodule_comment() {
+  local file_path="$1"
+  local content=$(cat "$file_path")
+  
+  # Extract the @turbomodule line
+  local turbomodule_line=$(echo "$content" | grep -E "^/\* @turbomodule" | head -1)
+  
+  if [[ -z "$turbomodule_line" ]]; then
+    return 1
+  fi
+  
+  # Parse: @turbomodule ModuleName.methodName(): returnType
+  local pattern="^/\* @turbomodule ([A-Za-z0-9]+)\.([A-Za-z0-9]+)\(\): ([A-Za-z0-9]+)"
+  if [[ "$turbomodule_line" =~ $pattern ]]; then
+    echo "${BASH_REMATCH[1]}:${BASH_REMATCH[2]}:${BASH_REMATCH[3]}"
+  else
+    return 1
+  fi
+}
+
+# Extract native code from comment block
+extract_native_code() {
+  local file_path="$1"
+  local content=$(cat "$file_path")
+  
+  # Extract everything between /* and */ excluding the @turbomodule line
+  local native_code=$(echo "$content" | sed -n '/^\/\* @turbomodule/,/^\*\//p' | sed '1d;$d')
+  echo "$native_code"
+}
+
+# Generate native files from turbomodule comment
+generate_native_files() {
+  local file_path="$1"
+  local module_info="$2"
+  
+  # Parse module info
+  IFS=':' read -r module_name method_name return_type <<< "$module_info"
+  
+  # Get directory of the TypeScript file
+  local dir_path=$(dirname "$file_path")
+  local file_name=$(basename "$file_path" .ts)
+  
+  # Extract native code
+  local native_code=$(extract_native_code "$file_path")
+  
+  # Generate .mm file using template
+  local mm_file="$dir_path/${module_name}.mm"
+  local mm_template_content=$(cat "./bin/templates/MyTemplate.mm")
+  local mm_content=${mm_template_content//MyTemplate/$module_name}
+  
+  # Replace the method section with our extracted native code
+  local method_start=$(echo "$mm_content" | grep -n "// Add your methods here" | cut -d: -f1)
+  local method_end=$(echo "$mm_content" | grep -n "// End of your methods" | cut -d: -f1)
+  
+  if [[ -n "$method_start" && -n "$method_end" ]]; then
+    local before_methods=$(echo "$mm_content" | head -n $((method_start)))
+    local after_methods=$(echo "$mm_content" | tail -n +$((method_end)))
+    echo "$before_methods" > "$mm_file"
+    echo "$native_code" >> "$mm_file"
+    echo "$after_methods" >> "$mm_file"
+  else
+    # Fallback if template structure changes
+    echo "$mm_content" > "$mm_file"
+  fi
+  
+  print_success "Generated $mm_file"
+  
+  # Generate Native TypeScript file using template
+  local native_ts_file="$dir_path/Native${module_name}.ts"
+  local ts_template_content=$(cat "./bin/templates/NativeMyTemplate.ts")
+  local ts_content=${ts_template_content//MyTemplate/$module_name}
+  
+  # Replace the method signature with our specific method
+  ts_content=$(echo "$ts_content" | sed "s/getADictionary/${method_name}/g")
+  ts_content=$(echo "$ts_content" | sed "s/getADictionaryAsync/${method_name}Async/g")
+  ts_content=$(echo "$ts_content" | sed "s/someString: string,//g")
+  ts_content=$(echo "$ts_content" | sed "s/Promise<{ someString: string; someNumber: number; someBool: boolean }>/Promise<${return_type}>/g")
+  
+  echo "$ts_content" > "$native_ts_file"
+  print_success "Generated $native_ts_file"
+}
+
+# Apply turbomodules from package.json
+apply_turbomodules() {
+  print_info "Applying turbomodules from package.json"
+  
+  # Check git status
+  check_git_status
+  
+  # Create checkpoint
+  print_step "Creating git checkpoint..."
+  local checkpoint=$(create_checkpoint)
+  
+  # Read turbomodules from package.json
+  local turbomodules=()
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\" ]]; then
+      turbomodules+=("${BASH_REMATCH[1]}")
+    fi
+  done < <(grep -A 10 '"turbomodules"' package.json | grep -E '"[^"]+"' | sed 's/.*"\([^"]*\)".*/\1/')
+  
+  if [[ ${#turbomodules[@]} -eq 0 ]]; then
+    print_warning "No turbomodules found in package.json"
+    return
+  fi
+  
+  print_step "Found ${#turbomodules[@]} turbomodule(s) to process"
+  
+  local processed=0
+  local errors=0
+  
+  for file_path in "${turbomodules[@]}"; do
+    if [[ ! -f "$file_path" ]]; then
+      print_error "File not found: $file_path"
+      ((errors++))
+      continue
+    fi
+    
+    print_step "Processing $file_path"
+    
+    # Parse turbomodule comment
+    local module_info=$(parse_turbomodule_comment "$file_path")
+    if [[ $? -ne 0 ]]; then
+      print_error "Invalid @turbomodule comment in $file_path"
+      ((errors++))
+      continue
+    fi
+    
+    # Generate native files
+    generate_native_files "$file_path" "$module_info"
+    ((processed++))
+  done
+  
+  if [[ $errors -gt 0 ]]; then
+    print_warning "Completed with $errors error(s)"
+  else
+    print_success "Successfully processed $processed turbomodule(s)"
+  fi
+  
+  # Link files
+  link_files
+}
+
 # Main script logic
 main() {
   local command="$1"
@@ -213,6 +359,9 @@ main() {
         exit 1
       fi
       remove_module "$module_name"
+      ;;
+    "apply")
+      apply_turbomodules
       ;;
     "")
       show_help

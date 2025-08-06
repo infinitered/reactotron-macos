@@ -15,7 +15,7 @@ function addReactotronApp(socket) {
 
   // Send a message back to the Reactotron app to let it know it's connected
   socket.send(JSON.stringify({ type: "reactotron.connected" }))
-  console.log("Reactotron app connected")
+  console.log("Reactotron app connected: ", socket.id)
 
   // Send the updated list of connected clients to all connected Reactotron apps
   const clients = connectedClients.map((c) => ({ clientId: c.clientId, name: c.name }))
