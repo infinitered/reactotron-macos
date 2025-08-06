@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
-import IRRunShellCommand from "../../specs/NativeIRRunShellCommand"
-import IRSystemInfo, { SystemInfo } from "../../specs/NativeIRSystemInfo"
-import IRKeyboard, { KeyboardEvent } from "../../specs/NativeIRKeyboard"
+import IRRunShellCommand from "../native/IRRunShellCommand/NativeIRRunShellCommand"
+import IRSystemInfo, { SystemInfo } from "../native/IRSystemInfo/NativeIRSystemInfo"
+import IRKeyboard, { KeyboardEvent } from "../native/IRKeyboard/NativeIRKeyboard"
 import type { EventSubscription } from "react-native"
 
 /**

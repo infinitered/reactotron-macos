@@ -1,6 +1,6 @@
 import { Text, View, type ViewStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
-import IRTabComponentView from "../../specs/IRTabNativeComponent"
+import IRTabComponentView from "../native/IRTabComponentView/NativeIRTabNativeComponent"
 
 /**
  * Experimental; probably will change.

@@ -17,13 +17,7 @@
 
 @end
 
-@implementation IRRunShellCommand
-
-RCT_EXPORT_MODULE()
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeIRRunShellCommandSpecJSI>(params);
-}
+@implementation IRRunShellCommand RCT_EXPORT_MODULE()
 
 - (instancetype)init {
   self = [super init];
@@ -80,103 +74,103 @@ RCT_EXPORT_MODULE()
                       args:(NSArray<NSString *> *)args
                     taskId:(NSString *)taskId {
   dispatch_async(
-                 dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                   @autoreleasepool {
-                     NSTask *task = [NSTask new];
-                     task.executableURL = [NSURL fileURLWithPath:command];
-                     task.arguments = args;
+    dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      @autoreleasepool {
+        NSTask *task = [NSTask new];
+        task.executableURL = [NSURL fileURLWithPath:command];
+        task.arguments = args;
 
-                     [self.tasksLock lock];
-                     self.runningTasks[taskId] = task;
-                     [self.tasksLock unlock];
+        [self.tasksLock lock];
+        self.runningTasks[taskId] = task;
+        [self.tasksLock unlock];
 
-                     NSPipe *outPipe = [NSPipe pipe];
-                     NSPipe *errPipe = [NSPipe pipe];
-                     task.standardOutput = outPipe;
-                     task.standardError = errPipe;
+        NSPipe *outPipe = [NSPipe pipe];
+        NSPipe *errPipe = [NSPipe pipe];
+        task.standardOutput = outPipe;
+        task.standardError = errPipe;
 
-                     __block BOOL completed = NO;
-                     __block NSLock *completionLock = [[NSLock alloc] init];
+        __block BOOL completed = NO;
+        __block NSLock *completionLock = [[NSLock alloc] init];
 
-                     auto pump = ^(NSPipe *pipe, NSString *stream) {
-                       pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *h) {
-                         @autoreleasepool {
-                           NSData *d = h.availableData;
-                           if (d.length == 0)
-                             return;
-                           NSString *output =
-                           [[NSString alloc] initWithData:d
-                                                 encoding:NSUTF8StringEncoding];
-                           if (output && !completed) {
-                             dispatch_async(dispatch_get_main_queue(), ^{
-                               if (!completed) {
-                                 [self emitOnShellCommandOutput:@{
-                                  @"taskId" : taskId,
-                                  @"output" : output,
-                                  @"type" : stream
-                                 }];
-                               }
-                             });
-                           }
-                         }
-                       };
-                     };
+        auto pump = ^(NSPipe *pipe, NSString *stream) {
+          pipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *h) {
+            @autoreleasepool {
+              NSData *d = h.availableData;
+              if (d.length == 0)
+                return;
+              NSString *output =
+              [[NSString alloc] initWithData:d
+                                    encoding:NSUTF8StringEncoding];
+              if (output && !completed) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                  if (!completed) {
+                    [self emitOnShellCommandOutput:@{
+                    @"taskId" : taskId,
+                    @"output" : output,
+                    @"type" : stream
+                    }];
+                  }
+                });
+              }
+            }
+          };
+        };
 
-                     pump(outPipe, @"stdout");
-                     pump(errPipe, @"stderr");
+        pump(outPipe, @"stdout");
+        pump(errPipe, @"stderr");
 
-                     task.terminationHandler = ^(NSTask *t) {
-                       [completionLock lock];
-                       if (completed) {
-                         [completionLock unlock];
-                         return;
-                       }
-                       completed = YES;
-                       [completionLock unlock];
+        task.terminationHandler = ^(NSTask *t) {
+          [completionLock lock];
+          if (completed) {
+            [completionLock unlock];
+            return;
+          }
+          completed = YES;
+          [completionLock unlock];
 
-                       // Remove from running tasks
-                       [self.tasksLock lock];
-                       [self.runningTasks removeObjectForKey:taskId];
-                       [self.tasksLock unlock];
+          // Remove from running tasks
+          [self.tasksLock lock];
+          [self.runningTasks removeObjectForKey:taskId];
+          [self.tasksLock unlock];
 
-                       outPipe.fileHandleForReading.readabilityHandler = nil;
-                       errPipe.fileHandleForReading.readabilityHandler = nil;
+          outPipe.fileHandleForReading.readabilityHandler = nil;
+          errPipe.fileHandleForReading.readabilityHandler = nil;
 
-                       dispatch_async(dispatch_get_main_queue(), ^{
-                         [self emitOnShellCommandComplete:@{
-                          @"taskId" : taskId,
-                          @"exitCode" : @(t.terminationStatus)
-                         }];
-                       });
-                     };
+          dispatch_async(dispatch_get_main_queue(), ^{
+            [self emitOnShellCommandComplete:@{
+            @"taskId" : taskId,
+            @"exitCode" : @(t.terminationStatus)
+            }];
+          });
+        };
 
-                     NSError *err = nil;
-                     if (![task launchAndReturnError:&err]) {
-                       [completionLock lock];
-                       completed = YES;
-                       [completionLock unlock];
+        NSError *err = nil;
+        if (![task launchAndReturnError:&err]) {
+          [completionLock lock];
+          completed = YES;
+          [completionLock unlock];
 
-                       [self.tasksLock lock];
-                       [self.runningTasks removeObjectForKey:taskId];
-                       [self.tasksLock unlock];
+          [self.tasksLock lock];
+          [self.runningTasks removeObjectForKey:taskId];
+          [self.tasksLock unlock];
 
-                       dispatch_async(dispatch_get_main_queue(), ^{
-                         [self emitOnShellCommandOutput:@{
-                          @"taskId" : taskId,
-                          @"output" : err.localizedDescription ?: @"launch error",
-                          @"type" : @"stderr"
-                         }];
-                         [self emitOnShellCommandComplete:@{
-                          @"taskId" : taskId,
-                          @"exitCode" : @(-1)
-                         }];
-                       });
-                       return;
-                     }
+          dispatch_async(dispatch_get_main_queue(), ^{
+            [self emitOnShellCommandOutput:@{
+            @"taskId" : taskId,
+            @"output" : err.localizedDescription ?: @"launch error",
+            @"type" : @"stderr"
+            }];
+            [self emitOnShellCommandComplete:@{
+            @"taskId" : taskId,
+            @"exitCode" : @(-1)
+            }];
+          });
+          return;
+        }
 
-                     [task waitUntilExit];
-                   }
-                 });
+        [task waitUntilExit];
+      }
+    });
 }
 
 - (NSNumber *)killTaskWithId:(NSString *)taskId {
@@ -299,6 +293,11 @@ RCT_EXPORT_MODULE()
 
   // Clear the shutdown commands
   self.shutdownCommands = nil;
+}
+
+// Required by TurboModules.
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::NativeIRRunShellCommandSpecJSI>(params);
 }
 
 @end

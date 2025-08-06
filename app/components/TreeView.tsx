@@ -2,7 +2,7 @@ import { Text, type ViewStyle, type TextStyle, Pressable, View } from "react-nat
 import { useThemeName, withTheme } from "../theme/theme"
 import { useState } from "react"
 import { traverse } from "../utils/traverse"
-import IRKeyboard from "../../specs/NativeIRKeyboard"
+import IRKeyboard from "../native/IRKeyboard/NativeIRKeyboard"
 
 // max level to avoid infinite recursion
 const MAX_LEVEL = 10

@@ -13,6 +13,8 @@ DB = "\033[90;1m" # Dark gray bold
 S = "\033[9m"     # Strikethrough
 X = "\033[0m"     # Reset
 
+$dirty = false
+
 # This method will search your project files
 # for Objective-C, Swift, or other native files
 # and link them in the Xcode project.
@@ -48,65 +50,25 @@ def link_colocated_native_files(options = {})
 
   # if app_path/ios/Podfile exists, stop and warn the user
   podfile_path = "#{app_path}/macos/Podfile"
-  if File.exist?(podfile_path)
-    puts "React Native Colo Loco error:"
-    puts "  Podfile found in #{podfile_path}. We don't support specifying"
-    puts "  the macos project root as your app_path."
-    puts "  To fix this, change app_path to something like '../app'"
-    puts "  (it is currently #{app_path})"
-    puts "  Skipping linking of native files."
-    puts ""
-    return
-  end
-
-  if not File.exist?(app_path)
-    puts "#{RB}React Native Colo Loco error:#{X}"
-    puts ""
-    puts "#{Y}  No files found in #{GB}#{app_path}#{X}#{Y}."
-    puts "#{Y}  Please check your app_path.#{X}"
-    puts "#{Y}  Skipping linking of native files.#{X}"
-    puts ""
-    return
-  end
-
-  # Get all the colocated files
-  colocated_files = Dir.glob(File.join(app_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
-  # Add any in the generated headers folder
-  generated_headers_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'headers')
-  generated_headers = Dir.glob(File.join(generated_headers_path, '**/*.h')).map { |file| Pathname.new(file).realpath }
-  colocated_files.concat(generated_headers)
-
-  # Generate headers for any objective-c turbomodules that don't have a header
-  generated_headers = []
-  colocated_files.each do |file|
-    next if file.extname != '.m' and file.extname != '.mm'
-    next if file.basename.to_s.include?('ComponentView')
-    
-    # Already have a header for this file
-    next if colocated_files.map(&:basename).include?(file.sub_ext('.h').basename)
-    
-    # Generate the header for the file if it doesn't exist
-    generated_header_file = _generate_objc_header(file, xcodeproj_path, generated_headers_path, colocated_files)
-    generated_headers.push(generated_header_file) if generated_header_file
-  end
-  colocated_files = generated_headers.concat(colocated_files)
+  return unless _check_podfile(podfile_path)
+  return unless _check_app_path(app_path)
 
   project = Xcodeproj::Project.open(xcodeproj_path)
   file_group = project[app_name]
   return unless _check_file_group(file_group, app_name, project)
 
-  # if clean is true, remove the Colocated group if it exists
-  if clean
-    colocated_group = file_group['Colocated']
-    colocated_group.remove_from_project if colocated_group
-    puts "#{YB} - Removed    #{X}#{S}#{D}Colocated#{X}#{D} group#{X}"
+  generated_headers_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'headers')
+  generated_headers = Dir.glob(File.join(generated_headers_path, '**/*.h')).map { |file| Pathname.new(file).realpath }
 
-    # Remove all files from the generated headers folder
-    FileUtils.rm_rf(generated_headers_path)
-    puts "#{YB} - Removed    #{X}#{S}#{D}#{generated_headers_path}#{X}#{D} folder#{X}"
-  end
+  # if clean is true, remove the Colocated group if it exists
+  _clean_colocated_group(file_group, generated_headers_path, project) if clean
   
-  # check if the "Colocated" group exists
+  # Get all the colocated files
+  colocated_files = Dir.glob(File.join(app_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
+  # Add any in the generated headers folder
+  colocated_files.concat(generated_headers)
+
+  # get or create the "Colocated" group in xcode
   colocated_group = _get_colocated_group(file_group)
   colocated_group_files = colocated_group.files.map(&:real_path)
 
@@ -116,20 +78,60 @@ def link_colocated_native_files(options = {})
   # Add new files to the colocated group
   colocated_files.each do |file|
     _add_file_to_project(file, project, excluded_targets, project_root, colocated_group) unless colocated_group_files.include?(file)
-    # Check if there's a header for this file
-    _generate_objc_header(file, xcodeproj_path, generated_headers_path, colocated_files)
+    # Check if there's a header for this file and add it too if not
+    if file.extname == '.m' or file.extname == '.mm'
+      next if colocated_files.map(&:basename).include?(file.sub_ext('.h').basename)
+      generated_header_file = _generate_objc_header(file, xcodeproj_path, generated_headers_path, colocated_files)
+      _add_file_to_project(generated_header_file, project, excluded_targets, project_root, colocated_group) if generated_header_file
+    end
   end
+  _save_project(project)
+end
 
+def _save_project(project)
+  if not $dirty
+    puts ""
+    puts "#{D}No changes to Xcode project needed.#{X}"
+    puts ""
+    return
+  end
+  project_root = Pathname.new(project.path).parent
+  relative_project_path = project.path.relative_path_from(project_root)
   puts ""
-  print "#{D}Saving Xcode project #{G}#{xcodeproj_path}#{X}...#{X}"
+  print "#{D}Saving Xcode project #{G}#{relative_project_path}#{X}...#{X}"
   project.save
   puts "#{GB}Done.#{X}"
   puts ""
+  $dirty = false
 end
 
 def _get_colocated_group(file_group)
   existing_group = file_group['Colocated']
+  $dirty = true if existing_group.nil?
   return existing_group || file_group.new_group('Colocated')
+end
+
+def _check_podfile(podfile_path)
+  return true unless File.exist?(podfile_path)
+  puts "React Native Colo Loco error:"
+  puts "  Podfile found in #{podfile_path}. We don't support specifying"
+  puts "  the macos project root as your app_path."
+  puts "  To fix this, change app_path to something like '../app'"
+  puts "  (it is currently #{app_path})"
+  puts "  Skipping linking of native files."
+  puts ""
+  return false
+end
+
+def _check_app_path(app_path)
+  return true if File.exist?(app_path)
+  puts "#{RB}React Native Colo Loco error:#{X}"
+  puts ""
+  puts "#{Y}  No files found in #{GB}#{app_path}#{X}#{Y}."
+  puts "#{Y}  Please check your app_path.#{X}"
+  puts "#{Y}  Skipping linking of native files.#{X}"
+  puts ""
+  return false
 end
 
 def _check_file_group(file_group, app_name, project)
@@ -154,7 +156,23 @@ def _check_file_in_colocated_files(file, colocated_files, project_root)
   return true
 end
 
+def _clean_colocated_group(file_group, generated_headers_path, project)
+  $dirty = true
+
+  colocated_group = file_group['Colocated']
+  colocated_group.remove_from_project if colocated_group
+  
+  puts "#{YB} - Removed    #{X}#{S}#{D}Colocated#{X}#{D} group#{X}"
+
+  # Remove all files from the generated headers folder
+  FileUtils.rm_rf(generated_headers_path)
+  puts "#{YB} - Removed    #{X}#{S}#{D}#{generated_headers_path}#{X}#{D} folder#{X}"
+
+  _save_project(project)
+end
+
 def _add_file_to_project(file, project, excluded_targets, project_root, colocated_group)
+  $dirty = true
   relative_path = file.relative_path_from(project_root)
   
   # Check if this file specifies any Colo Loco targets
@@ -183,6 +201,7 @@ def _remove_files_from_group(colocated_group, colocated_files, project_root)
 end
 
 def _remove_file_from_project(file, project_root)
+  $dirty = true
   relative_path = file.real_path.relative_path_from(project_root)
   file.remove_from_project
   puts "#{YB} - Removed    #{X}#{S}#{D}#{relative_path.dirname}/#{YB}#{relative_path.basename}#{X}"
@@ -206,7 +225,6 @@ end
 
 def _generate_objc_header(objc_file, xcodeproj_path, generated_headers_path, all_linked_files)
   return if objc_file.extname != '.m' and objc_file.extname != '.mm'
-  # Don't auto-generate headers for fabric components
   return if objc_file.basename.to_s.include?('ComponentView')
   
   template_header = File.read(File.join(File.dirname(__FILE__), 'templates', 'MyTemplate.h'))
@@ -225,5 +243,5 @@ def _generate_objc_header(objc_file, xcodeproj_path, generated_headers_path, all
     File.write(header_file_path, header_file_content)
     puts "#{GB} + Generated #{X} #{D}#{header_file}#{X}"
   end
-  return header_file
+  return Pathname.new(header_file_path)
 end

@@ -14,13 +14,7 @@
 @property (nonatomic, strong) id modifierFlagsMonitor;
 @end
 
-@implementation IRKeyboard
-
-RCT_EXPORT_MODULE()
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeIRKeyboardSpecJSI>(params);
-}
+@implementation IRKeyboard RCT_EXPORT_MODULE()
 
 - (instancetype)init {
   self = [super init];
@@ -118,6 +112,12 @@ Event: NSEvent: type=FlagsChanged loc=(0,748) time=1139752.5 flags=0x20102 win=0
     [NSEvent removeMonitor:self.modifierFlagsMonitor];
     self.modifierFlagsMonitor = nil;
   }
+}
+
+
+// Required by TurboModules.
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::NativeIRKeyboardSpecJSI>(params);
 }
 
 @end

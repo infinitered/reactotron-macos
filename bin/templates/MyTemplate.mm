@@ -1,41 +1,60 @@
 #import "MyTemplate.h"
 
-@implementation MyTemplate
+@interface MyTemplate ()
+// Add any private properties here. Not accessible from JS directly.
+@property (nonatomic, strong) NSNumber *someNumber;
+@end
 
-RCT_EXPORT_MODULE()
+@implementation MyTemplate RCT_EXPORT_MODULE()
+
+// Optional constructor, if you need to initialize any private properties
+- (instancetype)init {
+  self = [super init];
+  if (!self) return nil;
+  
+  // Initialize any private properties here
+  self.someNumber = @(123);
+
+  return self;
+}
+
+// Add your methods here ************************************************************
+
+// Sync method example -- just call in JS:
+//   let res = MyTemplate.getADictionary("someString")
+- (NSDictionary *)getADictionary:(NSString *)someString {
+  return @{
+    @"someString": someString,
+    @"someNumber": self.someNumber,
+    @"someBool": @(YES)
+  };
+}
+
+// Async method example -- call in JS:
+//   let res = await MyTemplate.getADictionaryAsync("someString")
+- (void)getADictionaryAsync: (NSString *)someString resolve:(nonnull RCTPromiseResolveBlock)resolve reject:(nonnull RCTPromiseRejectBlock)reject {
+  resolve(@{
+    @"someString": someString,
+    @"someNumber": self.someNumber,
+    @"someBool": @(YES)
+  });
+
+  // Or, if you want to reject:
+  // reject(nil, @"Error", nil);
+
+  // Or emit an event in the format `emitOnEventName:eventData`
+  // with the shape defined in app/native/specs/NativeMyTemplate.ts
+  [self emitOnMyTemplateEvent:@{
+    @"message": someString,
+    @"timestamp": @(NSDate.date.timeIntervalSince1970)
+  }];
+}
+
+// End of your methods ************************************************************
 
 // Required by TurboModules.
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::MyTemplateSpecJSI>(params);
-}
-
-// Sync method example. 
-RCT_EXPORT_METHOD(getValue:(RCTResponseSenderBlock)callback)
-{
-  callback(@[@"Hello from MyTemplate!"]);
-}
-
-// Async method example
-RCT_EXPORT_METHOD(performAsyncTask:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-{
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    // Simulate async work
-    [NSThread sleepForTimeInterval:0.1];
-    
-    resolve(@{@"result": @"Async task completed"});
-  });
-}
-
-// Event emitter example
-RCT_EXPORT_METHOD(startEventStream)
-{
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [self MyTemplateEvent:@{
-      @"message": @"Event from MyTemplate",
-      @"timestamp": @([[NSDate date] timeIntervalSince1970])
-    }];
-  });
+  return std::make_shared<facebook::react::NativeMyTemplateSpecJSI>(params);
 }
 
 @end

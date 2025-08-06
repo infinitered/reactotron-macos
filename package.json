@@ -115,7 +115,7 @@
   "codegenConfig": {
     "name": "AppSpec",
     "type": "all",
-    "jsSrcsDir": "specs",
+    "jsSrcsDir": "app/native",
     "ios": {
       "componentProvider": {
         "IRTabComponentView": "IRTabComponentView"
