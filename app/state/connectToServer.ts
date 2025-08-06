@@ -1,6 +1,6 @@
+import { getUUID } from "../utils/getUUID"
 import { TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
-import IRRandom from "../native/IRRandom/NativeIRRandom"
 
 type UnsubscribeFn = () => void
 type SendToClientFn = (message: string | object, payload?: object, clientId?: string) => void
@@ -10,7 +10,7 @@ let _sendToClient: SendToClientFn
 const ws: WebSocketState = { socket: null }
 
 export const getReactotronAppId = () => {
-  const [reactotronAppId] = withGlobal("reactotronAppId", IRRandom.getUUID(), { persist: true })
+  const [reactotronAppId] = withGlobal("reactotronAppId", getUUID(), { persist: true })
   return reactotronAppId
 }
 

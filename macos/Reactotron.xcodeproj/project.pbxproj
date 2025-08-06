@@ -18,6 +18,7 @@
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
 		580FDC959613C3DDF5C47E31 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */; };
+		6446D39D3B13CF374D673D42 /* TestRandom.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0242C2016B82CEFC966785E0 /* TestRandom.mm */; };
 		7395EEC0CBD66B2429AFA548 /* IRFontList.h in Headers */ = {isa = PBXBuildFile; fileRef = 44D41E0288BF868FB93BB92B /* IRFontList.h */; };
 		798B319EC948ECC22DDB4BFE /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0C6A7EA049AF3D1CE12D3450 /* IRFontList.mm */; };
 		9B5962E6F77E3C4DA10BF435 /* IRRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 7322299BA8D9DC63A68D3596 /* IRRandom.h */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		01F88A2BC5E88C8069028F62 /* IRTabComponentView.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRTabComponentView.mm; path = ../../app/native/IRTabComponentView/IRTabComponentView.mm; sourceTree = "<group>"; };
+		0242C2016B82CEFC966785E0 /* TestRandom.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = TestRandom.mm; path = ../../app/utils/TestRandom.mm; sourceTree = "<group>"; };
 		0C6A7EA049AF3D1CE12D3450 /* IRFontList.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../../app/native/IRFontList/IRFontList.mm; sourceTree = "<group>"; };
 		10F5E961E858ACEA93DA7395 /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
 		231708F389400166E5DDE538 /* TestRandom.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = TestRandom.h; path = ../build/generated/headers/TestRandom.h; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 				F16A099D5D2884DEF2E23197 /* IRRandom.mm */,
 				7322299BA8D9DC63A68D3596 /* IRRandom.h */,
 				231708F389400166E5DDE538 /* TestRandom.h */,
+				0242C2016B82CEFC966785E0 /* TestRandom.mm */,
 			);
 			name = Colocated;
 			sourceTree = "<group>";
@@ -352,6 +355,7 @@
 				F6D385D0FE90EFA5A6905AB0 /* IRTabComponentView.mm in Sources */,
 				0565CF9074BE45BA5FAA732E /* ProcessUtils.c in Sources */,
 				16F8BA02A4AA3CFEFFA7AFC8 /* IRRandom.mm in Sources */,
+				6446D39D3B13CF374D673D42 /* TestRandom.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
