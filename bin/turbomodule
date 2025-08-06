@@ -62,24 +62,6 @@ check_git_status() {
   fi
 }
 
-# Create git checkpoint
-create_checkpoint() {
-  local checkpoint_name="turbomodule-checkpoint-$(date +%s)"
-  git stash push -m "$checkpoint_name" --include-untracked
-  echo "$checkpoint_name"
-}
-
-# Restore from checkpoint
-restore_checkpoint() {
-  local checkpoint_name="$1"
-  local stash_id=$(git stash list | grep "$checkpoint_name" | head -1 | cut -d: -f1)
-  if [[ -n "$stash_id" ]]; then
-    git stash pop "$stash_id"
-    print_success "Restored from checkpoint"
-  else
-    print_warning "Could not find checkpoint to restore"
-  fi
-}
 
 # Validate module name
 validate_module_name() {
@@ -117,7 +99,6 @@ link_files() {
 
 # Add new TurboModule
 add_module() {
-  local checkpoint=""
   local module_name="$1"
   
   print_info "Creating TurboModule: $module_name"
@@ -125,24 +106,18 @@ add_module() {
   # Check git status
   check_git_status
   
-  # Create checkpoint
-  print_step "Creating git checkpoint..."
-  checkpoint=$(create_checkpoint)
-  
   # Validate module name
   validate_module_name "$module_name"
 
   # Check if the folder already exists
   if [[ -d "app/native/${module_name}" ]]; then
     print_error "Module $module_name already exists"
-    restore_checkpoint "$checkpoint"
     exit 1
   fi
   
   # Check if files already exist
   if [[ -f "app/native/${module_name}/${module_name}.mm" ]] || [[ -f "app/native/${module_name}/Native${module_name}.ts" ]]; then
     print_error "Module $module_name already exists"
-    restore_checkpoint "$checkpoint"
     exit 1
   fi
   
@@ -166,17 +141,12 @@ add_module() {
 
 # Remove TurboModule
 remove_module() {
-  local checkpoint=""
   local module_name="$1"
   
   print_info "Removing TurboModule: $module_name"
   
   # Check git status
   check_git_status
-  
-  # Create checkpoint
-  print_step "Creating git checkpoint..."
-  checkpoint=$(create_checkpoint)
   
   # Validate module name
   validate_module_name "$module_name"
@@ -199,10 +169,6 @@ apply_turbomodules() {
   
   # Check git status
   check_git_status
-  
-  # Create checkpoint
-  print_step "Creating git checkpoint..."
-  local checkpoint=$(create_checkpoint)
   
   # Call Node.js script
   node ./bin/generateTurboModule.js apply

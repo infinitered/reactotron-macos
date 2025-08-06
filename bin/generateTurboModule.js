@@ -43,24 +43,16 @@ function parseTurbomoduleComment(filePath) {
   // Extract the @turbomodule line
   const lines = content.split("\n")
   const turbomoduleLine = lines.find((line) => line.trim().startsWith("/* @turbomodule"))
-
-  if (!turbomoduleLine) {
-    return null
-  }
+  if (!turbomoduleLine) return null
 
   // Parse: @turbomodule ModuleName.methodName(args): returnType
   const pattern = /^\/\* @turbomodule ([A-Za-z0-9]+)\.(.+)$/
   const match = turbomoduleLine.match(pattern)
 
-  if (!match) {
-    return null
-  }
+  if (!match) return null
 
   const fullSignature = match[2]
-  return {
-    moduleName: match[1],
-    fullSignature: fullSignature,
-  }
+  return { moduleName: match[1], fullSignature: fullSignature }
 }
 
 // Extract native code from comment block
@@ -79,20 +71,15 @@ function extractNativeCode(filePath) {
       continue
     }
 
-    if (inComment && line.trim().startsWith("*/")) {
-      break
-    }
-
-    if (inComment && foundTurbomodule) {
-      nativeCode.push(line)
-    }
+    if (inComment && line.trim().startsWith("*/")) break
+    if (inComment && foundTurbomodule) nativeCode.push(line)
   }
 
   return nativeCode.join("\n")
 }
 
 // Generate native files from turbomodule comment
-function generateNativeFiles(filePath, moduleInfo) {
+function generateNativeFiles(filePath, destinationPath, moduleInfo) {
   const { moduleName, fullSignature } = moduleInfo
 
   // Get directory of the TypeScript file
@@ -101,48 +88,34 @@ function generateNativeFiles(filePath, moduleInfo) {
   // Extract native code
   const nativeCode = extractNativeCode(filePath)
 
-  // Generate .mm file using template
-  const mmFile = path.join(dirPath, `${moduleName}.mm`)
-  const mmTemplate = `#import "${moduleName}.h"
-// HEADERS_HERE
-
-@implementation ${moduleName} RCT_EXPORT_MODULE()
-
-// METHODS_HERE
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::Native${moduleName}SpecJSI>(params);
-}
-@end`
-
   // Replace the headers section with any lines that start with #import
   const nativeLines = nativeCode.split("\n")
   const headers = nativeLines.filter((line) => line.trim().startsWith("#import")).join("\n")
-
-  let mmContent = mmTemplate
-  if (headers) {
-    mmContent = mmContent.replace("// HEADERS_HERE", headers)
-  } else {
-    mmContent = mmContent.replace("// HEADERS_HERE", "")
-  }
 
   // Replace the method section with our extracted native code, minus the headers
   const filteredNativeCode = nativeLines
     .filter((line) => !line.trim().startsWith("#import"))
     .join("\n")
 
-  const methodStartIndex = mmContent.indexOf("// METHODS_HERE")
-  if (methodStartIndex !== -1) {
-    const beforeMethods = mmContent.substring(0, methodStartIndex)
-    const afterMethods = mmContent.substring(methodStartIndex + "// METHODS_HERE".length)
-    mmContent = beforeMethods + filteredNativeCode + afterMethods
-  }
+  // Generate .mm file using template
+  const mmFile = path.join(destinationPath, `${moduleName}.mm`)
+  const mmContent = `#import "${moduleName}.h"
+${headers}
+
+@implementation ${moduleName} RCT_EXPORT_MODULE()
+
+${filteredNativeCode}
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::Native${moduleName}SpecJSI>(params);
+}
+@end`
 
   fs.writeFileSync(mmFile, mmContent)
   printSuccess(`Generated ${mmFile}`)
 
   // Generate Native TypeScript file using template
-  const nativeTsFile = path.join(dirPath, `Native${moduleName}.ts`)
+  const nativeTsFile = path.join(destinationPath, `Native${moduleName}.ts`)
   const tsTemplate = `import type { TurboModule } from "react-native"
 import { TurboModuleRegistry } from "react-native"
 export interface Spec extends TurboModule {
@@ -154,9 +127,9 @@ export default TurboModuleRegistry.getEnforcing<Spec>("${moduleName}")`
   printSuccess(`Generated ${nativeTsFile}`)
 }
 
-// Apply turbomodules from package.json
-function applyTurbomodules() {
-  printInfo("Applying turbomodules from package.json")
+// Generate turbomodules from package.json
+function generateTurbomodules() {
+  printInfo("Generating turbomodules from package.json")
 
   // Read package.json
   const packageJsonPath = path.join(process.cwd(), "package.json")
@@ -167,11 +140,28 @@ function applyTurbomodules() {
 
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
 
+  const { generateTurboModules } = packageJson
+
+  if (!generateTurboModules) {
+    printError("`generateTurboModules` not found in package.json")
+    process.exit(1)
+  }
+
   // Get turbomodules array
-  const turbomodules = packageJson.turbomodules || []
+  const turbomodules = generateTurboModules.files || []
+
+  // Get the destination path from package.json
+  const destinationPath = generateTurboModules.destinationPath
 
   if (turbomodules.length === 0) {
-    printWarning("No turbomodules found in package.json")
+    printWarning("No files found in `generateTurboModules.files` in package.json")
+    printWarning("Skipping turbomodule generation.")
+    return
+  }
+
+  if (!destinationPath) {
+    printWarning("`generateTurboModules.destinationPath` not found in package.json")
+    printWarning("Skipping turbomodule generation.")
     return
   }
 
@@ -198,7 +188,7 @@ function applyTurbomodules() {
     }
 
     // Generate native files
-    generateNativeFiles(filePath, moduleInfo)
+    generateNativeFiles(filePath, destinationPath, moduleInfo)
     processed++
   }
 
@@ -213,17 +203,14 @@ function applyTurbomodules() {
 function main() {
   const command = process.argv[2]
 
-  if (command === "apply") {
-    applyTurbomodules()
+  if (command === "generate") {
+    generateTurbomodules()
   } else {
     printError(`Unknown command: ${command}`)
     process.exit(1)
   }
 }
 
-// Run if called directly
-if (require.main === module) {
-  main()
-}
-
-module.exports = { applyTurbomodules }
+// Run automatically if called directly
+if (require.main === module) main()
+module.exports = { generateTurbomodules }

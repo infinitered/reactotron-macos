@@ -44,10 +44,6 @@ def link_colocated_native_files(options = {})
   puts "#{D}  excluded: #{G}#{excluded_targets}#{X}"
   puts "#{D}  clean: #{G}#{clean}#{X}" if clean
   puts ""
-  puts "#{D}Looking for files to link to #{GB}#{app_name}#{X} in #{G}#{relative_app_path}#{X}"
-  puts ""
-  
-
   # if app_path/ios/Podfile exists, stop and warn the user
   podfile_path = "#{app_path}/macos/Podfile"
   return unless _check_podfile(podfile_path)
@@ -57,16 +53,22 @@ def link_colocated_native_files(options = {})
   file_group = project[app_name]
   return unless _check_file_group(file_group, app_name, project)
 
-  generated_headers_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'headers')
-  generated_headers = Dir.glob(File.join(generated_headers_path, '**/*.h')).map { |file| Pathname.new(file).realpath }
+  generated_files_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'colocated')
+  generated_files = Dir.glob(File.join(generated_files_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
 
   # if clean is true, remove the Colocated group if it exists
-  _clean_colocated_group(file_group, generated_headers_path, project) if clean
+  _clean_colocated_group(file_group, generated_files_path, project, project_root) if clean
+
+  # Run the ./generateTurboModule.js script to generate any embedded TurboModules
+  _generate_turbomodules(project_root)
   
-  # Get all the colocated files
+  puts "#{D}Looking for files to link to #{GB}#{app_name}#{X} in #{G}#{relative_app_path}#{X}"
+  puts ""
+
+  # Get all the colocated files in the app_path
   colocated_files = Dir.glob(File.join(app_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
-  # Add any in the generated headers folder
-  colocated_files.concat(generated_headers)
+  # Add any in the generated files folder
+  colocated_files.concat(generated_files)
 
   # get or create the "Colocated" group in xcode
   colocated_group = _get_colocated_group(file_group)
@@ -81,7 +83,7 @@ def link_colocated_native_files(options = {})
     # Check if there's a header for this file and add it too if not
     if file.extname == '.m' or file.extname == '.mm'
       next if colocated_files.map(&:basename).include?(file.sub_ext('.h').basename)
-      generated_header_file = _generate_objc_header(file, xcodeproj_path, generated_headers_path, colocated_files)
+      generated_header_file = _generate_objc_header(file, xcodeproj_path, generated_files_path, colocated_files, project_root)
       _add_file_to_project(generated_header_file, project, excluded_targets, project_root, colocated_group) if generated_header_file
     end
   end
@@ -156,7 +158,7 @@ def _check_file_in_colocated_files(file, colocated_files, project_root)
   return true
 end
 
-def _clean_colocated_group(file_group, generated_headers_path, project)
+def _clean_colocated_group(file_group, generated_files_path, project, project_root)
   $dirty = true
 
   colocated_group = file_group['Colocated']
@@ -166,9 +168,10 @@ def _clean_colocated_group(file_group, generated_headers_path, project)
   
   _save_project(project)
 
-  # Remove all files from the generated headers folder
-  FileUtils.rm_rf(generated_headers_path)
-  puts "#{YB} - Removed    #{X}#{S}#{D}#{generated_headers_path}#{X}#{D} folder#{X}"
+  # Remove all files from the generated files folder
+  relative_generated_files_path = Pathname.new(generated_files_path).relative_path_from(project_root)
+  FileUtils.rm_rf(generated_files_path)
+  puts "#{YB} - Removed    #{X}#{S}#{D}#{relative_generated_files_path}#{X}#{D} folder#{X}"
 end
 
 def _add_file_to_project(file, project, excluded_targets, project_root, colocated_group)
@@ -223,7 +226,7 @@ def _colocated_verify_options!(options)
   end
 end
 
-def _generate_objc_header(objc_file, xcodeproj_path, generated_headers_path, all_linked_files)
+def _generate_objc_header(objc_file, xcodeproj_path, generated_files_path, all_linked_files, project_root)
   return if objc_file.extname != '.m' and objc_file.extname != '.mm'
   return if objc_file.basename.to_s.include?('ComponentView')
   
@@ -233,7 +236,7 @@ def _generate_objc_header(objc_file, xcodeproj_path, generated_headers_path, all
   # skip header files and other non-.m  .mm files
   file_no_ext = objc_file.basename.sub_ext('')
   header_file = objc_file.sub_ext('.h')
-  header_file_path = File.join(generated_headers_path, header_file.basename)
+  header_file_path = File.join(generated_files_path, header_file.basename)
   # Check if the header file exists in the project, and don't generate it
   if all_linked_files.map { |f| f.basename }.include?(header_file.basename)
     puts "#{DB} ✓ Exists     #{X}#{D}#{header_file.basename}#{X}"
@@ -241,7 +244,15 @@ def _generate_objc_header(objc_file, xcodeproj_path, generated_headers_path, all
     header_file_content = template_header.gsub("MyTemplate", file_no_ext.to_s)
     FileUtils.mkdir_p(File.dirname(header_file_path))
     File.write(header_file_path, header_file_content)
-    puts "#{GB} + Generated #{X} #{D}#{header_file}#{X}"
+    relative_header_file = header_file.relative_path_from(project_root)
+    puts "#{GB} + Generated #{X} #{D}#{relative_header_file}#{X}"
   end
   return Pathname.new(header_file_path)
+end
+
+def _generate_turbomodules(project_root)
+  puts "#{D}Generating embedded TurboModules#{X}"
+  `node #{project_root}/bin/generateTurboModule.js`
+  puts "#{GB}Done.#{X}"
+  puts ""
 end

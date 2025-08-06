@@ -7,39 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		05D333003B375EFF49866236 /* IRSystemInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = CAF56EF4BC317B96B82C7882 /* IRSystemInfo.mm */; };
-		183407756621F57B3C7BF0E6 /* IRTabComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 15396AE80B6A8BA7923AF752 /* IRTabComponentView.mm */; };
 		1BCAFE1EAF4275451E5A2CA2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */; };
-		22804210B76C09AB4A60CC22 /* IRExperimental.h in Headers */ = {isa = PBXBuildFile; fileRef = 32C5327F69360A907A0754B7 /* IRExperimental.h */; };
-		47D6786463BAEE9FF1AD2E1F /* IRFontList.h in Headers */ = {isa = PBXBuildFile; fileRef = 31E659A1CD96B0DAD4471F24 /* IRFontList.h */; };
-		4A86D15D49DD11B5B0B1D1FD /* IRSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = FBFC937DC588CAA3D36F14CE /* IRSystemInfo.h */; };
 		5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5142014C2437B4B30078DB4F /* AppDelegate.mm */; };
 		514201522437B4B40078DB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 514201512437B4B40078DB4F /* Assets.xcassets */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
-		516BDC558138AB824843C9BA /* IRKeyboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1BE73A375070B0028A29E737 /* IRKeyboard.mm */; };
 		580FDC959613C3DDF5C47E31 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */; };
-		612448E9133ADEE6E265CD13 /* IRKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = B444BF9737A62F65843FF087 /* IRKeyboard.h */; };
-		6D784172A9EFF4B0EA0BD528 /* IRExperimental.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0C09DECC1774670FD570C089 /* IRExperimental.mm */; };
-		70651A7E17834988F1EA0090 /* ProcessUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A18D040B9643EB74A71F2D7C /* ProcessUtils.h */; };
-		7F5E8EF65EC5C74ADF48D06D /* IRTabComponentView.h in Headers */ = {isa = PBXBuildFile; fileRef = 611D5F14C696AAF2299EF015 /* IRTabComponentView.h */; };
-		85A77EA16CFEE41611A1A0CE /* TestRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 434BDC2806FB361E3E0BE235 /* TestRandom.h */; };
-		8850B849E65517018915E4CC /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8AD8B87E956B32EFE9793565 /* IRRunShellCommand.mm */; };
-		8C2FFA6591505654470D3411 /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = F74EFA118809421E2E4D3707 /* ProcessUtils.c */; };
-		A5801B7682E198CE63852F07 /* IRRunShellCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 050E34BDDF8ACBC2B32D56CC /* IRRunShellCommand.h */; };
-		E2F1A12E87AAFCD3D25AD07B /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = A970C3E741C30701FC3CE3C8 /* IRFontList.mm */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
-		F674B157070F631C26017812 /* TestRandom.mm in Sources */ = {isa = PBXBuildFile; fileRef = FB794F50865B4B2A487C45AE /* TestRandom.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		050E34BDDF8ACBC2B32D56CC /* IRRunShellCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRRunShellCommand.h; path = ../build/generated/headers/IRRunShellCommand.h; sourceTree = "<group>"; };
-		0C09DECC1774670FD570C089 /* IRExperimental.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRExperimental.mm; path = ../../app/native/IRExperimental/IRExperimental.mm; sourceTree = "<group>"; };
-		15396AE80B6A8BA7923AF752 /* IRTabComponentView.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRTabComponentView.mm; path = ../../app/native/IRTabComponentView/IRTabComponentView.mm; sourceTree = "<group>"; };
-		1BE73A375070B0028A29E737 /* IRKeyboard.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRKeyboard.mm; path = ../../app/native/IRKeyboard/IRKeyboard.mm; sourceTree = "<group>"; };
-		31E659A1CD96B0DAD4471F24 /* IRFontList.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../build/generated/headers/IRFontList.h; sourceTree = "<group>"; };
-		32C5327F69360A907A0754B7 /* IRExperimental.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRExperimental.h; path = ../build/generated/headers/IRExperimental.h; sourceTree = "<group>"; };
-		434BDC2806FB361E3E0BE235 /* TestRandom.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = TestRandom.h; path = ../build/generated/headers/TestRandom.h; sourceTree = "<group>"; };
 		5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		514201492437B4B30078DB4F /* Reactotron.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reactotron.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5142014B2437B4B30078DB4F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -49,20 +26,11 @@
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201572437B4B40078DB4F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* Reactotron.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reactotron.entitlements; sourceTree = "<group>"; };
-		611D5F14C696AAF2299EF015 /* IRTabComponentView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRTabComponentView.h; path = ../../app/native/IRTabComponentView/IRTabComponentView.h; sourceTree = "<group>"; };
-		8AD8B87E956B32EFE9793565 /* IRRunShellCommand.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRRunShellCommand.mm; path = ../../app/native/IRRunShellCommand/IRRunShellCommand.mm; sourceTree = "<group>"; };
-		A18D040B9643EB74A71F2D7C /* ProcessUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../../app/native/ProcessUtils/ProcessUtils.h; sourceTree = "<group>"; };
-		A970C3E741C30701FC3CE3C8 /* IRFontList.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../../app/native/IRFontList/IRFontList.mm; sourceTree = "<group>"; };
-		B444BF9737A62F65843FF087 /* IRKeyboard.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRKeyboard.h; path = ../build/generated/headers/IRKeyboard.h; sourceTree = "<group>"; };
-		CAF56EF4BC317B96B82C7882 /* IRSystemInfo.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRSystemInfo.mm; path = ../../app/native/IRSystemInfo/IRSystemInfo.mm; sourceTree = "<group>"; };
 		CBA768848D07B4EDA42574FD /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		CF52DE317C310410AD0A2A0C /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F74EFA118809421E2E4D3707 /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
 		F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FB794F50865B4B2A487C45AE /* TestRandom.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = TestRandom.mm; path = ../../app/utils/TestRandom.mm; sourceTree = "<group>"; };
-		FBFC937DC588CAA3D36F14CE /* IRSystemInfo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRSystemInfo.h; path = ../build/generated/headers/IRSystemInfo.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,7 +73,6 @@
 				514201562437B4B40078DB4F /* Info.plist */,
 				514201572437B4B40078DB4F /* main.m */,
 				514201592437B4B40078DB4F /* Reactotron.entitlements */,
-				BAA7E4CDF8FE63A581578329 /* Colocated */,
 			);
 			path = "Reactotron-macOS";
 			sourceTree = "<group>";
@@ -141,29 +108,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		BAA7E4CDF8FE63A581578329 /* Colocated */ = {
-			isa = PBXGroup;
-			children = (
-				0C09DECC1774670FD570C089 /* IRExperimental.mm */,
-				32C5327F69360A907A0754B7 /* IRExperimental.h */,
-				A970C3E741C30701FC3CE3C8 /* IRFontList.mm */,
-				31E659A1CD96B0DAD4471F24 /* IRFontList.h */,
-				1BE73A375070B0028A29E737 /* IRKeyboard.mm */,
-				B444BF9737A62F65843FF087 /* IRKeyboard.h */,
-				8AD8B87E956B32EFE9793565 /* IRRunShellCommand.mm */,
-				050E34BDDF8ACBC2B32D56CC /* IRRunShellCommand.h */,
-				CAF56EF4BC317B96B82C7882 /* IRSystemInfo.mm */,
-				FBFC937DC588CAA3D36F14CE /* IRSystemInfo.h */,
-				611D5F14C696AAF2299EF015 /* IRTabComponentView.h */,
-				15396AE80B6A8BA7923AF752 /* IRTabComponentView.mm */,
-				F74EFA118809421E2E4D3707 /* ProcessUtils.c */,
-				A18D040B9643EB74A71F2D7C /* ProcessUtils.h */,
-				FB794F50865B4B2A487C45AE /* TestRandom.mm */,
-				434BDC2806FB361E3E0BE235 /* TestRandom.h */,
-			);
-			name = Colocated;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -171,14 +115,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22804210B76C09AB4A60CC22 /* IRExperimental.h in Headers */,
-				47D6786463BAEE9FF1AD2E1F /* IRFontList.h in Headers */,
-				612448E9133ADEE6E265CD13 /* IRKeyboard.h in Headers */,
-				A5801B7682E198CE63852F07 /* IRRunShellCommand.h in Headers */,
-				4A86D15D49DD11B5B0B1D1FD /* IRSystemInfo.h in Headers */,
-				7F5E8EF65EC5C74ADF48D06D /* IRTabComponentView.h in Headers */,
-				70651A7E17834988F1EA0090 /* ProcessUtils.h in Headers */,
-				85A77EA16CFEE41611A1A0CE /* TestRandom.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -348,14 +284,6 @@
 			files = (
 				514201582437B4B40078DB4F /* main.m in Sources */,
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
-				6D784172A9EFF4B0EA0BD528 /* IRExperimental.mm in Sources */,
-				E2F1A12E87AAFCD3D25AD07B /* IRFontList.mm in Sources */,
-				516BDC558138AB824843C9BA /* IRKeyboard.mm in Sources */,
-				8850B849E65517018915E4CC /* IRRunShellCommand.mm in Sources */,
-				05D333003B375EFF49866236 /* IRSystemInfo.mm in Sources */,
-				183407756621F57B3C7BF0E6 /* IRTabComponentView.mm in Sources */,
-				8C2FFA6591505654470D3411 /* ProcessUtils.c in Sources */,
-				F674B157070F631C26017812 /* TestRandom.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

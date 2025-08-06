@@ -122,7 +122,10 @@
       }
     }
   },
-  "turbomodules": [
-    "app/utils/random/getUUID.ts"
-  ]
+  "generateTurboModules": {
+    "files": [
+      "app/utils/random/getUUID.ts"
+    ],
+    "destinationPath": "macos/build/generated/colocated"
+  }
 }
