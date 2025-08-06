@@ -24,13 +24,13 @@ def link_colocated_native_files(options = {})
   puts "#{D}Running ./bin/linker.rb from #{__FILE__}#{X}"
   puts ""
 
-
   _colocated_verify_options!(options)
 
   app_name = options[:app_name]
   app_path = options[:app_path]
   xcodeproj_path = options[:xcodeproj_path]
   excluded_targets = options[:exclude_targets] || []
+  clean = options[:clean] || false
   project_root = Pathname.new(File.dirname(xcodeproj_path)).parent
 
   relative_app_path = Pathname.new(app_path).relative_path_from(project_root)
@@ -40,6 +40,7 @@ def link_colocated_native_files(options = {})
   puts "#{D}  App Path: #{GB}#{relative_app_path}#{X}"
   puts "#{D}  xcodeprj: #{G}#{relative_xcodeproj_path}#{X}"
   puts "#{D}  excluded: #{G}#{excluded_targets}#{X}"
+  puts "#{D}  clean: #{G}#{clean}#{X}" if clean
   puts ""
   puts "#{D}Looking for files to link to #{GB}#{app_name}#{X} in #{G}#{relative_app_path}#{X}"
   puts ""
@@ -76,6 +77,7 @@ def link_colocated_native_files(options = {})
   colocated_files.concat(generated_headers)
 
   # Generate headers for any objective-c turbomodules that don't have a header
+  generated_headers = []
   colocated_files.each do |file|
     next if file.extname != '.m' and file.extname != '.mm'
     next if file.basename.to_s.include?('ComponentView')
@@ -84,98 +86,106 @@ def link_colocated_native_files(options = {})
     next if colocated_files.map(&:basename).include?(file.sub_ext('.h').basename)
     
     # Generate the header for the file if it doesn't exist
-    generated_header_file = _generate_objc_header({
-      objc_file: file,
-      xcodeproj_path: xcodeproj_path
-    })
-    colocated_files.push(generated_header_file) if generated_header_file
+    generated_header_file = _generate_objc_header(file, xcodeproj_path, generated_headers_path, colocated_files)
+    generated_headers.push(generated_header_file) if generated_header_file
+  end
+  colocated_files = generated_headers.concat(colocated_files)
+
+  project = Xcodeproj::Project.open(xcodeproj_path)
+  file_group = project[app_name]
+  return unless _check_file_group(file_group, app_name, project)
+
+  # if clean is true, remove the Colocated group if it exists
+  if clean
+    colocated_group = file_group['Colocated']
+    colocated_group.remove_from_project if colocated_group
+    puts "#{YB} - Removed    #{X}#{S}#{D}Colocated#{X}#{D} group#{X}"
+
+    # Remove all files from the generated headers folder
+    FileUtils.rm_rf(generated_headers_path)
+    puts "#{YB} - Removed    #{X}#{S}#{D}#{generated_headers_path}#{X}#{D} folder#{X}"
+  end
+  
+  # check if the "Colocated" group exists
+  colocated_group = _get_colocated_group(file_group)
+  colocated_group_files = colocated_group.files.map(&:real_path)
+
+  # Remove files from the existing colocated file_group that are not present in the colocated_files array
+  _remove_files_from_group(colocated_group, colocated_files, project_root)
+
+  # Add new files to the colocated group
+  colocated_files.each do |file|
+    _add_file_to_project(file, project, excluded_targets, project_root, colocated_group) unless colocated_group_files.include?(file)
+    # Check if there's a header for this file
+    _generate_objc_header(file, xcodeproj_path, generated_headers_path, colocated_files)
   end
 
-  # if there are any colocated files, let's add them
-  if colocated_files.length > 0
-    project = Xcodeproj::Project.open(xcodeproj_path)
-    file_group = project[app_name]
+  puts ""
+  print "#{D}Saving Xcode project #{G}#{xcodeproj_path}#{X}...#{X}"
+  project.save
+  puts "#{GB}Done.#{X}"
+  puts ""
+end
 
-    if file_group.nil?
-      puts "#{RB}React Native Colo Loco error:#{X}"
-      puts ""
-      puts "#{Y}  No project found in #{GB}#{xcodeproj_path}#{X}#{Y} with name #{GB}#{app_name}#{X}."
-      puts "#{Y}  Skipping linking of native files.#{X}"
-      puts ""
-      puts "#{D}  Found:#{X}"
-      project.targets.each do |target|
-        puts "    #{D}#{target.name}#{X}"
-      end
-      puts ""
-      return
-    end
-    
-    # check if the "Colocated" group exists
-    existing_group = file_group['Colocated']
+def _get_colocated_group(file_group)
+  existing_group = file_group['Colocated']
+  return existing_group || file_group.new_group('Colocated')
+end
 
-    # Create the group if it doesn't exist
-    colocated_group = existing_group || file_group.new_group('Colocated')
-    colocated_group_files = colocated_group.files.map(&:real_path)
-
-    
-
-    # Remove files from the existing colocated file_group that are not present in the colocated_files array
-    if existing_group
-      existing_group.files.each do |file|
-        if colocated_files.map(&:to_s).include?(file.real_path.to_s)
-          relative_path = file.real_path.relative_path_from(project_root)
-          dir_path = relative_path.dirname
-          filename = relative_path.basename
-          puts "#{DB} ✓ Checked    #{X}#{D}#{dir_path}/#{DB}#{filename}#{X}"
-          next
-        end
-        relative_path = file.real_path.relative_path_from(project_root)
-        dir_path = relative_path.dirname
-        filename = relative_path.basename
-        puts "#{YB} - Unlinked   #{X}#{S}#{D}#{dir_path}/#{YB}#{filename}#{X}"
-        file.remove_from_project
-      end
-    end
-
-    colocated_files.each do |file|
-      next if colocated_group_files.include?(file)
-    
-      relative_path = file.relative_path_from(project_root)
-      dir_path = relative_path.dirname
-      filename = relative_path.basename
-      puts "#{GB} + Linked     #{X}#{D}#{dir_path}/#{GB}#{filename}#{X}"
-      new_file = colocated_group.new_file(file)
-    
-      # Check if this file specifies any Colo Loco targets
-      file_content = File.read(file)
-      targets_line = file_content[/colo_loco_targets:(.+)/, 1] # Get the line with the targets, if it exists
-      specified_targets = targets_line&.split(',')&.map(&:strip) || []
-    
-      # Add the new file to all targets (or only the specified targets, if any)
-      project.targets.each do |target|
-        # Skip this target if it's in the excluded_targets list or if this file specifies targets and this target isn't one of them
-        # next if (specified_targets.any? && !specified_targets.include?(target.name)) || (!specified_targets.any? && excluded_targets.include?(target.name))
-    
-        # If there are specified_targets, only add this file to the targets in that list;
-        # otherwise, use the excluded_list to determine which targets to add this file to
-        if specified_targets.any? ? specified_targets.include?(target.name) : !excluded_targets.include?(target.name)
-          target.add_file_references([new_file])
-        end
-      end
-    end
-
-    puts ""
-    print "#{D}Saving Xcode project #{G}#{xcodeproj_path}#{X}...#{X}"
-
-    project.save
-
-    puts "#{GB}Done.#{X}"
-    puts ""
-  else
-    puts "#{Y}No colocated native files found in #{GB}#{app_path}#{X}#{Y}."
-    puts "#{Y}Skipping linking of native files.#{X}"
-    puts ""
+def _check_file_group(file_group, app_name, project)
+  return true unless file_group.nil?
+  puts "#{RB}React Native Colo Loco error:#{X}"
+  puts ""
+  puts "#{Y}  No project found in #{GB}#{xcodeproj_path}#{X}#{Y} with name #{GB}#{app_name}#{X}."
+  puts "#{Y}  Skipping linking of native files.#{X}"
+  puts ""
+  puts "#{D}  Found:#{X}"
+  project.targets.each do |target|
+    puts "    #{D}#{target.name}#{X}"
   end
+  puts ""
+  return false
+end
+
+def _check_file_in_colocated_files(file, colocated_files, project_root)
+  return false unless colocated_files.map(&:to_s).include?(file.real_path.to_s)
+  relative_path = file.real_path.relative_path_from(project_root)
+  puts "#{DB} ✓ Checked    #{X}#{D}#{relative_path.dirname}/#{DB}#{relative_path.basename}#{X}"
+  return true
+end
+
+def _add_file_to_project(file, project, excluded_targets, project_root, colocated_group)
+  relative_path = file.relative_path_from(project_root)
+  
+  # Check if this file specifies any Colo Loco targets
+  file_content = File.read(file)
+  targets_line = file_content[/colo_loco_targets:(.+)/, 1] # Get the line with the targets, if it exists
+  specified_targets = targets_line&.split(',')&.map(&:strip) || []
+  
+  # Add the new file to all targets (or only the specified targets, if any)
+  new_file = colocated_group.new_file(file)
+  added_to_targets = []
+  project.targets.each do |target|
+    # If there are specified_targets, only add this file to the targets in that list;
+    # otherwise, use the excluded_list to determine which targets to add this file to
+    if specified_targets.any? ? specified_targets.include?(target.name) : !excluded_targets.include?(target.name)
+      target.add_file_references([new_file])
+      added_to_targets.push(target.name)
+    end
+  end
+  puts "#{GB} + Linked     #{X}#{D}#{relative_path.dirname}/#{GB}#{relative_path.basename}#{X} to #{added_to_targets.join(', ')}"
+end
+
+def _remove_files_from_group(colocated_group, colocated_files, project_root)
+  colocated_group.files.each do |file|
+    _remove_file_from_project(file, project_root) unless _check_file_in_colocated_files(file, colocated_files, project_root)
+  end
+end
+
+def _remove_file_from_project(file, project_root)
+  relative_path = file.real_path.relative_path_from(project_root)
+  file.remove_from_project
+  puts "#{YB} - Removed    #{X}#{S}#{D}#{relative_path.dirname}/#{YB}#{relative_path.basename}#{X}"
 end
 
 # Verify that the required options were provided
@@ -194,33 +204,26 @@ def _colocated_verify_options!(options)
   end
 end
 
-def _generate_objc_header(options = {})
-  objc_file = (options[:objc_file] || "").to_s
-  return if not objc_file.end_with?('.m') and not objc_file.end_with?('.mm')
+def _generate_objc_header(objc_file, xcodeproj_path, generated_headers_path, all_linked_files)
+  return if objc_file.extname != '.m' and objc_file.extname != '.mm'
   # Don't auto-generate headers for fabric components
-  return if objc_file.ends_with?('ComponentView.h') or objc_file.ends_with?('ComponentView.mm') or objc_file.ends_with?('ComponentView.m')
+  return if objc_file.basename.to_s.include?('ComponentView')
   
-  xcodeproj_path = options[:xcodeproj_path]
-  all_linked_files = options[:all_linked_files] || []
-
   template_header = File.read(File.join(File.dirname(__FILE__), 'templates', 'MyTemplate.h'))
-  generated_headers_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'headers')
 
   # Check if there's a header for each .m or .mm file
   # skip header files and other non-.m  .mm files
-  file_no_ext = File.basename(objc_file, File.extname(objc_file))
-  header_file = file_no_ext + ".h"
-  header_file_path = File.join(generated_headers_path, header_file)
+  file_no_ext = objc_file.basename.sub_ext('')
+  header_file = objc_file.sub_ext('.h')
+  header_file_path = File.join(generated_headers_path, header_file.basename)
   # Check if the header file exists in the project, and don't generate it
-  if all_linked_files.map { |f| File.basename(f) }.include?(header_file)
-    puts "#{DB} ✓ Exists     #{X}#{D}#{header_file}#{X}"
+  if all_linked_files.map { |f| f.basename }.include?(header_file.basename)
+    puts "#{DB} ✓ Exists     #{X}#{D}#{header_file.basename}#{X}"
   else
-    header_file_content = template_header.gsub("MyTemplate", file_no_ext)
+    header_file_content = template_header.gsub("MyTemplate", file_no_ext.to_s)
     FileUtils.mkdir_p(File.dirname(header_file_path))
     File.write(header_file_path, header_file_content)
-    puts "#{GB} + Generated #{D} #{GB}#{header_file_path}#{X}"
+    puts "#{GB} + Generated #{X} #{D}#{header_file}#{X}"
   end
-  # Return for link checking
-  header_file_pathname = Pathname.new(header_file_path)
-  return header_file_pathname if header_file_pathname.exist?
+  return header_file
 end

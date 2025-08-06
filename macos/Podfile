@@ -10,7 +10,8 @@ link_colocated_native_files(
   app_name: 'Reactotron-macOS',
   app_path: "#{Pod::Config.instance.installation_root}/../app",
   xcodeproj_path: "#{Pod::Config.instance.installation_root}/Reactotron.xcodeproj",
-  exclude_targets: []
+  exclude_targets: [],
+  clean: !ENV['COLO_LOCO_CLEAN'].nil?
 )
 
 prepare_react_native_project!
