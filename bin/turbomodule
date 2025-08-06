@@ -322,7 +322,7 @@ apply_turbomodules() {
   # Read turbomodules from package.json
   local turbomodules=()
   while IFS= read -r line; do
-    if [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\" ]]; then
+    if [[ "$line" =~ ^[[:space:]]*\"([^\"]+)\" ]] && [[ "${BASH_REMATCH[1]}" != "turbomodules" ]]; then
       turbomodules+=("${BASH_REMATCH[1]}")
     fi
   done < <(grep -A 10 '"turbomodules"' package.json | grep -E '"[^"]+"' | sed 's/.*"\([^"]*\)".*/\1/')
