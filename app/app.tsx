@@ -12,6 +12,7 @@ import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { AppHeader } from "./components/AppHeader"
+import { invokeObjC } from "./utils/getUUID"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -22,6 +23,31 @@ if (__DEV__) {
 function App(): React.JSX.Element {
   const [theme] = useThemeName()
   const { colors } = useTheme(theme)
+
+  const result = invokeObjC(
+    `[[NSString stringWithString:[[[@[@"One", @"Two", @"Three"] mutableCopy] addObject:@"Four"] componentsJoinedByString:@" | "]] uppercaseString]`,
+  )
+  console.tron.log({ result })
+
+  setTimeout(() => {
+    fetch("https://www.google.com")
+      .then((res) => res.text())
+      .then((text) => {
+        console.tron.log("text", text)
+      })
+  }, 1000)
+
+  // // Test array literal with method chaining
+  // const result2 = invokeObjC(
+  //   `[[@[@"Apple", @"Banana", @"Cherry"] componentsJoinedByString:@", "] uppercaseString]`,
+  // )
+  // console.log({ result2 })
+
+  // // Test nested method calls with array manipulation
+  // const result3 = invokeObjC(
+  //   `[[[@[@"One", @"Two", @"Three"] mutableCopy] addObject:@"Four"] componentsJoinedByString:@" | "]`,
+  // )
+  // console.log({ result3 })
 
   // Connect to the server when the app mounts.
   // This will update global state with the server's state

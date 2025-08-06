@@ -3,7 +3,6 @@
 
 @implementation TestRandom RCT_EXPORT_MODULE()
 
-
 - (NSString *)getUUID {
   return [[NSUUID UUID] UUIDString];
 }

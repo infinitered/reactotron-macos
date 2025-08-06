@@ -2,9 +2,7 @@ import type { TurboModule } from "react-native"
 import { TurboModuleRegistry } from "react-native"
 
 export interface Spec extends TurboModule {
-  getRandomNumber(): number
-  getUUID(): string
   invokeObjC(input: string): string
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>("IRRandom")
+export default TurboModuleRegistry.getEnforcing<Spec>("IRExperimental")

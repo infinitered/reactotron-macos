@@ -163,12 +163,12 @@ def _clean_colocated_group(file_group, generated_headers_path, project)
   colocated_group.remove_from_project if colocated_group
   
   puts "#{YB} - Removed    #{X}#{S}#{D}Colocated#{X}#{D} group#{X}"
+  
+  _save_project(project)
 
   # Remove all files from the generated headers folder
   FileUtils.rm_rf(generated_headers_path)
   puts "#{YB} - Removed    #{X}#{S}#{D}#{generated_headers_path}#{X}#{D} folder#{X}"
-
-  _save_project(project)
 end
 
 def _add_file_to_project(file, project, excluded_targets, project_root, colocated_group)
