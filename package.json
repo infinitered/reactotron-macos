@@ -123,6 +123,6 @@
     }
   },
   "turbomodules": [
-    "app/utils/getUUID.ts"
+    "app/utils/random/getUUID.ts"
   ]
 }
