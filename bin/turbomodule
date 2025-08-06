@@ -129,9 +129,16 @@ add_module() {
   
   # Validate module name
   validate_module_name "$module_name"
+
+  # Check if the folder already exists
+  if [[ -d "app/native/${module_name}" ]]; then
+    print_error "Module $module_name already exists"
+    restore_checkpoint "$checkpoint"
+    exit 1
+  fi
   
   # Check if files already exist
-  if [[ -f "app/native/${module_name}.h" ]] || [[ -f "app/native/${module_name}.mm" ]] || [[ -f "specs/Native${module_name}.ts" ]]; then
+  if [[ -f "app/native/${module_name}/${module_name}.mm" ]] || [[ -f "app/native/${module_name}/Native${module_name}.ts" ]]; then
     print_error "Module $module_name already exists"
     restore_checkpoint "$checkpoint"
     exit 1
@@ -139,18 +146,20 @@ add_module() {
   
   # Generate files
   print_step "Generating files..."
-  generate_from_template "$module_name" "./bin/templates/MyTemplate.h" "app/native/${module_name}.h" "MyTemplate"
-  generate_from_template "$module_name" "./bin/templates/MyTemplate.mm" "app/native/${module_name}.mm" "MyTemplate"
-  generate_from_template "$module_name" "./bin/templates/NativeMyTemplate.ts" "specs/Native${module_name}.ts" "MyTemplate"
+  generate_from_template "$module_name" "./bin/templates/MyTemplate.mm" "app/native/${module_name}/${module_name}.mm" "MyTemplate"
+  generate_from_template "$module_name" "./bin/templates/NativeMyTemplate.ts" "app/native/${module_name}/Native${module_name}.ts" "MyTemplate"
   
   # Link files
   link_files
   
   print_success "TurboModule $module_name created successfully!"
   print_info "Files created:"
-  echo "  • app/native/${module_name}.h"
-  echo "  • app/native/${module_name}.mm"
-  echo "  • specs/Native${module_name}.ts"
+  echo "  • app/native/${module_name}/${module_name}.mm"
+  echo "  • app/native/${module_name}/Native${module_name}.ts"
+  echo ""
+  echo "  Now go edit the .mm file and add your methods."
+  echo "  If you need help, read ./docs/Making-a-TurboModule.md"
+  echo ""
 }
 
 # Remove TurboModule
@@ -169,33 +178,10 @@ remove_module() {
   
   # Validate module name
   validate_module_name "$module_name"
-  
-  # Check if files exist
-  local files_to_remove=(
-    "app/native/${module_name}.h"
-    "app/native/${module_name}.mm"
-    "specs/Native${module_name}.ts"
-  )
-  
-  local found_files=()
-  for file in "${files_to_remove[@]}"; do
-    if [[ -f "$file" ]]; then
-      found_files+=("$file")
-    fi
-  done
-  
-  if [[ ${#found_files[@]} -eq 0 ]]; then
-    print_error "Module $module_name not found"
-    restore_checkpoint "$checkpoint"
-    exit 1
-  fi
-  
-  # Remove files
-  print_step "Removing files..."
-  for file in "${found_files[@]}"; do
-    rm "$file"
-    print_success "Removed $file"
-  done
+
+  # Remove folder
+  rm -rf "app/native/${module_name}"
+  print_success "Removed TurboModule: app/native/${module_name}"
   
   # Link files to update Xcode project
   link_files
