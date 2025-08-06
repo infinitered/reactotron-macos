@@ -12,7 +12,7 @@ import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { AppHeader } from "./components/AppHeader"
-import { invokeObjC } from "./utils/getUUID"
+import { invokeObjC } from "./utils/random/getUUID"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!

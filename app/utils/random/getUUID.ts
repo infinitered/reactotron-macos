@@ -12,7 +12,7 @@ export function getUUID2(): string {
   return IRRandom.getUUID()
 }
 
-import IRExperimental from "../native/IRExperimental/NativeIRExperimental"
+import IRExperimental from "../../native/IRExperimental/NativeIRExperimental"
 
 export function getUUID(): string {
   const uuid = TestRandom.getUUID()

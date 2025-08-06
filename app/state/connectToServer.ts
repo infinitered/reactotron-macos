@@ -1,4 +1,4 @@
-import { getUUID } from "../utils/getUUID"
+import { getUUID } from "../utils/random/getUUID"
 import { TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
 
