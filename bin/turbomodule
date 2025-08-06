@@ -208,7 +208,8 @@ apply_turbomodules() {
   node ./bin/generateTurboModule.js apply
   
   # Link files
-  link_files
+  # link_files
+  echo -e "${GRN}Done!${X}${DKGR} Now run ${GRN}npm run pod${X}${DKGR} to link the new native files."
 }
 
 # Main script logic
