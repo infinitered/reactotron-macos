@@ -239,18 +239,43 @@ generate_native_files() {
   
   # Generate .mm file using template
   local mm_file="$dir_path/${module_name}.mm"
-  local mm_template_content=$(cat "./bin/templates/MyTemplate.mm")
-  local mm_content=${mm_template_content//MyTemplate/$module_name}
+  local mm_template_content=$(cat << 'EOT'
+#import "MODULE_NAME.h"
+// HEADERS_HERE
+
+@implementation MODULE_NAME RCT_EXPORT_MODULE()
+
+// METHODS_HERE
+
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+  return std::make_shared<facebook::react::NativeMyTemplateSpecJSI>(params);
+}
+@end
+EOT
+)
+
+  local mm_content=${mm_template_content//MODULE_NAME/$module_name}
+
+  # Replace the headers section with any lines that start with #import
+  local headers=$(echo "$native_code" | grep -E "^#import")
+  if [[ -n "$headers" ]]; then
+    mm_content=${mm_content//\// HEADERS_HERE/$headers}
+  else
+    mm_content=${mm_content//\// HEADERS_HERE/}
+  fi
+
+  # Replace the method section with our extracted native code, minus the headers
+  local method_start=$(echo "$mm_content" | grep -n "// METHODS_HERE" | cut -d: -f1)
+  local method_end=$(echo "$mm_content" | grep -n "// METHODS_HERE" | cut -d: -f1)
   
-  # Replace the method section with our extracted native code
-  local method_start=$(echo "$mm_content" | grep -n "// Add your methods here" | cut -d: -f1)
-  local method_end=$(echo "$mm_content" | grep -n "// End of your methods" | cut -d: -f1)
+  # Filter out any lines that start with #import
+  local filtered_native_code=$(echo "$native_code" | grep -v "^#import")
   
   if [[ -n "$method_start" && -n "$method_end" ]]; then
     local before_methods=$(echo "$mm_content" | head -n $((method_start)))
     local after_methods=$(echo "$mm_content" | tail -n +$((method_end)))
     echo "$before_methods" > "$mm_file"
-    echo "$native_code" >> "$mm_file"
+    echo "$filtered_native_code" >> "$mm_file"
     echo "$after_methods" >> "$mm_file"
   else
     # Fallback if template structure changes
@@ -261,7 +286,16 @@ generate_native_files() {
   
   # Generate Native TypeScript file using template
   local native_ts_file="$dir_path/Native${module_name}.ts"
-  local ts_template_content=$(cat "./bin/templates/NativeMyTemplate.ts")
+  local ts_template_content=$(cat << 'EOT'
+import type { TurboModule } from "react-native"
+import { TurboModuleRegistry } from "react-native"
+export interface Spec extends TurboModule {
+  // METHODS_HERE
+}
+export default TurboModuleRegistry.getEnforcing<Spec>("MODULE_NAME")
+EOT
+)
+
   local ts_content=${ts_template_content//MyTemplate/$module_name}
   
   # Replace the method signature with our specific method

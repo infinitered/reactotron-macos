@@ -1,5 +1,6 @@
 /* @turbomodule TestRandom.getUUID(): string
 #import <Foundation/Foundation.h>
+
 - (NSString *)getUUID {
   return [[NSUUID UUID] UUIDString];
 }

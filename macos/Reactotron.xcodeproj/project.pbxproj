@@ -25,6 +25,7 @@
 		B8928AB6CB39296766556447 /* IRKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 8A4AA6EA9B41C33270027296 /* IRKeyboard.h */; };
 		C6167B9E429B287477C9D79E /* IRKeyboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E347FD4F6083F2962DC61B /* IRKeyboard.mm */; };
 		D1EACA5A6516687053821166 /* IRTabComponentView.h in Headers */ = {isa = PBXBuildFile; fileRef = FA95B228F5D0582BA11AF5E3 /* IRTabComponentView.h */; };
+		E4FF6BF57EA60D588FC31DD7 /* TestRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 231708F389400166E5DDE538 /* TestRandom.h */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
 		F6D385D0FE90EFA5A6905AB0 /* IRTabComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01F88A2BC5E88C8069028F62 /* IRTabComponentView.mm */; };
 		FC8899E8F295C7AFD72E6A38 /* IRRunShellCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = A4101BE681D0BB715331B34E /* IRRunShellCommand.h */; };
@@ -34,6 +35,7 @@
 		01F88A2BC5E88C8069028F62 /* IRTabComponentView.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRTabComponentView.mm; path = ../../app/native/IRTabComponentView/IRTabComponentView.mm; sourceTree = "<group>"; };
 		0C6A7EA049AF3D1CE12D3450 /* IRFontList.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../../app/native/IRFontList/IRFontList.mm; sourceTree = "<group>"; };
 		10F5E961E858ACEA93DA7395 /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
+		231708F389400166E5DDE538 /* TestRandom.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = TestRandom.h; path = ../build/generated/headers/TestRandom.h; sourceTree = "<group>"; };
 		44D41E0288BF868FB93BB92B /* IRFontList.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../build/generated/headers/IRFontList.h; sourceTree = "<group>"; };
 		5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		514201492437B4B30078DB4F /* Reactotron.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reactotron.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -154,6 +156,7 @@
 				69C3A6ABF6B15CBCC54ECA35 /* IRSystemInfo.h */,
 				F16A099D5D2884DEF2E23197 /* IRRandom.mm */,
 				7322299BA8D9DC63A68D3596 /* IRRandom.h */,
+				231708F389400166E5DDE538 /* TestRandom.h */,
 			);
 			name = Colocated;
 			sourceTree = "<group>";
@@ -172,6 +175,7 @@
 				FC8899E8F295C7AFD72E6A38 /* IRRunShellCommand.h in Headers */,
 				05E4BE0AA624010158DF2E9B /* IRSystemInfo.h in Headers */,
 				9B5962E6F77E3C4DA10BF435 /* IRRandom.h in Headers */,
+				E4FF6BF57EA60D588FC31DD7 /* TestRandom.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
