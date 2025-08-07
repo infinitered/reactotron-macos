@@ -4,7 +4,6 @@
 #import <React/RCTUtils.h>
 
 @implementation IRMenuItemManager {
-  NSMutableDictionary<NSString *, NSMenuItem *> *_menuItems;
 }
 
 RCT_EXPORT_MODULE()
@@ -13,13 +12,7 @@ RCT_EXPORT_MODULE()
   return std::make_shared<facebook::react::NativeIRMenuItemManagerSpecJSI>(params);
 }
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    _menuItems = [NSMutableDictionary dictionary];
-  }
-  return self;
-}
+#pragma mark - API
 
 - (NSArray<NSString *> *)getAvailableMenus {
   __block NSMutableArray<NSString *> *menuNames;
@@ -27,244 +20,322 @@ RCT_EXPORT_MODULE()
     menuNames = [NSMutableArray array];
     NSMenu *mainMenu = [NSApp mainMenu];
     for (NSMenuItem *item in mainMenu.itemArray) {
-      if (item.title && item.title.length > 0) {
-        [menuNames addObject:item.title];
-      }
+      if (item.title.length > 0) [menuNames addObject:item.title];
     }
   });
   return [menuNames copy];
 }
 
-- (NSMenuItem *)findMenuByName:(NSString *)menuName {
-  NSMenuItem *menuItem = nil;
-  NSMenu *mainMenu = [NSApp mainMenu];
-
-  for (NSMenuItem *item in mainMenu.itemArray) {
-    if ([item.title localizedCaseInsensitiveCompare:menuName] == NSOrderedSame ||
-        [item.title localizedCaseInsensitiveContainsString:menuName]) {
-      menuItem = item;
-      break;
-    }
-  }
-
-  return menuItem;
-}
-
-- (void)addMenuItem:(NSString *)menuItemId
-              title:(NSString *)title
-           menuName:(NSString *)menuName
-            resolve:(RCTPromiseResolveBlock)resolve
-             reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenuItem *targetMenuItem = [self findMenuByName:menuName];
-
-    if (targetMenuItem && targetMenuItem.submenu) {
-      if (self->_menuItems[menuItemId]) {
-        resolve(@{@"success": @NO, @"error": @"Menu item already exists"});
-        return;
-      }
-
-      NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title
-                                                       action:@selector(menuItemPressed:)
-                                                keyEquivalent:@""];
-      newItem.target = self;
-      newItem.representedObject = menuItemId;
-      [targetMenuItem.submenu addItem:newItem];
-      self->_menuItems[menuItemId] = newItem;
-      resolve(@{@"success": @YES, @"actualMenuName": targetMenuItem.title});
-    } else {
-      reject(@"MENU_NOT_FOUND", [NSString stringWithFormat:@"Menu '%@' not found. Available menus: %@", menuName, [[self getAvailableMenus] componentsJoinedByString:@", "]], nil);
-    }
-  });
-}
-
-- (void)addMenuItemWithOptions:(NSString *)menuItemId
-                         title:(NSString *)title
-                      menuName:(NSString *)menuName
-                 keyEquivalent:(NSString *)keyEquivalent
-            addSeparatorBefore:(BOOL)addSeparatorBefore
-                       resolve:(RCTPromiseResolveBlock)resolve
-                        reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenuItem *targetMenuItem = [self findMenuByName:menuName];
-
-    if (targetMenuItem && targetMenuItem.submenu) {
-      if (self->_menuItems[menuItemId]) {
-        resolve(@{@"success": @NO, @"error": @"Menu item already exists"});
-        return;
-      }
-
-      if (addSeparatorBefore) {
-        [targetMenuItem.submenu addItem:[NSMenuItem separatorItem]];
-      }
-
-      NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title
-                                                       action:@selector(menuItemPressed:)
-                                                keyEquivalent:keyEquivalent ?: @""];
-      newItem.target = self;
-      newItem.representedObject = menuItemId;
-      [targetMenuItem.submenu addItem:newItem];
-      self->_menuItems[menuItemId] = newItem;
-      resolve(@{@"success": @YES, @"actualMenuName": targetMenuItem.title});
-    } else {
-      reject(@"MENU_NOT_FOUND", [NSString stringWithFormat:@"Menu '%@' not found. Available menus: %@", menuName, [[self getAvailableMenus] componentsJoinedByString:@", "]], nil);
-    }
-  });
-}
-
-- (void)createMenu:(NSString *)menuName
-                resolve:(RCTPromiseResolveBlock)resolve
-                 reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenuItem *existingMenu = [self findMenuByName:menuName];
-    if (existingMenu) {
-      resolve(@{@"success": @YES, @"existed": @YES, @"menuName": existingMenu.title});
-      return;
-    }
-
-    NSMenu *mainMenu = [NSApp mainMenu];
-    NSMenuItem *newMenuItem = [[NSMenuItem alloc] initWithTitle:menuName action:nil keyEquivalent:@""];
-    NSMenu *submenu = [[NSMenu alloc] initWithTitle:menuName];
-    newMenuItem.submenu = submenu;
-
-    NSInteger insertIndex = MAX(0, mainMenu.itemArray.count - 1);
-    [mainMenu insertItem:newMenuItem atIndex:insertIndex];
-
-    resolve(@{@"success": @YES, @"existed": @NO, @"menuName": menuName});
-  });
-}
-
-- (void)insertMenuItem:(NSString *)menuItemId
-                 title:(NSString *)title
-              menuName:(NSString *)menuName
-               atIndex:(double)index
-               resolve:(RCTPromiseResolveBlock)resolve
-                reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenuItem *targetMenuItem = [self findMenuByName:menuName];
-
-    if (targetMenuItem && targetMenuItem.submenu) {
-      if (self->_menuItems[menuItemId]) {
-        resolve(@{@"success": @NO, @"error": @"Menu item already exists"});
-        return;
-      }
-
-      NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title
-                                                       action:@selector(menuItemPressed:)
-                                                keyEquivalent:@""];
-      newItem.target = self;
-      newItem.representedObject = menuItemId;
-
-      NSInteger actualIndex = MAX(0, MIN(index, targetMenuItem.submenu.itemArray.count));
-      [targetMenuItem.submenu insertItem:newItem atIndex:actualIndex];
-      self->_menuItems[menuItemId] = newItem;
-      resolve(@{@"success": @YES, @"actualIndex": @(actualIndex)});
-    } else {
-      reject(@"MENU_NOT_FOUND", [NSString stringWithFormat:@"Menu '%@' not found", menuName], nil);
-    }
-  });
-}
-
-- (void)removeMenuItemByName:(NSString *)menuName
-            resolve:(RCTPromiseResolveBlock)resolve
-             reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenu *mainMenu = [NSApp mainMenu];
-    NSMenuItem *menuItem = [self findMenuByName:menuName];
-    if (menuItem) {
-      [mainMenu removeItem:menuItem];
-      resolve(@{ @"success": @YES });
-    } else {
-      resolve(@{ @"success": @NO, @"error": @"Menu not found" });
-    }
-  });
-}
-
-- (void)removeMenuItemById:(NSString *)menuItemId
-               resolve:(RCTPromiseResolveBlock)resolve
-                reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenuItem *item = self->_menuItems[menuItemId];
-    if (item && item.menu) {
-      [item.menu removeItem:item];
-      [self->_menuItems removeObjectForKey:menuItemId];
-      resolve(@{@"success": @YES});
-    } else {
-      resolve(@{@"success": @NO, @"error": @"Menu item not found"});
-    }
-  });
-}
-
-- (void)setMenuItemEnabled:(NSString *)menuItemId
-                   enabled:(BOOL)enabled
-                   resolve:(RCTPromiseResolveBlock)resolve
-                    reject:(RCTPromiseRejectBlock)reject {
-  RCTExecuteOnMainQueue(^{
-    NSMenuItem *item = self->_menuItems[menuItemId];
-    if (item) {
-      item.enabled = enabled;
-
-      // TODO: still can select. fix it.
-      if (!enabled) {
-        NSDictionary *attrs = @{NSForegroundColorAttributeName : [NSColor disabledControlTextColor]};
-        item.attributedTitle = [[NSAttributedString alloc] initWithString:item.title attributes:attrs];
-      }
-      resolve(@{@"success": @YES});
-    } else {
-      resolve(@{@"success": @NO, @"error": @"Menu item not found"});
-    }
-  });
-}
-
-- (NSArray<NSString *> *)getAllMenuItems {
-  __block NSArray<NSString *> *result;
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    result = [self->_menuItems allKeys] ?: @[];
-  });
-  return result;
-}
-
-- (NSDictionary *)getMenuStructure {
+- (NSArray *)getMenuStructure {
   __block NSMutableArray *result = [NSMutableArray array];
 
   dispatch_sync(dispatch_get_main_queue(), ^{
     NSMenu *mainMenu = [NSApp mainMenu];
-
     for (NSMenuItem *menuItem in mainMenu.itemArray) {
-      if (menuItem.title && menuItem.submenu) {
-        NSMutableArray *items = [NSMutableArray array];
-        for (NSMenuItem *subItem in menuItem.submenu.itemArray) {
-          if (subItem.title && !subItem.isSeparatorItem) {
-            [items addObject:@{
-              @"title": subItem.title,
-              @"enabled": @(subItem.enabled),
-              @"id": subItem.representedObject ?: [NSNull null]
-            }];
-          }
-        }
-        [result addObject:@{
-          @"title": menuItem.title,
-          @"items": items
-        }];
-      }
+      if (menuItem.title.length == 0 || !menuItem.submenu) continue;
+
+      NSDictionary *entry = @{
+        @"title": menuItem.title,
+        @"items": [self nodesFromMenu:menuItem.submenu parentPath:@[menuItem.title]]
+      };
+      [result addObject:entry];
     }
   });
+
+  // LEON: return shape - Array<{ title, items: MenuNode[] }>
   return [result copy];
 }
 
+- (void)createMenu:(NSString *)menuName
+           resolve:(RCTPromiseResolveBlock)resolve
+            reject:(RCTPromiseRejectBlock)reject {
+  RCTExecuteOnMainQueue(^{
+    NSMenuItem *existing = [self findTopLevelMenuByTitle:menuName];
+    if (existing) {
+      resolve(@{@"success": @YES, @"existed": @YES, @"menuName": existing.title ?: menuName});
+      return;
+    }
+    (void)[self ensureMenuPath:@[menuName]];
+    resolve(@{@"success": @YES, @"existed": @NO, @"menuName": menuName});
+  });
+}
+
+- (void)addMenuItemAtPath:(NSArray<NSString *> *)parentPath
+                    title:(NSString *)title
+            keyEquivalent:(NSString *)keyEquivalent
+        addSeparatorBefore:(BOOL)addSeparatorBefore
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject {
+  RCTExecuteOnMainQueue(^{
+    NSMenuItem *parentMenuItem = [self ensureMenuPath:parentPath];
+    if (!parentMenuItem || !parentMenuItem.submenu) {
+      reject(@"MENU_NOT_FOUND", @"Parent menu not found or has no submenu", nil);
+      return;
+    }
+
+    if (addSeparatorBefore) {
+      [parentMenuItem.submenu addItem:[NSMenuItem separatorItem]];
+    }
+
+    NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title action:@selector(menuItemPressed:) keyEquivalent:@""];
+    newItem.target = self;
+    [self applyShortcut:keyEquivalent toItem:newItem];
+    [parentMenuItem.submenu addItem:newItem];
+
+    resolve(@{@"success": @YES, @"actualParent": parentPath});
+  });
+}
+
+- (void)insertMenuItemAtPath:(NSArray<NSString *> *)parentPath
+                       title:(NSString *)title
+                     atIndex:(double)index
+               keyEquivalent:(NSString *)keyEquivalent
+           addSeparatorBefore:(BOOL)addSeparatorBefore
+                     resolve:(RCTPromiseResolveBlock)resolve
+                      reject:(RCTPromiseRejectBlock)reject {
+  RCTExecuteOnMainQueue(^{
+    NSMenuItem *parentMenuItem = [self ensureMenuPath:parentPath];
+    if (!parentMenuItem || !parentMenuItem.submenu) {
+      reject(@"MENU_NOT_FOUND", @"Parent menu not found or has no submenu", nil);
+      return;
+    }
+
+    if (addSeparatorBefore) {
+      [parentMenuItem.submenu addItem:[NSMenuItem separatorItem]];
+    }
+
+    NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title action:@selector(menuItemPressed:) keyEquivalent:@""];
+    newItem.target = self;
+    [self applyShortcut:keyEquivalent toItem:newItem];
+
+    NSInteger actual = MAX(0, MIN((NSInteger)index, parentMenuItem.submenu.itemArray.count));
+    [parentMenuItem.submenu insertItem:newItem atIndex:actual];
+
+    resolve(@{@"success": @YES, @"actualIndex": @(actual), @"actualParent": parentPath});
+  });
+}
+
+- (void)removeMenuItemAtPath:(NSArray<NSString *> *)path
+                     resolve:(RCTPromiseResolveBlock)resolve
+                      reject:(RCTPromiseRejectBlock)reject {
+  RCTExecuteOnMainQueue(^{
+    if (path.count == 0) {
+      resolve(@{@"success": @NO, @"error": @"Empty path"});
+      return;
+    }
+
+    if (path.count == 1) {
+      // LEON: remove top-level menu
+      NSMenu *mainMenu = [NSApp mainMenu];
+      NSMenuItem *top = [self findTopLevelMenuByTitle:path.firstObject];
+      if (top) {
+        [mainMenu removeItem:top];
+        resolve(@{@"success": @YES});
+      } else {
+        resolve(@{@"success": @NO, @"error": @"Menu not found"});
+      }
+      return;
+    }
+
+    // LEON: remove submenu item
+    NSMenuItem *leaf = [self findMenuItemByExactPath:path];
+    if (leaf && leaf.menu) {
+      [leaf.menu removeItem:leaf];
+      resolve(@{@"success": @YES});
+    } else {
+      resolve(@{@"success": @NO, @"error": @"Menu item not found"});
+    }
+  });
+}
+
+- (void)setMenuItemEnabledAtPath:(NSArray<NSString *> *)path
+                         enabled:(BOOL)enabled
+                         resolve:(RCTPromiseResolveBlock)resolve
+                          reject:(RCTPromiseRejectBlock)reject {
+  RCTExecuteOnMainQueue(^{
+    NSMenuItem *item = [self findMenuItemByExactPath:path];
+    if (item) {
+      item.enabled = enabled;
+      resolve(@{@"success": @YES});
+    } else {
+      resolve(@{@"success": @NO, @"error": @"Menu item not found"});
+    }
+  });
+}
+
+#pragma mark - Helpers
+
+- (NSMenuItem *)findTopLevelMenuByTitle:(NSString *)title {
+  NSMenu *mainMenu = [NSApp mainMenu];
+  for (NSMenuItem *item in mainMenu.itemArray) {
+    if ([item.title localizedCaseInsensitiveCompare:title] == NSOrderedSame) return item;
+  }
+  return nil;
+}
+
+- (NSMenuItem *)findChild:(NSMenu *)menu title:(NSString *)title {
+  for (NSMenuItem *it in menu.itemArray) {
+    if ([it.title localizedCaseInsensitiveCompare:title] == NSOrderedSame) return it;
+  }
+  return nil;
+}
+
+- (NSMenuItem *)ensureMenuPath:(NSArray<NSString *> *)path {
+  NSMenu *mainMenu = [NSApp mainMenu];
+  if (!mainMenu) return nil;
+
+  NSMenuItem *currentMenuItem = nil;
+  NSMenu *currentMenu = mainMenu;
+
+  for (NSUInteger i = 0; i < path.count; i++) {
+    NSString *segment = path[i];
+    NSMenuItem *existing = (currentMenu == mainMenu)
+      ? [self findTopLevelMenuByTitle:segment]
+      : [self findChild:currentMenu title:segment];
+
+    if (!existing) {
+      NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:segment action:nil keyEquivalent:@""];
+      NSMenu *submenu = [[NSMenu alloc] initWithTitle:segment];
+      newItem.submenu = submenu;
+
+      if (currentMenu == mainMenu) {
+        NSInteger insertIndex = MAX(0, mainMenu.itemArray.count - 1); // LEON - before "Help", so special lol
+        [mainMenu insertItem:newItem atIndex:insertIndex];
+      } else {
+        [currentMenu addItem:newItem];
+      }
+      existing = newItem;
+    }
+
+    currentMenuItem = existing;
+    currentMenu = existing.submenu ?: currentMenu;
+  }
+
+  return currentMenuItem;
+}
+
+- (NSMenuItem *)findMenuItemByExactPath:(NSArray<NSString *> *)path {
+  NSMenu *mainMenu = [NSApp mainMenu];
+  if (!mainMenu || path.count == 0) return nil;
+
+  NSMenu *menu = mainMenu;
+  NSMenuItem *current = nil;
+
+  for (NSUInteger i = 0; i < path.count; i++) {
+    NSString *seg = path[i];
+    if (menu == mainMenu && i == 0) {
+      current = [self findTopLevelMenuByTitle:seg];
+    } else {
+      current = [self findChild:menu title:seg];
+    }
+    if (!current) return nil;
+    menu = current.submenu;
+  }
+  return current;
+}
+
+- (NSArray<NSString *> *)pathForMenuItem:(NSMenuItem *)leaf {
+  if (!leaf) return @[];
+  NSMutableArray<NSString *> *parts = [NSMutableArray arrayWithCapacity:4];
+  if (leaf.title) [parts addObject:leaf.title];
+
+  NSMenu *m = leaf.menu;
+  while (m) {
+    if (m.supermenu) {
+      NSInteger idx = [m.supermenu indexOfItemWithSubmenu:m];
+      if (idx >= 0) {
+        NSMenuItem *parent = [m.supermenu itemAtIndex:idx];
+        if (parent.title) [parts addObject:parent.title];
+      }
+    }
+    // TODO: How should I handle the top level? Events don't emit.
+    //else {
+    //  if (m.title.length > 0) [parts addObject:m.title];
+    //}
+    m = m.supermenu;
+  }
+
+  return [[parts reverseObjectEnumerator] allObjects];
+}
+
+- (void)applyShortcut:(NSString *)shortcut toItem:(NSMenuItem *)item {
+  if (shortcut.length == 0) return;
+  NSArray<NSString *> *parts = [[shortcut lowercaseString] componentsSeparatedByString:@"+"];
+  if (parts.count == 0) return;
+
+  NSString *key = [parts lastObject] ?: @"";
+  NSEventModifierFlags mask = 0;
+  for (NSString *p in parts) {
+    if ([p isEqualToString:@"cmd"] || [p isEqualToString:@"command"]) mask |= NSEventModifierFlagCommand;
+    else if ([p isEqualToString:@"shift"]) mask |= NSEventModifierFlagShift;
+    else if ([p isEqualToString:@"alt"] || [p isEqualToString:@"option"]) mask |= NSEventModifierFlagOption;
+    else if ([p isEqualToString:@"ctrl"] || [p isEqualToString:@"control"]) mask |= NSEventModifierFlagControl;
+  }
+  item.keyEquivalent = key;
+  item.keyEquivalentModifierMask = mask;
+}
+
+- (NSDictionary *)nodeFromMenu:(NSMenu *)menu parentPath:(NSArray<NSString *> *)parentPath {
+  NSMutableArray *children = [NSMutableArray array];
+  for (NSMenuItem *it in menu.itemArray) {
+    if (it.isSeparatorItem) continue;
+
+    NSArray<NSString *> *path = ({
+      NSMutableArray *m = [parentPath mutableCopy];
+      if (it.title) [m addObject:it.title];
+      [m copy];
+    });
+
+    NSMutableDictionary *node = [@{
+      @"title": it.title ?: @"",
+      @"enabled": @(it.enabled),
+      @"path": path
+    } mutableCopy];
+
+    if (it.submenu) {
+      node[@"children"] = [self nodesFromMenu:it.submenu parentPath:path];
+    }
+    [children addObject:node];
+  }
+  return @{ @"items": children };
+}
+
+- (NSArray *)nodesFromMenu:(NSMenu *)menu parentPath:(NSArray<NSString *> *)parentPath {
+  NSMutableArray *children = [NSMutableArray array];
+  for (NSMenuItem *it in menu.itemArray) {
+    if (it.isSeparatorItem) continue;
+
+    NSArray<NSString *> *path = ({
+      NSMutableArray *m = [parentPath mutableCopy];
+      if (it.title) [m addObject:it.title];
+      [m copy];
+    });
+
+    NSMutableDictionary *node = [@{
+      @"title": it.title ?: @"",
+      @"enabled": @(it.enabled),
+      @"path": path
+    } mutableCopy];
+
+    if (it.submenu) {
+      node[@"children"] = [self nodesFromMenu:it.submenu parentPath:path];
+    }
+    [children addObject:node];
+  }
+  return [children copy];
+}
 - (void)menuItemPressed:(NSMenuItem *)sender {
-  NSString *menuItemId = (NSString *)sender.representedObject;
-  if (menuItemId) {
-    [self emitOnMenuItemPressed:@{
-      @"menuItemId": menuItemId
-    }];
+  NSArray<NSString *> *menuPath = [self pathForMenuItem:sender];
+  if (menuPath.count > 0) {
+    [self emitOnMenuItemPressed:@{ @"menuPath": menuPath }];
   }
 }
 
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-  NSString *itemId = menuItem.representedObject;
+#pragma mark - protocol
 
-  return YES;
+// LEON: This is called by AppKit to validate menu items (need this for properly handle the disabled items)
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+  return menuItem.enabled;
 }
 
 @end

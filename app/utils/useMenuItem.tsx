@@ -5,7 +5,6 @@ import NativeIRMenuItemManager, {
 } from "../../specs/NativeIRMenuItemManager"
 
 export interface MenuItem {
-  id: string
   label: string
   shortcut?: string
   enabled?: boolean
@@ -18,17 +17,24 @@ export interface MenuItemConfig {
   items: Record<string, MenuItem[]>
 }
 
+const parsePathKey = (key: string): string[] =>
+  key
+    .split(">")
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+const joinPath = (p: string[]) => p.join(" > ")
+
 export function useMenuItem(config: MenuItemConfig) {
   const actionsRef = useRef<Map<string, () => void>>(new Map())
   const previousConfigRef = useRef<MenuItemConfig | null>(null)
   const [availableMenus, setAvailableMenus] = useState<string[]>([])
-  const [menuStructure, setMenuStructure] = useState<MenuStructure[]>([])
+  const [menuStructure, setMenuStructure] = useState<MenuStructure>([])
 
   const handleMenuItemPressed = useCallback((event: MenuItemPressedEvent) => {
-    const action = actionsRef.current.get(event.menuItemId)
-    if (action) {
-      action()
-    }
+    const key = joinPath(event.menuPath)
+    const action = actionsRef.current.get(key)
+    if (action) action()
   }, [])
 
   const discoverMenus = useCallback(async () => {
@@ -44,107 +50,94 @@ export function useMenuItem(config: MenuItemConfig) {
     }
   }, [])
 
-  const createMenu = useCallback(
-    async (menuName: string) => {
-      try {
-        const result = await NativeIRMenuItemManager.createMenu(menuName)
-        if (result.success) {
-          await discoverMenus()
-        }
-        return result
-      } catch (error) {
-        console.error(`Failed to create menu ${menuName}:`, error)
-        return { success: false, existed: false, menuName }
-      }
-    },
-    [discoverMenus],
-  )
+  const addMenuItems = useCallback(async (parentKey: string, items: MenuItem[]) => {
+    const parentPath = parsePathKey(parentKey)
 
-  const addMenuItems = useCallback(async (menuName: string, items: MenuItem[]) => {
     for (const item of items) {
-      actionsRef.current.set(item.id, item.action)
+      const leafPath = [...parentPath, item.label]
+      const actionKey = joinPath(leafPath)
+      actionsRef.current.set(actionKey, item.action)
 
       try {
-        let result
-        if (item.position !== undefined) {
-          result = await NativeIRMenuItemManager.insertMenuItem(
-            item.id,
+        if (typeof item.position === "number") {
+          await NativeIRMenuItemManager.insertMenuItemAtPath(
+            parentPath,
             item.label,
-            menuName,
             item.position,
-          )
-        } else if (item.shortcut || item.addSeparatorBefore) {
-          result = await NativeIRMenuItemManager.addMenuItemWithOptions(
-            item.id,
-            item.label,
-            menuName,
             item.shortcut,
-            item.addSeparatorBefore,
+            !!item.addSeparatorBefore,
           )
         } else {
-          result = await NativeIRMenuItemManager.addMenuItem(item.id, item.label, menuName)
-        }
-
-        if (!result.success) {
-          console.error(`Failed to add menu item ${item.id} to ${menuName}:`, result.error)
+          await NativeIRMenuItemManager.addMenuItemAtPath(
+            parentPath,
+            item.label,
+            item.shortcut,
+            !!item.addSeparatorBefore,
+          )
         }
 
         if (item.enabled !== undefined) {
-          await NativeIRMenuItemManager.setMenuItemEnabled(item.id, item.enabled)
+          await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
         }
       } catch (error) {
-        console.error(`Failed to add menu item ${item.id} to ${menuName}:`, error)
+        console.error(`Failed to add "${item.label}" under "${parentKey}":`, error)
       }
     }
   }, [])
 
   const addMenuItem = useCallback(
-    async (menuName: string, item: MenuItem) => {
-      actionsRef.current.set(item.id, item.action)
-      await addMenuItems(menuName, [item])
+    async (parentKey: string, item: MenuItem) => {
+      await addMenuItems(parentKey, [item])
     },
     [addMenuItems],
   )
 
-  const removeMenuItems = useCallback(async (items: MenuItem[]) => {
+  const removeMenuItems = useCallback(async (parentKey: string, items: MenuItem[]) => {
+    const parentPath = parsePathKey(parentKey)
     for (const item of items) {
+      const leafPath = [...parentPath, item.label]
       try {
-        await NativeIRMenuItemManager.removeMenuItemById(item.id)
-        actionsRef.current.delete(item.id)
+        await NativeIRMenuItemManager.removeMenuItemAtPath(leafPath)
       } catch (error) {
-        console.error(`Failed to remove menu item ${item.id}:`, error)
+        console.error(`Failed to remove menu item ${joinPath(leafPath)}:`, error)
+      } finally {
+        actionsRef.current.delete(joinPath(leafPath))
       }
     }
   }, [])
 
-  const removeMenuItemById = useCallback(async (itemId: string) => {
+  const removeMenuItemByName = useCallback(async (nameOrPath: string) => {
+    const path = parsePathKey(nameOrPath)
     try {
-      await NativeIRMenuItemManager.removeMenuItemById(itemId)
-      actionsRef.current.delete(itemId)
+      await NativeIRMenuItemManager.removeMenuItemAtPath(path)
+      actionsRef.current.delete(joinPath(path))
     } catch (error) {
-      console.error(`Failed to remove menu item ${itemId}:`, error)
+      console.error(`Failed to remove menu item/menu ${nameOrPath}:`, error)
     }
   }, [])
 
-  const removeMenuItemByName = useCallback(async (itemName: string) => {
+  const setMenuItemEnabled = useCallback(async (pathOrKey: string | string[], enabled: boolean) => {
+    const path = Array.isArray(pathOrKey) ? pathOrKey : parsePathKey(pathOrKey)
     try {
-      await NativeIRMenuItemManager.removeMenuItemByName(itemName)
+      await NativeIRMenuItemManager.setMenuItemEnabledAtPath(path, enabled)
     } catch (error) {
-      console.error(`Failed to remove menu item ${itemName}:`, error)
+      console.error(`Failed to set enabled for ${joinPath(path)}:`, error)
     }
   }, [])
 
-  const setMenuItemEnabled = useCallback(async (itemId: string, enabled: boolean) => {
+  const getAllMenuPaths = useCallback(async (): Promise<string[]> => {
     try {
-      await NativeIRMenuItemManager.setMenuItemEnabled(itemId, enabled)
-    } catch (error) {
-      console.error(`Failed to set menu item enabled state for ${itemId}:`, error)
-    }
-  }, [])
-
-  const getMenuItems = useCallback(async () => {
-    try {
-      return await NativeIRMenuItemManager.getAllMenuItems()
+      const structure = NativeIRMenuItemManager.getMenuStructure()
+      const out: string[] = []
+      const walk = (nodes?: any[]) => {
+        if (!nodes) return
+        for (const n of nodes) {
+          if (Array.isArray(n.path)) out.push(joinPath(n.path))
+          if (Array.isArray(n.children)) walk(n.children)
+        }
+      }
+      for (const top of structure) walk(top.items)
+      return out
     } catch (error) {
       console.error("Failed to get menu items:", error)
       return []
@@ -152,24 +145,31 @@ export function useMenuItem(config: MenuItemConfig) {
   }, [])
 
   const getItemDifference = useCallback((oldItems: MenuItem[] = [], newItems: MenuItem[] = []) => {
-    const oldIds = new Set(oldItems.map((item) => item.id))
-    const newIds = new Set(newItems.map((item) => item.id))
+    const byLabel = (xs: MenuItem[]) => new Map(xs.map((x) => [x.label, x]))
+    const oldMap = byLabel(oldItems)
+    const newMap = byLabel(newItems)
 
-    const toAdd = newItems.filter((item) => !oldIds.has(item.id))
-    const toRemove = oldItems.filter((item) => !newIds.has(item.id))
-    const toUpdate = newItems.filter((item) => {
-      if (!oldIds.has(item.id)) return false
-      const oldItem = oldItems.find((old) => old.id === item.id)
-      return (
-        oldItem &&
-        (oldItem.label !== item.label ||
-          oldItem.enabled !== item.enabled ||
-          oldItem.shortcut !== item.shortcut ||
-          oldItem.position !== item.position ||
-          oldItem.addSeparatorBefore !== item.addSeparatorBefore)
-      )
-    })
+    const toAdd: MenuItem[] = []
+    const toRemove: MenuItem[] = []
+    const toUpdate: MenuItem[] = []
 
+    for (const [label, item] of newMap) {
+      if (!oldMap.has(label)) toAdd.push(item)
+      else {
+        const prev = oldMap.get(label)!
+        if (
+          prev.enabled !== item.enabled ||
+          prev.shortcut !== item.shortcut ||
+          prev.position !== item.position ||
+          prev.addSeparatorBefore !== item.addSeparatorBefore
+        ) {
+          toUpdate.push(item)
+        }
+      }
+    }
+    for (const [label, item] of oldMap) {
+      if (!newMap.has(label)) toRemove.push(item)
+    }
     return { toAdd, toRemove, toUpdate }
   }, [])
 
@@ -177,37 +177,33 @@ export function useMenuItem(config: MenuItemConfig) {
     const updateMenus = async () => {
       const previousConfig = previousConfigRef.current
 
-      for (const [menuName, items] of Object.entries(config.items)) {
-        const previousItems = previousConfig?.items[menuName] || []
+      for (const [parentKey, items] of Object.entries(config.items)) {
+        const previousItems = previousConfig?.items[parentKey] || []
         const currentItems = items || []
 
         const { toAdd, toRemove, toUpdate } = getItemDifference(previousItems, currentItems)
 
-        if (!availableMenus.includes(menuName)) {
-          await createMenu(menuName)
-        }
-
-        if (toAdd.length) {
-          await addMenuItems(menuName, toAdd)
-        }
-
-        if (toRemove.length) {
-          await removeMenuItems(toRemove)
-        }
+        if (toAdd.length) await addMenuItems(parentKey, toAdd)
+        if (toRemove.length) await removeMenuItems(parentKey, toRemove)
 
         for (const item of toUpdate) {
-          actionsRef.current.set(item.id, item.action)
-
+          const leafKey = joinPath([...parsePathKey(parentKey), item.label])
+          actionsRef.current.set(leafKey, item.action)
           if (item.enabled !== undefined) {
             try {
-              await NativeIRMenuItemManager.setMenuItemEnabled(item.id, item.enabled)
+              await NativeIRMenuItemManager.setMenuItemEnabledAtPath(
+                parsePathKey(leafKey),
+                item.enabled,
+              )
             } catch (error) {
-              console.error(`Failed to update menu item ${item.id}:`, error)
+              console.error(`Failed to update ${leafKey}:`, error)
             }
           }
         }
       }
+
       previousConfigRef.current = config
+      await discoverMenus()
     }
 
     updateMenus()
@@ -224,8 +220,13 @@ export function useMenuItem(config: MenuItemConfig) {
 
   useEffect(() => {
     return () => {
-      const allItems = Object.values(config.items).flat()
-      removeMenuItems(allItems)
+      const pairs = Object.entries(previousConfigRef.current?.items ?? config.items)
+      const removeAllItems = async () => {
+        for (const [parentKey, items] of pairs) {
+          await removeMenuItems(parentKey, items)
+        }
+      }
+      removeAllItems()
     }
   }, [])
 
@@ -233,11 +234,9 @@ export function useMenuItem(config: MenuItemConfig) {
     availableMenus,
     menuStructure,
     discoverMenus,
-    createMenu,
     addMenuItem,
     removeMenuItemByName,
-    removeMenuItemById,
     setMenuItemEnabled,
-    getMenuItems,
+    getAllMenuPaths,
   }
 }
