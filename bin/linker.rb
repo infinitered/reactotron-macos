@@ -23,6 +23,7 @@ $dirty = false
 # and linked to all available targets.
 def link_colocated_native_files(options = {})
   puts "🤪 #{GB}React Native Colo Loco#{X}"
+  puts ""
   puts "#{D}Running ./bin/linker.rb from #{__FILE__}#{X}"
   puts ""
 
@@ -57,7 +58,10 @@ def link_colocated_native_files(options = {})
   generated_files = Dir.glob(File.join(generated_files_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
 
   # if clean is true, remove the Colocated group if it exists
-  _clean_colocated_group(file_group, generated_files_path, project, project_root) if clean
+  if clean
+    _clean_colocated_group(file_group, generated_files_path, project, project_root)
+    return # Done?
+  end
 
   # Run the ./generateTurboModule.js script to generate any embedded TurboModules
   _generate_turbomodules(project_root)
@@ -252,7 +256,7 @@ end
 
 def _generate_turbomodules(project_root)
   puts "#{D}Generating embedded TurboModules#{X}"
-  `node #{project_root}/bin/generateTurboModule.js`
-  puts "#{GB}Done.#{X}"
+  puts ""
+  puts `node #{project_root}/bin/generateTurboModule.js generate`
   puts ""
 end

@@ -4,40 +4,36 @@ const fs = require("fs")
 const path = require("path")
 
 // Color constants for console output
-const colors = {
-  red: "\x1b[31m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  magenta: "\x1b[35m",
-  cyan: "\x1b[36m",
-  bold: "\x1b[1m",
-  reset: "\x1b[0m",
-}
+const red = "\x1b[31m"
+const green = "\x1b[32m"
+const yellow = "\x1b[33m"
+const blue = "\x1b[34m"
+const dkgray = "\x1b[90m"
+const x = "\x1b[0m"
 
 // Print colored output
 function printSuccess(message) {
-  console.log(`${colors.green}✓${colors.reset} ${message}`)
+  console.log(` ${green}✓${x}${dkgray} ${message}`)
 }
 
 function printError(message) {
-  console.log(`${colors.red}✗${colors.reset} ${message}`)
+  console.log(` ${red}✗${x}${dkgray} ${message}`)
 }
 
 function printWarning(message) {
-  console.log(`${colors.yellow}⚠${colors.reset} ${message}`)
+  console.log(` ${yellow}⚠${x}${dkgray} ${message}`)
 }
 
 function printInfo(message) {
-  console.log(`${colors.blue}ℹ${colors.reset} ${message}`)
+  console.log(` ${blue}ℹ${x}${dkgray} ${message}`)
 }
 
 function printStep(message) {
-  console.log(`${colors.magenta}→${colors.reset} ${message}`)
+  console.log(` ${dkgray}→${x}${dkgray} ${message}`)
 }
 
 // Parse turbomodule comment and extract module info
-function parseTurbomoduleComment(filePath) {
+function parseTurboModuleComment(filePath) {
   const content = fs.readFileSync(filePath, "utf8")
 
   // Extract the @turbomodule line
@@ -62,17 +58,17 @@ function extractNativeCode(filePath) {
 
   let inComment = false
   let nativeCode = []
-  let foundTurbomodule = false
+  let foundTurboModule = false
 
   for (const line of lines) {
-    if (line.trim().startsWith("/* @turbomodule")) {
+    if (line.trim().toLowerCase().startsWith("/* @turbomodule")) {
       inComment = true
-      foundTurbomodule = true
+      foundTurboModule = true
       continue
     }
 
     if (inComment && line.trim().startsWith("*/")) break
-    if (inComment && foundTurbomodule) nativeCode.push(line)
+    if (inComment && foundTurboModule) nativeCode.push(line)
   }
 
   return nativeCode.join("\n")
@@ -81,9 +77,6 @@ function extractNativeCode(filePath) {
 // Generate native files from turbomodule comment
 function generateNativeFiles(filePath, destinationPath, moduleInfo) {
   const { moduleName, fullSignature } = moduleInfo
-
-  // Get directory of the TypeScript file
-  const dirPath = path.dirname(filePath)
 
   // Extract native code
   const nativeCode = extractNativeCode(filePath)
@@ -115,7 +108,7 @@ ${filteredNativeCode}
   printSuccess(`Generated ${mmFile}`)
 
   // Generate Native TypeScript file using template
-  const nativeTsFile = path.join(destinationPath, `Native${moduleName}.ts`)
+  const nativeTsFile = path.join(path.dirname(filePath), `Native${moduleName}.ts`)
   const tsTemplate = `import type { TurboModule } from "react-native"
 import { TurboModuleRegistry } from "react-native"
 export interface Spec extends TurboModule {
@@ -128,7 +121,7 @@ export default TurboModuleRegistry.getEnforcing<Spec>("${moduleName}")`
 }
 
 // Generate turbomodules from package.json
-function generateTurbomodules() {
+function generateTurboModules() {
   printInfo("Generating turbomodules from package.json")
 
   // Read package.json
@@ -180,7 +173,7 @@ function generateTurbomodules() {
     printStep(`Processing ${filePath}`)
 
     // Parse turbomodule comment
-    const moduleInfo = parseTurbomoduleComment(filePath)
+    const moduleInfo = parseTurboModuleComment(filePath)
     if (!moduleInfo) {
       printError(`Invalid @turbomodule comment in ${filePath}`)
       errors++
@@ -204,7 +197,7 @@ function main() {
   const command = process.argv[2]
 
   if (command === "generate") {
-    generateTurbomodules()
+    generateTurboModules()
   } else {
     printError(`Unknown command: ${command}`)
     process.exit(1)
@@ -213,4 +206,4 @@ function main() {
 
 // Run automatically if called directly
 if (require.main === module) main()
-module.exports = { generateTurbomodules }
+module.exports = { generateTurboModules }

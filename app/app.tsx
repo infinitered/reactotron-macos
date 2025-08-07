@@ -12,7 +12,6 @@ import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { AppHeader } from "./components/AppHeader"
-import { invokeObjC } from "./utils/random/getUUID"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -23,11 +22,6 @@ if (__DEV__) {
 function App(): React.JSX.Element {
   const [theme] = useThemeName()
   const { colors } = useTheme(theme)
-
-  const result = invokeObjC(
-    `[[NSString stringWithString:[[[@[@"One", @"Two", @"Three"] mutableCopy] addObject:@"Four"] componentsJoinedByString:@" | "]] uppercaseString]`,
-  )
-  console.tron.log({ result })
 
   setTimeout(() => {
     fetch("https://www.google.com")
