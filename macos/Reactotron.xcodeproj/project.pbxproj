@@ -14,6 +14,7 @@
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
 		580FDC959613C3DDF5C47E31 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */; };
 		5D89968E2E1FB9000013E4F5 /* IRSystemInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5D89968D2E1FB9000013E4F5 /* IRSystemInfo.mm */; };
+		5DF17C942E3B7CC700F875D3 /* IRMenuItemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5DF17C932E3B7CC700F875D3 /* IRMenuItemManager.mm */; };
 		E91662E02E135F5D003B7988 /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DD2E135F5D003B7988 /* IRFontList.mm */; };
 		E91662E12E135F5D003B7988 /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91662DF2E135F5D003B7988 /* IRRunShellCommand.mm */; };
 		E91EFF1D2E28306B00D4D687 /* IRTabComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E91EFF1C2E28306B00D4D687 /* IRTabComponentView.mm */; };
@@ -34,6 +35,8 @@
 		514201592437B4B40078DB4F /* Reactotron.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reactotron.entitlements; sourceTree = "<group>"; };
 		5D89968C2E1FB9000013E4F5 /* IRSystemInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRSystemInfo.h; path = ../app/native/IRSystemInfo.h; sourceTree = SOURCE_ROOT; };
 		5D89968D2E1FB9000013E4F5 /* IRSystemInfo.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRSystemInfo.mm; path = ../app/native/IRSystemInfo.mm; sourceTree = SOURCE_ROOT; };
+		5DF17C922E3B7CC700F875D3 /* IRMenuItemManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRMenuItemManager.h; path = ../app/native/IRMenuItemManager.h; sourceTree = SOURCE_ROOT; };
+		5DF17C932E3B7CC700F875D3 /* IRMenuItemManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRMenuItemManager.mm; path = ../app/native/IRMenuItemManager.mm; sourceTree = SOURCE_ROOT; };
 		CBA768848D07B4EDA42574FD /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		CF52DE317C310410AD0A2A0C /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		E91662DC2E135F5D003B7988 /* IRFontList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../app/native/IRFontList.h; sourceTree = SOURCE_ROOT; };
@@ -105,6 +108,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				5DF17C922E3B7CC700F875D3 /* IRMenuItemManager.h */,
+				5DF17C932E3B7CC700F875D3 /* IRMenuItemManager.mm */,
 				E9FF1EAE2E31A7E000BB93B8 /* IRKeyboard.h */,
 				E9FF1EAF2E31A7E000BB93B8 /* IRKeyboard.mm */,
 				E91EFF1B2E28306B00D4D687 /* IRTabComponentView.h */,
@@ -300,6 +305,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DF17C942E3B7CC700F875D3 /* IRMenuItemManager.mm in Sources */,
 				514201582437B4B40078DB4F /* main.m in Sources */,
 				E9FF1EB02E31A7E000BB93B8 /* IRKeyboard.mm in Sources */,
 				5D89968E2E1FB9000013E4F5 /* IRSystemInfo.mm in Sources */,
