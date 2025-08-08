@@ -15,6 +15,7 @@ export interface MenuItem {
 
 export interface MenuItemConfig {
   items: Record<string, MenuItem[]>
+  remove?: string[]
 }
 
 const parsePathKey = (key: string): string[] =>
@@ -177,6 +178,12 @@ export function useMenuItem(config: MenuItemConfig) {
     const updateMenus = async () => {
       const previousConfig = previousConfigRef.current
 
+      if (config.remove?.length) {
+        for (const entry of config.remove) {
+          await removeMenuItemByName(entry)
+        }
+      }
+
       for (const [parentKey, items] of Object.entries(config.items)) {
         const previousItems = previousConfig?.items[parentKey] || []
         const currentItems = items || []
@@ -187,16 +194,13 @@ export function useMenuItem(config: MenuItemConfig) {
         if (toRemove.length) await removeMenuItems(parentKey, toRemove)
 
         for (const item of toUpdate) {
-          const leafKey = joinPath([...parsePathKey(parentKey), item.label])
-          actionsRef.current.set(leafKey, item.action)
+          const leafPath = [...parsePathKey(parentKey), item.label]
+          actionsRef.current.set(joinPath(leafPath), item.action)
           if (item.enabled !== undefined) {
             try {
-              await NativeIRMenuItemManager.setMenuItemEnabledAtPath(
-                parsePathKey(leafKey),
-                item.enabled,
-              )
-            } catch (error) {
-              console.error(`Failed to update ${leafKey}:`, error)
+              await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
+            } catch (e) {
+              console.error(`Failed to update ${joinPath(leafPath)}:`, e)
             }
           }
         }
