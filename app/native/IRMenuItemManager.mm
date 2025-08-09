@@ -3,6 +3,8 @@
 #import <Cocoa/Cocoa.h>
 #import <React/RCTUtils.h>
 
+static NSString * const separatorTag = @"IRMenuItemSeparator";
+
 @implementation IRMenuItemManager {
 }
 
@@ -42,7 +44,7 @@ RCT_EXPORT_MODULE()
     }
   });
 
-  // LEON: return shape - Array<{ title, items: MenuNode[] }>
+  // Return shape - Array<{ title, items: MenuNode[] }>
   return [result copy];
 }
 
@@ -63,22 +65,25 @@ RCT_EXPORT_MODULE()
 - (void)addMenuItemAtPath:(NSArray<NSString *> *)parentPath
                     title:(NSString *)title
             keyEquivalent:(NSString *)keyEquivalent
-        addSeparatorBefore:(BOOL)addSeparatorBefore
                   resolve:(RCTPromiseResolveBlock)resolve
                    reject:(RCTPromiseRejectBlock)reject {
   RCTExecuteOnMainQueue(^{
     NSMenuItem *parentMenuItem = [self ensureMenuPath:parentPath];
     if (!parentMenuItem || !parentMenuItem.submenu) {
-      reject(@"MENU_NOT_FOUND", @"Parent menu not found or has no submenu", nil);
+      reject(@"MENU_NOT_FOUND", @"Parent menu not found or has no submenu",
+             nil); return;
+    }
+
+    if ([[title stringByTrimmingCharactersInSet:[NSCharacterSet
+                                                 whitespaceAndNewlineCharacterSet]] isEqualToString:@"---"]) { NSMenuItem *sep =
+      [NSMenuItem separatorItem]; sep.representedObject = separatorTag;
+      [parentMenuItem.submenu addItem:sep];
+      resolve(@{@"success": @YES, @"actualParent": parentPath});
       return;
     }
 
-    if (addSeparatorBefore) {
-      [parentMenuItem.submenu addItem:[NSMenuItem separatorItem]];
-    }
-
-    NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title action:@selector(menuItemPressed:) keyEquivalent:@""];
-    newItem.target = self;
+    NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title
+                                                     action:@selector(menuItemPressed:) keyEquivalent:@""]; newItem.target = self;
     [self applyShortcut:keyEquivalent toItem:newItem];
     [parentMenuItem.submenu addItem:newItem];
 
@@ -90,7 +95,6 @@ RCT_EXPORT_MODULE()
                        title:(NSString *)title
                      atIndex:(double)index
                keyEquivalent:(NSString *)keyEquivalent
-           addSeparatorBefore:(BOOL)addSeparatorBefore
                      resolve:(RCTPromiseResolveBlock)resolve
                       reject:(RCTPromiseRejectBlock)reject {
   RCTExecuteOnMainQueue(^{
@@ -100,15 +104,19 @@ RCT_EXPORT_MODULE()
       return;
     }
 
-    if (addSeparatorBefore) {
-      [parentMenuItem.submenu addItem:[NSMenuItem separatorItem]];
+    NSInteger actual = MAX(0, MIN((NSInteger)index, parentMenuItem.submenu.itemArray.count));
+
+    if ([[title stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@"---"]) {
+      NSMenuItem *sep = [NSMenuItem separatorItem];
+      sep.representedObject = separatorTag;
+      [parentMenuItem.submenu insertItem:sep atIndex:actual];
+      resolve(@{@"success": @YES, @"actualIndex": @(actual), @"actualParent": parentPath});
+      return;
     }
 
     NSMenuItem *newItem = [[NSMenuItem alloc] initWithTitle:title action:@selector(menuItemPressed:) keyEquivalent:@""];
     newItem.target = self;
     [self applyShortcut:keyEquivalent toItem:newItem];
-
-    NSInteger actual = MAX(0, MIN((NSInteger)index, parentMenuItem.submenu.itemArray.count));
     [parentMenuItem.submenu insertItem:newItem atIndex:actual];
 
     resolve(@{@"success": @YES, @"actualIndex": @(actual), @"actualParent": parentPath});
@@ -124,8 +132,36 @@ RCT_EXPORT_MODULE()
       return;
     }
 
+    // If last segment is "---", clear the separators under the parent
+    NSString *last = [path lastObject];
+    if ([last isEqualToString:@"---"]) {
+      if (path.count < 2) {
+        resolve(@{@"success": @NO, @"error": @"Need a parent path to remove separators"});
+        return;
+      }
+      NSArray<NSString *> *parentPath = [path subarrayWithRange:NSMakeRange(0, path.count - 1)];
+      NSMenuItem *parentMenuItem = [self ensureMenuPath:parentPath];
+      if (!parentMenuItem || !parentMenuItem.submenu) {
+        resolve(@{@"success": @NO, @"error": @"Parent menu not found or has no submenu"});
+        return;
+      }
+      NSMenu *submenu = parentMenuItem.submenu;
+      NSMutableArray<NSMenuItem *> *toRemove = [NSMutableArray array];
+      for (NSMenuItem *it in submenu.itemArray) {
+        if (it.isSeparatorItem && [it.representedObject isKindOfClass:[NSString class]] &&
+            [(NSString *)it.representedObject isEqualToString:separatorTag]) {
+          [toRemove addObject:it];
+        }
+      }
+      for (NSMenuItem *sep in toRemove) {
+        [submenu removeItem:sep];
+      }
+      resolve(@{@"success": @YES, @"removed": @(toRemove.count)});
+      return;
+    }
+
+    // Remove top-level menu
     if (path.count == 1) {
-      // LEON: remove top-level menu
       NSMenu *mainMenu = [NSApp mainMenu];
       NSMenuItem *top = [self findTopLevelMenuByTitle:path.firstObject];
       if (top) {
@@ -137,7 +173,7 @@ RCT_EXPORT_MODULE()
       return;
     }
 
-    // LEON: remove submenu item
+    // Remove submenu item
     NSMenuItem *leaf = [self findMenuItemByExactPath:path];
     if (leaf && leaf.menu) {
       [leaf.menu removeItem:leaf];
@@ -324,6 +360,7 @@ RCT_EXPORT_MODULE()
   }
   return [children copy];
 }
+
 - (void)menuItemPressed:(NSMenuItem *)sender {
   NSArray<NSString *> *menuPath = [self pathForMenuItem:sender];
   if (menuPath.count > 0) {
@@ -333,7 +370,7 @@ RCT_EXPORT_MODULE()
 
 #pragma mark - protocol
 
-// LEON: This is called by AppKit to validate menu items (need this for properly handle the disabled items)
+// This is called by AppKit to validate menu items (need this for properly handle the disabled items)
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
   return menuItem.enabled;
 }

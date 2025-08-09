@@ -2,19 +2,22 @@ import { useEffect, useRef, useCallback, useState } from "react"
 import NativeIRMenuItemManager, {
   type MenuItemPressedEvent,
   type MenuStructure,
+  type MenuListEntry,
+  SEPARATOR,
 } from "../../specs/NativeIRMenuItemManager"
+
+export { SEPARATOR }
 
 export interface MenuItem {
   label: string
   shortcut?: string
   enabled?: boolean
   position?: number
-  addSeparatorBefore?: boolean
   action: () => void
 }
 
 export interface MenuItemConfig {
-  items: Record<string, MenuItem[]>
+  items: Record<string, MenuListEntry[]>
   remove?: string[]
 }
 
@@ -25,6 +28,8 @@ const parsePathKey = (key: string): string[] =>
     .filter(Boolean)
 
 const joinPath = (p: string[]) => p.join(" > ")
+
+const isSeparator = (e: MenuListEntry): e is typeof SEPARATOR => e === SEPARATOR
 
 export function useMenuItem(config: MenuItemConfig) {
   const actionsRef = useRef<Map<string, () => void>>(new Map())
@@ -51,10 +56,27 @@ export function useMenuItem(config: MenuItemConfig) {
     }
   }, [])
 
-  const addMenuItems = useCallback(async (parentKey: string, items: MenuItem[]) => {
+  const addEntries = useCallback(async (parentKey: string, entries: MenuListEntry[]) => {
     const parentPath = parsePathKey(parentKey)
 
-    for (const item of items) {
+    // Clear our previously-added separators for this section, so layout stays clean
+    try {
+      await NativeIRMenuItemManager.removeMenuItemAtPath([...parentPath, SEPARATOR])
+    } catch (e) {
+      console.warn(`Failed to clear separators for "${parentKey}":`, e)
+    }
+
+    for (const entry of entries) {
+      if (isSeparator(entry)) {
+        try {
+          await NativeIRMenuItemManager.addMenuItemAtPath(parentPath, SEPARATOR, "")
+        } catch (e) {
+          console.error(`Failed to add separator under "${parentKey}":`, e)
+        }
+        continue
+      }
+
+      const item = entry as MenuItem
       const leafPath = [...parentPath, item.label]
       const actionKey = joinPath(leafPath)
       actionsRef.current.set(actionKey, item.action)
@@ -65,15 +87,13 @@ export function useMenuItem(config: MenuItemConfig) {
             parentPath,
             item.label,
             item.position,
-            item.shortcut,
-            !!item.addSeparatorBefore,
+            item.shortcut ?? "",
           )
         } else {
           await NativeIRMenuItemManager.addMenuItemAtPath(
             parentPath,
             item.label,
-            item.shortcut,
-            !!item.addSeparatorBefore,
+            item.shortcut ?? "",
           )
         }
 
@@ -85,13 +105,6 @@ export function useMenuItem(config: MenuItemConfig) {
       }
     }
   }, [])
-
-  const addMenuItem = useCallback(
-    async (parentKey: string, item: MenuItem) => {
-      await addMenuItems(parentKey, [item])
-    },
-    [addMenuItems],
-  )
 
   const removeMenuItems = useCallback(async (parentKey: string, items: MenuItem[]) => {
     const parentPath = parsePathKey(parentKey)
@@ -145,34 +158,37 @@ export function useMenuItem(config: MenuItemConfig) {
     }
   }, [])
 
-  const getItemDifference = useCallback((oldItems: MenuItem[] = [], newItems: MenuItem[] = []) => {
-    const byLabel = (xs: MenuItem[]) => new Map(xs.map((x) => [x.label, x]))
-    const oldMap = byLabel(oldItems)
-    const newMap = byLabel(newItems)
+  const getItemDifference = useCallback(
+    (oldEntries: MenuListEntry[] = [], newEntries: MenuListEntry[] = []) => {
+      const oldItems = oldEntries.filter((e): e is MenuItem => !isSeparator(e))
+      const newItems = newEntries.filter((e): e is MenuItem => !isSeparator(e))
 
-    const toAdd: MenuItem[] = []
-    const toRemove: MenuItem[] = []
-    const toUpdate: MenuItem[] = []
+      const byLabel = (xs: MenuItem[]) => new Map(xs.map((x) => [x.label, x]))
+      const oldMap = byLabel(oldItems)
+      const newMap = byLabel(newItems)
 
-    for (const [label, item] of newMap) {
-      if (!oldMap.has(label)) toAdd.push(item)
-      else {
-        const prev = oldMap.get(label)!
-        if (
-          prev.enabled !== item.enabled ||
-          prev.shortcut !== item.shortcut ||
-          prev.position !== item.position ||
-          prev.addSeparatorBefore !== item.addSeparatorBefore
-        ) {
-          toUpdate.push(item)
+      const toRemove: MenuItem[] = []
+      const toUpdate: MenuItem[] = []
+
+      for (const [label, item] of newMap) {
+        if (oldMap.has(label)) {
+          const prev = oldMap.get(label)!
+          if (
+            prev.enabled !== item.enabled ||
+            prev.shortcut !== item.shortcut ||
+            prev.position !== item.position
+          ) {
+            toUpdate.push(item)
+          }
         }
       }
-    }
-    for (const [label, item] of oldMap) {
-      if (!newMap.has(label)) toRemove.push(item)
-    }
-    return { toAdd, toRemove, toUpdate }
-  }, [])
+      for (const [label, item] of oldMap) {
+        if (!newMap.has(label)) toRemove.push(item)
+      }
+      return { toRemove, toUpdate }
+    },
+    [],
+  )
 
   useEffect(() => {
     const updateMenus = async () => {
@@ -184,14 +200,13 @@ export function useMenuItem(config: MenuItemConfig) {
         }
       }
 
-      for (const [parentKey, items] of Object.entries(config.items)) {
-        const previousItems = previousConfig?.items[parentKey] || []
-        const currentItems = items || []
+      for (const [parentKey, entries] of Object.entries(config.items)) {
+        const previousEntries = previousConfig?.items[parentKey] || []
+        const { toRemove, toUpdate } = getItemDifference(previousEntries, entries)
 
-        const { toAdd, toRemove, toUpdate } = getItemDifference(previousItems, currentItems)
-
-        if (toAdd.length) await addMenuItems(parentKey, toAdd)
         if (toRemove.length) await removeMenuItems(parentKey, toRemove)
+
+        await addEntries(parentKey, entries)
 
         for (const item of toUpdate) {
           const leafPath = [...parsePathKey(parentKey), item.label]
@@ -211,28 +226,40 @@ export function useMenuItem(config: MenuItemConfig) {
     }
 
     updateMenus()
-  }, [config, addMenuItems, removeMenuItems, getItemDifference])
+  }, [config, addEntries, removeMenuItems, getItemDifference])
 
   useEffect(() => {
     const subscription = NativeIRMenuItemManager.onMenuItemPressed(handleMenuItemPressed)
     discoverMenus()
-
     return () => {
       subscription.remove()
     }
   }, [handleMenuItemPressed, discoverMenus])
 
+  // Clean up old menu items
   useEffect(() => {
     return () => {
       const pairs = Object.entries(previousConfigRef.current?.items ?? config.items)
-      const removeAllItems = async () => {
-        for (const [parentKey, items] of pairs) {
-          await removeMenuItems(parentKey, items)
+      const cleanup = async () => {
+        for (const [parentKey, entries] of pairs) {
+          const itemsOnly = entries.filter((e): e is MenuItem => !isSeparator(e))
+          await removeMenuItems(parentKey, itemsOnly)
+          await NativeIRMenuItemManager.removeMenuItemAtPath([
+            ...parsePathKey(parentKey),
+            SEPARATOR,
+          ])
         }
       }
-      removeAllItems()
+      cleanup()
     }
   }, [])
+
+  const addMenuItem = useCallback(
+    async (parentKey: string, item: MenuItem) => {
+      await addEntries(parentKey, [item])
+    },
+    [addEntries],
+  )
 
   return {
     availableMenus,
