@@ -72,7 +72,7 @@ export function useGlobal<T = unknown>(
   }, [id])
 
   // We use the withGlobal hook to do the actual work.
-  const [value] = withGlobal<T>(id, initialValue, persist)
+  const [value] = withGlobal<T>(id, initialValue, { persist })
 
   // We use a callback to ensure that the setValue function is stable.
   const setValue = useCallback(buildSetValue(id, persist), [id, persist])
