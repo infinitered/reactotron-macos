@@ -3,7 +3,7 @@ import { TimelineItemNetwork } from "../types"
 import { ExpandableRow } from "./ExpandableRow"
 import { TreeView } from "./TreeView"
 import { useTheme, useThemeName } from "../theme/theme"
-
+import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 type TimelineNetworkItemProps = { item: TimelineItemNetwork }
 
 /**
@@ -62,7 +62,9 @@ export function TimelineNetworkItem({ item }: TimelineNetworkItemProps) {
     {
       icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>📋</Text>,
       tip: "Copy to clipboard",
-      onClick: () => console.log("Copy to clipboard"),
+      onClick: () => {
+        IRClipboard.setString(JSON.stringify(payload))
+      },
     },
     {
       icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>🔍</Text>,
