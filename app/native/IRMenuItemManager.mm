@@ -2,7 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import <React/RCTUtils.h>
 
-static NSString * const separatorTag = @"IRMenuItemSeparator";
+static NSString * const separatorString = @"menu-item-separator";
 
 @implementation IRMenuItemManager {
 }
@@ -74,8 +74,8 @@ RCT_EXPORT_MODULE()
     }
 
     if ([[title stringByTrimmingCharactersInSet:[NSCharacterSet
-                                                 whitespaceAndNewlineCharacterSet]] isEqualToString:@"---"]) { NSMenuItem *sep =
-      [NSMenuItem separatorItem]; sep.representedObject = separatorTag;
+                                                 whitespaceAndNewlineCharacterSet]] isEqualToString:separatorString]) { NSMenuItem *sep =
+      [NSMenuItem separatorItem]; sep.representedObject = separatorString;
       [parentMenuItem.submenu addItem:sep];
       resolve(@{@"success": @YES, @"actualParent": parentPath});
       return;
@@ -105,9 +105,9 @@ RCT_EXPORT_MODULE()
 
     NSInteger actual = MAX(0, MIN((NSInteger)index, parentMenuItem.submenu.itemArray.count));
 
-    if ([[title stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:@"---"]) {
+    if ([[title stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] isEqualToString:separatorString]) {
       NSMenuItem *sep = [NSMenuItem separatorItem];
-      sep.representedObject = separatorTag;
+      sep.representedObject = separatorString;
       [parentMenuItem.submenu insertItem:sep atIndex:actual];
       resolve(@{@"success": @YES, @"actualIndex": @(actual), @"actualParent": parentPath});
       return;
@@ -131,9 +131,9 @@ RCT_EXPORT_MODULE()
       return;
     }
 
-    // If last segment is "---", clear the separators under the parent
+    // If last segment is "menu-item-separator", clear the separators under the parent
     NSString *last = [path lastObject];
-    if ([last isEqualToString:@"---"]) {
+    if ([last isEqualToString:separatorString]) {
       if (path.count < 2) {
         resolve(@{@"success": @NO, @"error": @"Need a parent path to remove separators"});
         return;
@@ -148,7 +148,7 @@ RCT_EXPORT_MODULE()
       NSMutableArray<NSMenuItem *> *toRemove = [NSMutableArray array];
       for (NSMenuItem *it in submenu.itemArray) {
         if (it.isSeparatorItem && [it.representedObject isKindOfClass:[NSString class]] &&
-            [(NSString *)it.representedObject isEqualToString:separatorTag]) {
+            [(NSString *)it.representedObject isEqualToString:separatorString]) {
           [toRemove addObject:it];
         }
       }

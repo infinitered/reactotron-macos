@@ -3,7 +3,7 @@ import type { TurboModule } from "react-native"
 import { TurboModuleRegistry } from "react-native"
 
 // Menu item separator constant from native
-export const SEPARATOR = "---" as const
+export const SEPARATOR = "menu-item-separator" as const
 
 // Path shape: ["View", "Zen Mode"]
 export interface MenuItemPressedEvent {
