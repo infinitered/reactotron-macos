@@ -1,3 +1,55 @@
+/*
+ * macOS Menu Management
+ *
+ * Add, delete, and update macOS menu items using either a declarative config
+ * or imperative hook calls.
+ *
+ * ──────────────────────────────
+ * Declarative Usage (via config)
+ * ──────────────────────────────
+ *
+ * const menuConfig = {
+ *   items: {
+ *     "Custom Menu": [
+ *       {
+ *         label: "Menu Item",
+ *         action: () => console.log("This is a menu item."),
+ *       },
+ *       SEPARATOR,
+ *       {
+ *         label: "Disabled Item",
+ *         enabled: false,
+ *         action: () => console.log("Disabled item, you shouldn't see this."),
+ *       },
+ *     ],
+ *     "View": [
+ *       {
+ *         label: "Inserted Menu Item",
+ *         shortcut: "cmd+shift+f",
+ *         action: () => console.log("This is an inserted menu item."),
+ *       },
+ *     ],
+ *   },
+ *   remove: ["Window", "Edit > Find", "Edit > Speech"],
+ * }
+ *
+ * ───────────────────────────
+ * Imperative Usage (via hook)
+ * ───────────────────────────
+ *
+ * const {
+ *   addMenuItem,
+ *   removeMenuItemByName,
+ *   setMenuItemEnabled,
+ *   getAllMenuPaths
+ * } = useMenuItem()
+ *
+ * useEffect(() => {
+ *   removeMenuItemByName("Format")
+ *   getAllMenuPaths().then(paths => console.log({ paths }))
+ * }, [removeMenuItemByName, getAllMenuPaths])
+ */
+
 import { useEffect, useRef, useCallback, useState } from "react"
 import NativeIRMenuItemManager, {
   type MenuItemPressedEvent,
@@ -6,7 +58,10 @@ import NativeIRMenuItemManager, {
   SEPARATOR,
 } from "../../specs/NativeIRMenuItemManager"
 
-export { SEPARATOR }
+// Only thing to configure here is the path separator.
+const PATH_SEPARATOR = " > "
+
+export { SEPARATOR } // Menu separator
 
 export interface MenuItem {
   label: string
@@ -23,15 +78,15 @@ export interface MenuItemConfig {
 
 const parsePathKey = (key: string): string[] =>
   key
-    .split(">")
+    .split(PATH_SEPARATOR)
     .map((s) => s.trim())
     .filter(Boolean)
 
-const joinPath = (p: string[]) => p.join(" > ")
+const joinPath = (p: string[]) => p.join(PATH_SEPARATOR)
 
 const isSeparator = (e: MenuListEntry): e is typeof SEPARATOR => e === SEPARATOR
 
-export function useMenuItem(config: MenuItemConfig) {
+export function useMenuItem(config?: MenuItemConfig) {
   const actionsRef = useRef<Map<string, () => void>>(new Map())
   const previousConfigRef = useRef<MenuItemConfig | null>(null)
   const [availableMenus, setAvailableMenus] = useState<string[]>([])
@@ -59,7 +114,6 @@ export function useMenuItem(config: MenuItemConfig) {
   const addEntries = useCallback(async (parentKey: string, entries: MenuListEntry[]) => {
     const parentPath = parsePathKey(parentKey)
 
-    // Clear our previously-added separators for this section, so layout stays clean
     try {
       await NativeIRMenuItemManager.removeMenuItemAtPath([...parentPath, SEPARATOR])
     } catch (e) {
@@ -192,6 +246,8 @@ export function useMenuItem(config: MenuItemConfig) {
 
   useEffect(() => {
     const updateMenus = async () => {
+      if (!config) return
+
       const previousConfig = previousConfigRef.current
 
       if (config.remove?.length) {
@@ -239,7 +295,10 @@ export function useMenuItem(config: MenuItemConfig) {
   // Clean up old menu items
   useEffect(() => {
     return () => {
-      const pairs = Object.entries(previousConfigRef.current?.items ?? config.items)
+      if (!previousConfigRef.current || !config) {
+        return
+      }
+      const pairs = Object.entries(previousConfigRef.current.items ?? config.items)
       const cleanup = async () => {
         for (const [parentKey, entries] of pairs) {
           const itemsOnly = entries.filter((e): e is MenuItem => !isSeparator(e))
