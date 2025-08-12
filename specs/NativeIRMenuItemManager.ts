@@ -2,7 +2,7 @@ import type { EventEmitter } from "react-native/Libraries/Types/CodegenTypes"
 import type { TurboModule } from "react-native"
 import { TurboModuleRegistry } from "react-native"
 
-// Separator constant from native
+// Menu item separator constant from native
 export const SEPARATOR = "---" as const
 
 // Path shape: ["View", "Zen Mode"]

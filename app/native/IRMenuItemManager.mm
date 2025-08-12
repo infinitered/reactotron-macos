@@ -235,7 +235,7 @@ RCT_EXPORT_MODULE()
       newItem.submenu = submenu;
 
       if (currentMenu == mainMenu) {
-        NSInteger insertIndex = MAX(0, mainMenu.itemArray.count - 1); // LEON - before "Help", so special lol
+        NSInteger insertIndex = MAX(0, mainMenu.itemArray.count - 1); // before "Help", so special lol
         [mainMenu insertItem:newItem atIndex:insertIndex];
       } else {
         [currentMenu addItem:newItem];
@@ -284,7 +284,7 @@ RCT_EXPORT_MODULE()
         if (parent.title) [parts addObject:parent.title];
       }
     }
-    // TODO: How should I handle the top level? Events don't emit.
+    // TODO: How should I handle the top level? Events don't emit. Maybe I don't need.
     //else {
     //  if (m.title.length > 0) [parts addObject:m.title];
     //}
