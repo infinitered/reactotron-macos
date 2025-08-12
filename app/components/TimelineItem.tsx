@@ -89,7 +89,7 @@ const $container = withTheme<ViewStyle>(({ colors, spacing }) => ({
 }))
 
 const $containerSelected = withTheme<ViewStyle>(({ colors }) => ({
-  backgroundColor: colors.neutralVery, // Selection highlight override
+  backgroundColor: colors.neutralVery + "60", // Selection highlight override
 }))
 
 const $pressableContainer = withTheme<ViewStyle>(({ spacing }) => ({
