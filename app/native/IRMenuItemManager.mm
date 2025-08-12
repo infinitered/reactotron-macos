@@ -1,5 +1,4 @@
 #import "IRMenuItemManager.h"
-#include <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <React/RCTUtils.h>
 
