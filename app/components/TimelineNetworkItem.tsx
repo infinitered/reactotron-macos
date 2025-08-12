@@ -1,15 +1,21 @@
-import { Text } from "react-native"
 import { TimelineItemNetwork } from "../types"
-import { ExpandableRow } from "./ExpandableRow"
-import { TreeView } from "./TreeView"
+import { TimelineItem } from "./TimelineItem"
 import { useTheme, useThemeName } from "../theme/theme"
-import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
-type TimelineNetworkItemProps = { item: TimelineItemNetwork }
+
+type TimelineNetworkItemProps = {
+  item: TimelineItemNetwork
+  isSelected?: boolean
+  onSelect?: () => void
+}
 
 /**
  * A single network item in the timeline.
  */
-export function TimelineNetworkItem({ item }: TimelineNetworkItemProps) {
+export function TimelineNetworkItem({
+  item,
+  isSelected = false,
+  onSelect,
+}: TimelineNetworkItemProps) {
   // Type guard to ensure this is a network item
   if (item.type !== "api.response") return null
 
@@ -58,42 +64,34 @@ export function TimelineNetworkItem({ item }: TimelineNetworkItemProps) {
     ? `${payload?.response?.status || ""} ${payload?.response?.statusText || ""}`
     : "UNKNOWN"
 
-  const toolbar = [
-    {
-      icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>📋</Text>,
-      tip: "Copy to clipboard",
-      onClick: () => {
-        IRClipboard.setString(JSON.stringify(payload))
-      },
-    },
-    {
-      icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>🔍</Text>,
-      tip: "Search similar",
-      onClick: () => console.log("Search similar"),
-    },
-  ]
+  // TODO: move this into a context menu
+  // const toolbar = [
+  //   {
+  //     icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>📋</Text>,
+  //     tip: "Copy to clipboard",
+  //     onClick: () => {
+  //       IRClipboard.setString(JSON.stringify(payload))
+  //     },
+  //   },
+  //   {
+  //     icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>🔍</Text>,
+  //     tip: "Search similar",
+  //     onClick: () => console.log("Search similar"),
+  //   },
+  // ]
 
   return (
-    <ExpandableRow
-      id={item.messageId.toString()}
+    <TimelineItem
       title={status}
       titleColor={statusColor}
       date={new Date(date)}
       deltaTime={deltaTime}
       preview={preview}
-      toolbar={toolbar}
       isImportant={important}
       isTagged={important}
       responseStatusCode={responseStatusCode}
-    >
-      <TreeView data={payload} path={["payload"]} />
-    </ExpandableRow>
+      isSelected={isSelected}
+      onSelect={onSelect}
+    />
   )
 }
-
-// const $sectionLabel: TextStyle = {
-//   fontSize: 14,
-//   fontWeight: "bold",
-//   marginBottom: 8,
-//   opacity: 0.8,
-// }
