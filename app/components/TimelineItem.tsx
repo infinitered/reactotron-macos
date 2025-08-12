@@ -1,18 +1,21 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
 
+/**
+ * A single item in the timeline.
+ *
+ * This is a generic component that is used to render a single item in the timeline.
+ *
+ * It is used to render a single item in the timeline.
+ *
+ */
+
 type TimelineItemProps = {
-  id: string
-  title: string
-  titleColor?: string
   date: Date | number
   deltaTime?: number
+  title: string
+  titleColor?: string
   preview: string
-  toolbar?: {
-    icon: React.ElementType<{ size: number }>
-    tip: string
-    onClick: () => void
-  }[]
   isImportant?: boolean
   isTagged?: boolean
   responseStatusCode?: number
@@ -47,9 +50,18 @@ export function TimelineItem({
         <View style={$topRow}>
           <View style={$leftSection}>
             {isTagged && <View style={$tagDot(themeName)} />}
-            <Text style={[$titleText(themeName), isImportant && $titleTextImportant(themeName), { color: titleColor }]} numberOfLines={1}>
+            <Text
+              style={[
+                $titleText(themeName),
+                isImportant && $titleTextImportant(themeName),
+                { color: titleColor },
+              ]}
+              numberOfLines={1}
+            >
               {title}
-              {responseStatusCode && <Text style={$statusCode(themeName)}> ({responseStatusCode})</Text>}
+              {responseStatusCode && (
+                <Text style={$statusCode(themeName)}> ({responseStatusCode})</Text>
+              )}
             </Text>
           </View>
           <View style={$rightSection}>
@@ -63,9 +75,7 @@ export function TimelineItem({
           <Text style={$previewText(themeName)} numberOfLines={1}>
             {preview}
           </Text>
-          {deltaTime && (
-            <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>
-          )}
+          {deltaTime && <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>}
         </View>
       </Pressable>
     </View>
