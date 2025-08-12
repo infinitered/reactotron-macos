@@ -6,7 +6,6 @@ import { useThemeName, withTheme } from "../theme/theme"
  *
  * This is a generic component that is used to render a single item in the timeline.
  *
- * It is used to render a single item in the timeline.
  *
  */
 
