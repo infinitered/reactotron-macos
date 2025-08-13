@@ -12,10 +12,11 @@ import Header from "./Header"
 import { HeaderTitle } from "./HeaderTitle"
 import { useThemeName, withTheme } from "../theme/theme"
 import { useGlobal } from "../state/useGlobal"
+import { getReactotronAppId } from "../state/connectToServer"
 
 export function AppHeader() {
+  const reactotronAppId = getReactotronAppId()
   const [theme, setTheme] = useThemeName()
-
   const [isConnected] = useGlobal("isConnected", false)
   const [error] = useGlobal("error", null)
   const [clientIds] = useGlobal("clientIds", [])
@@ -28,7 +29,7 @@ export function AppHeader() {
           <ClientTab key={id} clientId={id} />
         ))}
       </View>
-      <HeaderTitle title={"Reactotron"} />
+      <HeaderTitle title={`Reactotron ${reactotronAppId}`} />
       <View style={$statusRow(theme)}>
         <View>
           <TextInput value={"SEARCHING"} placeholder="Search" style={{ width: 100 }} />

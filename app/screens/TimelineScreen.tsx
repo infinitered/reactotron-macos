@@ -1,9 +1,9 @@
 // import { View, Text } from "react-native"
+import { useGlobal } from "../state/useGlobal"
+import { TimelineItem } from "../types"
+import { TimelineLogItem } from "../components/TimelineLogItem"
+import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { LegendList } from "@legendapp/list"
-import { useGlobal } from "../../state/useGlobal"
-import { TimelineItem } from "../../types"
-import { LogItem } from "./TimelineItems/LogItem"
-import { NetworkItem } from "./TimelineItems/NetworkItem"
 
 /**
  * Renders the correct component for each timeline item.
@@ -11,8 +11,8 @@ import { NetworkItem } from "./TimelineItems/NetworkItem"
 const TimelineItemRenderer = ({ item }: { item: TimelineItem }) => {
   if (!item) return null
 
-  if (item.type === "log") return <LogItem item={item} />
-  if (item.type === "api.response") return <NetworkItem item={item} />
+  if (item.type === "log") return <TimelineLogItem item={item} />
+  if (item.type === "api.response") return <TimelineNetworkItem item={item} />
   console.tron.log("Unknown item", item)
   return null
 }
@@ -25,7 +25,8 @@ export function TimelineScreen() {
       data={timelineItems}
       renderItem={({ item }) => <TimelineItemRenderer item={item} />}
       keyExtractor={(item) => item.id}
-      recycleItems
+      estimatedItemSize={120} // TODO: better estimate pls
+      recycleItems // Not sure if this is better
     />
   )
 }

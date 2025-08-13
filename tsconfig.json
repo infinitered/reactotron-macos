@@ -1,6 +1,11 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
-    "jsx": "react-native"
+    "jsx": "react-native",
+    "types": ["react-native-macos"],
+    "baseUrl": ".",
+    "paths": {
+      "react-native": ["node_modules/react-native-macos"]
+    }
   }
 }

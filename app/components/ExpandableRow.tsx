@@ -1,7 +1,7 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
-import { useThemeName, withTheme, type ThemeName, useTheme } from "../../theme/theme"
-import ActionButton from "../../components/ActionButton"
-import { useGlobal } from "../../state/useGlobal"
+import { useThemeName, withTheme, type ThemeName, useTheme } from "../theme/theme"
+import ActionButton from "../components/ActionButton"
+import { useGlobal } from "../state/useGlobal"
 
 type ExpandableRowProps = {
   id: string
@@ -111,7 +111,7 @@ const $timestampContainer: ViewStyle = {
 
 const $timestampText = withTheme<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
-  fontFamily: typography.code.normal,
+  // fontFamily: typography.code.normal,
   fontSize: typography.caption,
   marginRight: 0,
   minWidth: 90,
@@ -120,7 +120,7 @@ const $timestampText = withTheme<TextStyle>(({ colors, typography }) => ({
 
 const $deltaText = withTheme<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
-  fontFamily: typography.code.normal,
+  // fontFamily: typography.code.normal,
   fontSize: typography.caption * 0.95,
   marginRight: 0,
   minWidth: 55,
@@ -166,7 +166,7 @@ const $previewContainer: ViewStyle = {
 
 const $previewText = withTheme<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
-  fontFamily: typography.code.normal,
+  // fontFamily: typography.code.normal,
   fontSize: typography.body,
 }))
 

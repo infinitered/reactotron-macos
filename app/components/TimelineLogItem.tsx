@@ -1,15 +1,15 @@
-import { Text, View, type ViewStyle, type TextStyle } from "react-native"
-import { TimelineItemLog } from "../../../types"
-import { ExpandableRow } from "../ExpandableRow"
-import { TreeView } from "../../../components/TreeView"
-import { useThemeName, withTheme } from "../../../theme/theme"
+import { Text, type ViewStyle, type TextStyle, Pressable } from "react-native"
+import { TimelineItemLog } from "../types"
+import { ExpandableRow } from "./ExpandableRow"
+import { TreeView } from "./TreeView"
+import { useThemeName, withTheme } from "../theme/theme"
 
-type LogItemProps = { item: TimelineItemLog }
+type TimelineLogItemProps = { item: TimelineItemLog }
 
 /**
  * A single log item in the timeline.
  */
-export function LogItem({ item }: LogItemProps) {
+export function TimelineLogItem({ item }: TimelineLogItemProps) {
   const [themeName] = useThemeName()
   const { payload, date, deltaTime, important } = item
 
@@ -57,10 +57,10 @@ export function LogItem({ item }: LogItemProps) {
       isImportant={important}
       isTagged={important}
     >
-      <View style={$payloadContainer}>
+      <Pressable style={$payloadContainer}>
         <Text style={$sectionLabel(themeName)}>Payload:</Text>
-        <TreeView data={{ payload }} />
-      </View>
+        <TreeView data={payload} />
+      </Pressable>
     </ExpandableRow>
   )
 }

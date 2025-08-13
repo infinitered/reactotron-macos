@@ -1,15 +1,15 @@
-import { Text, View, type ViewStyle, type TextStyle } from "react-native"
-import { TimelineItemNetwork } from "../../../types"
-import { ExpandableRow } from "../ExpandableRow"
-import { TreeView } from "../../../components/TreeView"
-import { useTheme, useThemeName } from "../../../theme/theme"
+import { Text } from "react-native"
+import { TimelineItemNetwork } from "../types"
+import { ExpandableRow } from "./ExpandableRow"
+import { TreeView } from "./TreeView"
+import { useTheme, useThemeName } from "../theme/theme"
 
-type NetworkItemProps = { item: TimelineItemNetwork }
+type TimelineNetworkItemProps = { item: TimelineItemNetwork }
 
 /**
  * A single network item in the timeline.
  */
-export function NetworkItem({ item }: NetworkItemProps) {
+export function TimelineNetworkItem({ item }: TimelineNetworkItemProps) {
   // Type guard to ensure this is a network item
   if (item.type !== "api.response") return null
 
@@ -84,21 +84,14 @@ export function NetworkItem({ item }: NetworkItemProps) {
       isTagged={important}
       responseStatusCode={responseStatusCode}
     >
-      <View style={$payloadContainer}>
-        <Text style={$sectionLabel}>Payload:</Text>
-        <TreeView data={{ payload }} />
-      </View>
+      <TreeView data={payload} path={["payload"]} />
     </ExpandableRow>
   )
 }
 
-const $payloadContainer: ViewStyle = {
-  marginBottom: 16,
-}
-
-const $sectionLabel: TextStyle = {
-  fontSize: 14,
-  fontWeight: "bold",
-  marginBottom: 8,
-  opacity: 0.8,
-}
+// const $sectionLabel: TextStyle = {
+//   fontSize: 14,
+//   fontWeight: "bold",
+//   marginBottom: 8,
+//   opacity: 0.8,
+// }

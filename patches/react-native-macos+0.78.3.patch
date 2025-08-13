@@ -259,8 +259,76 @@ index ec8136b..802a2be 100644
  }
  
  #if !TARGET_OS_OSX // [macOS]
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
+index b5e5f3c..0c59556 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
+@@ -404,22 +404,24 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void)
+       (RCTTextLayoutManager *)unwrapManagedObject(textLayoutManager->getNativeTextLayoutManager());
+ 
+   CGRect frame = RCTCGRectFromRect(_layoutMetrics.getContentFrame());
++  self.frame = frame;
++  if (![self isVisibleInWindow]) return;
+ 
+ #if !TARGET_OS_OSX // [macOS]
+   [nativeTextLayoutManager drawAttributedString:_state->getData().attributedString
+                             paragraphAttributes:_paragraphAttributes
+                                           frame:frame
+                               drawHighlightPath:^(UIBezierPath *highlightPath) {
+-                                if (highlightPath) {
+-                                  if (!self->_highlightLayer) {
+-                                    self->_highlightLayer = [CAShapeLayer layer];
++                                  if (highlightPath) {
++                                    if (!self->_highlightLayer) {
++                                      self->_highlightLayer = [CAShapeLayer layer];
+                                     self->_highlightLayer.fillColor = [RCTUIColor colorWithWhite:0 alpha:0.25].CGColor; // [macOS]
+                                     [self.layer addSublayer:self->_highlightLayer];
+                                   }
+                                   self->_highlightLayer.position = frame.origin;
+                                   self->_highlightLayer.path = highlightPath.CGPath;
+                                 } else {
+-                                  [self->_highlightLayer removeFromSuperlayer];
++                                    [self->_highlightLayer removeFromSuperlayer];
+                                   self->_highlightLayer = nil;
+                                 }
+                               }];
+@@ -438,13 +440,33 @@ Class<RCTComponentViewProtocol> RCTParagraphCls(void)
+ 
+   self.minSize = frame.size;
+   self.maxSize = frame.size;
+-  self.frame = frame;
+   [[self textStorage] setAttributedString:textStorage];
+ 
+   [super drawRect:rect];
+ #endif
+ }
+ 
++- (void)setFrame:(NSRect)frame {
++    // If the frame is not changing, exit
++    //if (NSEqualRects(self.frame, frame)) return;
++    [super setFrame:frame];
++}
++
++- (void)setBounds:(NSRect)bounds {
++    // If the bounds are not changing, exit
++    if (NSEqualRects(self.bounds, bounds)) return;
++    [super setBounds:bounds];
++}
++
++- (BOOL)isVisibleInWindow {
++    if (!self.window) return NO;
++    // if (self.isHidden) return NO;
++    if (self.frame.size.width <= 0 || self.frame.size.height <= 0) return NO;
++    NSRect viewFrameInWindow = [self convertRect:self.frame toView:nil];
++    NSRect visibleFrameOfWindow = self.window.contentView.visibleRect;
++    return NSIntersectsRect(viewFrameInWindow, visibleFrameOfWindow);
++}
++
+ #if TARGET_OS_OSX // [macOS
+ - (void)setNeedsDisplay
+ {
 diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-index fd43f3b..f67a335 100644
+index fd43f3b..b664625 100644
 --- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
 +++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
 @@ -91,7 +91,8 @@ static NSSet<NSNumber *> *returnKeyTypesSet;

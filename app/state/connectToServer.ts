@@ -1,3 +1,4 @@
+import { getUUID } from "../utils/random/getUUID"
 import { TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
 
@@ -7,6 +8,11 @@ type WebSocketState = { socket: WebSocket | null }
 
 let _sendToClient: SendToClientFn
 const ws: WebSocketState = { socket: null }
+
+export const getReactotronAppId = () => {
+  const [reactotronAppId] = withGlobal("reactotronAppId", getUUID(), { persist: true })
+  return reactotronAppId
+}
 
 /**
  * Connects to the reactotron-core-server via websocket.
@@ -20,6 +26,7 @@ const ws: WebSocketState = { socket: null }
  * @param props.port - The port to connect to. Defaults to 9292.
  */
 export function connectToServer(props: { port: number } = { port: 9292 }): UnsubscribeFn {
+  const reactotronAppId = getReactotronAppId()
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
@@ -32,7 +39,14 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 
   // Tell the server we are a Reactotron app, not a React client.
   ws.socket.onopen = () => {
-    ws.socket?.send(JSON.stringify({ type: "reactotron.subscribe", payload: {} }))
+    ws.socket?.send(
+      JSON.stringify({
+        type: "reactotron.subscribe",
+        payload: {
+          id: reactotronAppId,
+        },
+      }),
+    )
   }
 
   // Handle errors
