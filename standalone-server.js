@@ -3,7 +3,7 @@
  *
  * TODO:
  * * Store full info about a client in here so we can pass it along to connected Reactotron apps.
- * * Figure out why portUnavailable is being called when it is not, in fact, unavailable.
+ *
  */
 
 const connectedReactotrons = []
@@ -102,9 +102,6 @@ function startReactotronServer(opts = {}) {
 
   // Port is already in use
   server.on("portUnavailable", () => console.log(`Port ${opts.port} unavailable`))
-
-  // start the server
-  server.start()
 
   // check to see if it started
   if (!server.started) {

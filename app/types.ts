@@ -50,7 +50,7 @@ export interface ErrorLogPayload {
 export type LogPayload =
   | {
       level: "debug"
-      message: string
+      message: string | Record<string, any>
     }
   | {
       level: "warn"

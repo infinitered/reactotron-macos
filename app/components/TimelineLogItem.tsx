@@ -1,16 +1,16 @@
-import { Text, type ViewStyle, type TextStyle, Pressable } from "react-native"
 import { TimelineItemLog } from "../types"
-import { ExpandableRow } from "./ExpandableRow"
-import { TreeView } from "./TreeView"
-import { useThemeName, withTheme } from "../theme/theme"
+import { TimelineItem } from "./TimelineItem"
 
-type TimelineLogItemProps = { item: TimelineItemLog }
+type TimelineLogItemProps = {
+  item: TimelineItemLog
+  isSelected?: boolean
+  onSelect?: () => void
+}
 
 /**
  * A single log item in the timeline.
  */
-export function TimelineLogItem({ item }: TimelineLogItemProps) {
-  const [themeName] = useThemeName()
+export function TimelineLogItem({ item, isSelected = false, onSelect }: TimelineLogItemProps) {
   const { payload, date, deltaTime, important } = item
 
   // Type guard to ensure this is a log item
@@ -32,47 +32,16 @@ export function TimelineLogItem({ item }: TimelineLogItemProps) {
   const preview =
     message.toString().substring(0, 100) + (message.toString().length > 100 ? "..." : "")
 
-  // Mock toolbar actions - you can customize these based on your needs
-  const toolbar = [
-    {
-      icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>📋</Text>,
-      tip: "Copy to clipboard",
-      onClick: () => console.log("Copy to clipboard"),
-    },
-    {
-      icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>🔍</Text>,
-      tip: "Search similar",
-      onClick: () => console.log("Search similar"),
-    },
-  ]
-
   return (
-    <ExpandableRow
-      id={item.messageId.toString()}
+    <TimelineItem
       title={level}
       date={new Date(date)}
       deltaTime={deltaTime}
       preview={preview}
-      toolbar={toolbar}
       isImportant={important}
       isTagged={important}
-    >
-      <Pressable style={$payloadContainer}>
-        <Text style={$sectionLabel(themeName)}>Payload:</Text>
-        <TreeView data={payload} />
-      </Pressable>
-    </ExpandableRow>
+      isSelected={isSelected}
+      onSelect={onSelect}
+    />
   )
 }
-
-const $payloadContainer: ViewStyle = {
-  marginBottom: 16,
-}
-
-const $sectionLabel = withTheme<TextStyle>(({ colors }) => ({
-  fontSize: 14,
-  fontWeight: "bold",
-  marginBottom: 8,
-  color: colors.mainText,
-  opacity: 0.8,
-}))

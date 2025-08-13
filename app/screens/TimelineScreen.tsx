@@ -1,32 +1,79 @@
-// import { View, Text } from "react-native"
 import { useGlobal } from "../state/useGlobal"
 import { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
+import { DetailPanel } from "../components/DetailPanel"
+import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
+import { View } from "react-native-macos"
+import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
+import { Separator } from "../components/Separator"
 
 /**
  * Renders the correct component for each timeline item.
  */
-const TimelineItemRenderer = ({ item }: { item: TimelineItem }) => {
+const TimelineItemRenderer = ({
+  item,
+  isSelected,
+  onSelectItem,
+}: {
+  item: TimelineItem
+  isSelected: boolean
+  onSelectItem: (item: TimelineItem) => void
+}) => {
   if (!item) return null
 
-  if (item.type === "log") return <TimelineLogItem item={item} />
-  if (item.type === "api.response") return <TimelineNetworkItem item={item} />
+  const handleSelectItem = () => {
+    onSelectItem(item)
+  }
+
+  if (item.type === "log") {
+    return <TimelineLogItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+  }
+  if (item.type === "api.response") {
+    return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+  }
   console.tron.log("Unknown item", item)
   return null
 }
 
 export function TimelineScreen() {
   const [timelineItems] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
+    persist: true,
+  })
+  const { selectedItem, setSelectedItemId } = useSelectedTimelineItems()
+
+  const handleSelectItem = (item: TimelineItem) => {
+    // Toggle selection: if clicking the same item, deselect it
+    setSelectedItemId((prev) => (prev === item.id ? null : item.id))
+  }
 
   return (
-    <LegendList<TimelineItem>
-      data={timelineItems}
-      renderItem={({ item }) => <TimelineItemRenderer item={item} />}
-      keyExtractor={(item) => item.id}
-      estimatedItemSize={120} // TODO: better estimate pls
-      recycleItems // Not sure if this is better
-    />
+    <View style={{ flex: 1, flexDirection: "row" }}>
+      <View style={{ width: timelineWidth }}>
+        <LegendList<TimelineItem>
+          data={timelineItems}
+          extraData={selectedItem?.id}
+          renderItem={({ item }) => (
+            <TimelineItemRenderer
+              item={item}
+              isSelected={selectedItem?.id === item.id}
+              onSelectItem={handleSelectItem}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          estimatedItemSize={60}
+          recycleItems
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingRight: 8 }} // making some room for the scrollbar
+          ItemSeparatorComponent={Separator}
+        />
+      </View>
+      <ResizableDivider onResize={setTimelineWidth} minWidth={300} maxWidth={800} />
+      <View style={{ flex: 1 }}>
+        <DetailPanel selectedItem={selectedItem} onClose={() => setSelectedItemId(null)} />
+      </View>
+    </View>
   )
 }

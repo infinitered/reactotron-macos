@@ -66,7 +66,6 @@ const $container = withTheme<ViewStyle>(({ colors }) => ({
 
 const $contentContainer = withTheme<ViewStyle>(({ spacing }) => ({
   flex: 1,
-  padding: spacing.md,
 }))
 
 export default App
