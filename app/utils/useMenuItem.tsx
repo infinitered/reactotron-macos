@@ -56,7 +56,7 @@ import NativeIRMenuItemManager, {
   type MenuStructure,
   type MenuListEntry,
   SEPARATOR,
-} from "../../specs/NativeIRMenuItemManager"
+} from "../native/IRMenuItemManager/NativeIRMenuItemManager"
 
 // Only thing to configure here is the path separator.
 const PATH_SEPARATOR = " > "
