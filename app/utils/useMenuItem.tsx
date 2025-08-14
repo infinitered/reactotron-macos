@@ -309,6 +309,21 @@ export function useMenuItem(config?: MenuItemConfig) {
             ...parsePathKey(parentKey),
             SEPARATOR,
           ])
+          const parentPath = parsePathKey(parentKey)
+          if (parentPath.length === 1) {
+            const top = parentPath[0]
+            const structure = NativeIRMenuItemManager.getMenuStructure()
+            const entry = structure.find(
+              (e) => e.title.localeCompare(top, undefined, { sensitivity: "accent" }) === 0,
+            )
+            if (!entry || !entry.items || entry.items.length === 0) {
+              try {
+                await NativeIRMenuItemManager.removeMenuItemAtPath([top])
+              } catch (e) {
+                console.warn(`Couldn't remove top-level menu "${top}":`, e)
+              }
+            }
+          }
         }
       }
       cleanup()
