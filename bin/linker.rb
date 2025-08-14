@@ -55,7 +55,6 @@ def link_colocated_native_files(options = {})
   return unless _check_file_group(file_group, app_name, project)
 
   generated_files_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'colocated')
-  generated_files = Dir.glob(File.join(generated_files_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
 
   # if clean is true, remove the Colocated group if it exists
   if clean
@@ -63,8 +62,14 @@ def link_colocated_native_files(options = {})
     return # Done?
   end
 
+  # Ensure the generated files directory exists before running TurboModule generation
+  FileUtils.mkdir_p(generated_files_path)
+  
   # Run the ./generateTurboModule.js script to generate any embedded TurboModules
   _generate_turbomodules(project_root)
+  
+  # Get generated files after TurboModule generation
+  generated_files = Dir.glob(File.join(generated_files_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
   
   puts "#{D}Looking for files to link to #{GB}#{app_name}#{X} in #{G}#{relative_app_path}#{X}"
   puts ""
