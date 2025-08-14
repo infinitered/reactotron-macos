@@ -4,9 +4,7 @@
  *
  * @format
  */
-
-import { StatusBar, View, ViewStyle } from "react-native"
-
+import { StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect } from "react"
@@ -30,18 +28,6 @@ function App(): React.JSX.Element {
         console.tron.log("text", text)
       })
   }, 1000)
-
-  // // Test array literal with method chaining
-  // const result2 = invokeObjC(
-  //   `[[@[@"Apple", @"Banana", @"Cherry"] componentsJoinedByString:@", "] uppercaseString]`,
-  // )
-  // console.log({ result2 })
-
-  // // Test nested method calls with array manipulation
-  // const result3 = invokeObjC(
-  //   `[[[@[@"One", @"Two", @"Three"] mutableCopy] addObject:@"Four"] componentsJoinedByString:@" | "]`,
-  // )
-  // console.log({ result3 })
 
   // Connect to the server when the app mounts.
   // This will update global state with the server's state
