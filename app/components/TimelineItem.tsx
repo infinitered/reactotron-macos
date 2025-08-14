@@ -74,7 +74,7 @@ export function TimelineItem({
           <Text style={$previewText(themeName)} numberOfLines={1}>
             {preview}
           </Text>
-          {deltaTime && <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>}
+          {!!deltaTime && <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>}
         </View>
       </Pressable>
     </View>
