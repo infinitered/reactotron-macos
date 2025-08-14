@@ -88,8 +88,10 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 
         // Add to timeline IDs
         setTimelineItems((prev) => {
-          prev.unshift(data.cmd) // mutating is faster
-          return prev // don't worry, it'll still rerender
+          // TODO: This does rerender if we're using a flatlist, but not if we're using a legend list.
+          // prev.unshift(data.cmd) // mutating is faster
+          // return prev // don't worry, it'll still rerender
+          return [...prev, data.cmd]
         })
       } else {
         console.tron.log("unknown command", data.cmd)

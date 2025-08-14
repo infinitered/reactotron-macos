@@ -2,7 +2,7 @@ export const colorsLight = {
   background: "#FAFAFA",
   cardBackground: "#EDEDED",
   mainText: "#000000",
-  border: "#ff0000",
+  border: "#B6ACA6",
   neutral: "#808080",
   neutralVery: "#D3D3D3",
   success: "#008000",
