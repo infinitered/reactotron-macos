@@ -72,7 +72,7 @@ export interface MenuItem {
 }
 
 export interface MenuItemConfig {
-  items: Record<string, MenuListEntry[]>
+  items?: Record<string, MenuListEntry[]>
   remove?: string[]
 }
 
@@ -256,22 +256,24 @@ export function useMenuItem(config?: MenuItemConfig) {
         }
       }
 
-      for (const [parentKey, entries] of Object.entries(config.items)) {
-        const previousEntries = previousConfig?.items[parentKey] || []
-        const { toRemove, toUpdate } = getItemDifference(previousEntries, entries)
+      if (config.items) {
+        for (const [parentKey, entries] of Object.entries(config.items)) {
+          const previousEntries = previousConfig?.items?.[parentKey] || []
+          const { toRemove, toUpdate } = getItemDifference(previousEntries, entries)
 
-        if (toRemove.length) await removeMenuItems(parentKey, toRemove)
+          if (toRemove.length) await removeMenuItems(parentKey, toRemove)
 
-        await addEntries(parentKey, entries)
+          await addEntries(parentKey, entries)
 
-        for (const item of toUpdate) {
-          const leafPath = [...parsePathKey(parentKey), item.label]
-          actionsRef.current.set(joinPath(leafPath), item.action)
-          if (item.enabled !== undefined) {
-            try {
-              await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
-            } catch (e) {
-              console.error(`Failed to update ${joinPath(leafPath)}:`, e)
+          for (const item of toUpdate) {
+            const leafPath = [...parsePathKey(parentKey), item.label]
+            actionsRef.current.set(joinPath(leafPath), item.action)
+            if (item.enabled !== undefined) {
+              try {
+                await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
+              } catch (e) {
+                console.error(`Failed to update ${joinPath(leafPath)}:`, e)
+              }
             }
           }
         }
@@ -295,7 +297,7 @@ export function useMenuItem(config?: MenuItemConfig) {
   // Clean up old menu items
   useEffect(() => {
     return () => {
-      if (!previousConfigRef.current || !config) {
+      if (!previousConfigRef.current || !config || !config.items) {
         return
       }
       const pairs = Object.entries(previousConfigRef.current.items ?? config.items)

@@ -131,6 +131,17 @@ RCT_EXPORT_MODULE()
       return;
     }
 
+    if ([path isEqual:@[@"*"]]) {
+      NSMenu *mainMenu = [NSApp mainMenu];
+
+      // Leave the application menu
+      while (mainMenu.numberOfItems > 1) {
+        [mainMenu removeItemAtIndex:1];
+      }
+      resolve(@{@"success" : @YES, @"removed" : @YES});
+      return;
+    }
+
     // If last segment is "menu-item-separator", clear the separators under the parent
     NSString *last = [path lastObject];
     if ([last isEqualToString:separatorString]) {
@@ -215,6 +226,17 @@ RCT_EXPORT_MODULE()
   return nil;
 }
 
+- (NSInteger)findInsertIndexForMainMenu:(NSMenu *)mainMenu {
+  NSMenu *helpMenu = [NSApp helpMenu];
+  if (helpMenu) {
+    NSInteger helpIndex = [mainMenu indexOfItemWithSubmenu:helpMenu];
+    if (helpIndex > 0) { // Don't touch the application menu at index 0.
+      return helpIndex;
+    }
+  }
+  return MAX(1, mainMenu.numberOfItems);
+}
+
 - (NSMenuItem *)ensureMenuPath:(NSArray<NSString *> *)path {
   NSMenu *mainMenu = [NSApp mainMenu];
   if (!mainMenu) return nil;
@@ -234,7 +256,7 @@ RCT_EXPORT_MODULE()
       newItem.submenu = submenu;
 
       if (currentMenu == mainMenu) {
-        NSInteger insertIndex = MAX(0, mainMenu.itemArray.count - 1); // before "Help", so special lol
+        NSInteger insertIndex = [self findInsertIndexForMainMenu:mainMenu];
         [mainMenu insertItem:newItem atIndex:insertIndex];
       } else {
         [currentMenu addItem:newItem];
