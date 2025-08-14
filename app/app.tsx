@@ -21,8 +21,6 @@ function App(): React.JSX.Element {
   const [theme] = useThemeName()
   const { colors } = useTheme(theme)
 
-  const availableFonts = getAvailableFonts()
-
   setTimeout(() => {
     fetch("https://www.google.com")
       .then((res) => res.text())

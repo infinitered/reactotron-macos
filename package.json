@@ -127,8 +127,7 @@
   },
   "generateTurboModules": {
     "files": [
-      "app/utils/random/getUUID.ts",
-      "app/utils/fonts/getAvailableFonts.ts"
+      "app/utils/random/getUUID.ts"
     ],
     "destinationPath": "macos/build/generated/colocated"
   }
