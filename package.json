@@ -43,6 +43,9 @@
     "reactotron-react-native": "^5.1.14",
     "typescript": "5.0.4"
   },
+  "overrides": {
+    "react-native": "npm:react-native-macos@0.78.3"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -124,7 +127,8 @@
   },
   "generateTurboModules": {
     "files": [
-      "app/utils/random/getUUID.ts"
+      "app/utils/random/getUUID.ts",
+      "app/utils/fonts/getAvailableFonts.ts"
     ],
     "destinationPath": "macos/build/generated/colocated"
   }
