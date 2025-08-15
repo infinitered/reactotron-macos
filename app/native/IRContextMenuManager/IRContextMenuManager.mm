@@ -64,13 +64,15 @@ RCT_EXPORT_MODULE()
     if (![entry isKindOfClass:[NSDictionary class]]) continue;
     NSDictionary *item = (NSDictionary *)entry;
     NSString *label = item[@"label"] ?: @"";
-    BOOL enabled = item[@"enabled"] ? [item[@"enabled"] boolValue] : YES;
+    BOOL enabled = item[@"enabled"] != nil ? [item[@"enabled"] boolValue] : YES;
+    BOOL checked = item[@"checked"] != nil ? [item[@"checked"] boolValue] : NO;
     NSString *shortcut = item[@"shortcut"] ?: @"";
     NSArray *children = item[@"children"];
 
-    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:label action:@selector(_ir_menuItemPressed:) keyEquivalent:@""];
-    menuItem.target = self;
+    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:label action:enabled ? @selector(_ir_menuItemPressed:) : nil keyEquivalent:@""];
+    menuItem.target = enabled ? self : nil;
     menuItem.enabled = enabled;
+    menuItem.state = checked ? NSControlStateValueOn : NSControlStateValueOff;
     if (shortcut.length > 0) {
       [self applyShortcut:shortcut toItem:menuItem];
     }

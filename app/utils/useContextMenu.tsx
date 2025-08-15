@@ -14,6 +14,7 @@ export type MenuItem = {
   label: string
   shortcut?: string
   enabled?: boolean
+  checked?: boolean
   children?: MenuListEntry[]
   action?: () => AsyncableVoid
 }
@@ -32,6 +33,7 @@ type NativeMenuItem = {
   label: string
   shortcut?: string
   enabled?: boolean
+  checked?: boolean
   children?: NativeMenuListEntry[]
 }
 
@@ -61,7 +63,7 @@ export function useContextMenu(config: ContextMenuConfig) {
         }
 
         const item = entry as MenuItem
-        const { label, shortcut, enabled, children, action } = item
+        const { label, shortcut, enabled, checked, children, action } = item
 
         // Prefer explicit ids in the path; fall back to label if not provided
         const nodeId = item.id ?? label
@@ -80,6 +82,7 @@ export function useContextMenu(config: ContextMenuConfig) {
           label, // native UI shows labels, ids are just for our lookup
           shortcut,
           enabled,
+          checked,
           children: Array.isArray(children) ? build(children, path) : undefined,
         })
       }

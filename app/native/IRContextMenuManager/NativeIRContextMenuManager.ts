@@ -15,6 +15,7 @@ export interface ContextMenuItem {
   label: string
   shortcut?: string
   enabled?: boolean
+  checked?: boolean
   children?: ContextMenuListEntry[]
 }
 
