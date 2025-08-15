@@ -1,6 +1,8 @@
 import { TimelineItemNetwork } from "../types"
 import { TimelineItem } from "./TimelineItem"
 import { useTheme, useThemeName } from "../theme/theme"
+import type { MenuListEntry } from "../utils/useContextMenu"
+import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 
 type TimelineNetworkItemProps = {
   item: TimelineItemNetwork
@@ -64,21 +66,21 @@ export function TimelineNetworkItem({
     ? `${payload?.response?.status || ""} ${payload?.response?.statusText || ""}`
     : "UNKNOWN"
 
-  // TODO: move this into a context menu
-  // const toolbar = [
-  //   {
-  //     icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>📋</Text>,
-  //     tip: "Copy to clipboard",
-  //     onClick: () => {
-  //       IRClipboard.setString(JSON.stringify(payload))
-  //     },
-  //   },
-  //   {
-  //     icon: ({ size }: { size: number }) => <Text style={{ fontSize: size }}>🔍</Text>,
-  //     tip: "Search similar",
-  //     onClick: () => console.log("Search similar"),
-  //   },
-  // ]
+  const contextMenu: MenuListEntry[] = [
+    {
+      label: "Copy",
+      children: [
+        {
+          label: "Copy Request",
+          action: () => IRClipboard.setString(JSON.stringify(payload?.request)),
+        },
+        {
+          label: "Copy Response",
+          action: () => IRClipboard.setString(JSON.stringify(payload?.response)),
+        },
+      ],
+    },
+  ]
 
   return (
     <TimelineItem
@@ -92,6 +94,7 @@ export function TimelineNetworkItem({
       responseStatusCode={responseStatusCode}
       isSelected={isSelected}
       onSelect={onSelect}
+      contextMenu={contextMenu}
     />
   )
 }

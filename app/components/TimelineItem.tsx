@@ -1,7 +1,7 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
-import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import ContextPressable from "./ContextPressable"
+import { MenuListEntry } from "../utils/useContextMenu"
 
 /**
  * A single item in the timeline.
@@ -22,6 +22,7 @@ type TimelineItemProps = {
   responseStatusCode?: number
   isSelected?: boolean
   onSelect?: () => void
+  contextMenu?: MenuListEntry[]
 }
 
 export function TimelineItem({
@@ -35,6 +36,7 @@ export function TimelineItem({
   responseStatusCode,
   isSelected = false,
   onSelect,
+  contextMenu,
 }: TimelineItemProps) {
   const [themeName] = useThemeName()
 
@@ -49,13 +51,7 @@ export function TimelineItem({
       <ContextPressable
         style={$pressableContainer(themeName)}
         onPress={handlePress}
-        items={[
-          {
-            label: "Copy",
-            action: () => IRClipboard.setString(title),
-            shortcut: "cmd+C",
-          },
-        ]}
+        items={contextMenu ?? []}
       >
         {/* Top Row: Title + Status + Time */}
         <View style={$topRow}>
