@@ -1,5 +1,7 @@
-import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
+import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
+import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
+import ContextPressable from "./ContextPressable"
 
 /**
  * A single item in the timeline.
@@ -44,7 +46,17 @@ export function TimelineItem({
 
   return (
     <View style={[$container(themeName), isSelected && $containerSelected(themeName)]}>
-      <Pressable style={$pressableContainer(themeName)} onPress={handlePress}>
+      <ContextPressable
+        style={$pressableContainer(themeName)}
+        onPress={handlePress}
+        items={[
+          {
+            label: "Copy",
+            action: () => IRClipboard.setString(title),
+            shortcut: "cmd+C",
+          },
+        ]}
+      >
         {/* Top Row: Title + Status + Time */}
         <View style={$topRow}>
           <View style={$leftSection}>
@@ -76,7 +88,7 @@ export function TimelineItem({
           </Text>
           {!!deltaTime && <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>}
         </View>
-      </Pressable>
+      </ContextPressable>
     </View>
   )
 }
