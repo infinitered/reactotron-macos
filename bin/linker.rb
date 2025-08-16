@@ -56,11 +56,12 @@ def link_colocated_native_files(options = {})
 
   generated_files_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'colocated')
 
-  # if clean is true, remove the Colocated group if it exists
-  if clean
-    _clean_colocated_group(file_group, generated_files_path, project, project_root)
-    return # Done?
-  end
+  # Clean up any "Recovered References" group that may conflict
+  _clean_colocated_group(file_group, generated_files_path, project_root)
+  _save_project(project)
+  _clean_recovered_references_group(project)
+  _save_project(project)
+  _remove_generated_files(generated_files_path, project_root)
 
   # Ensure the generated files directory exists before running TurboModule generation
   FileUtils.mkdir_p(generated_files_path)
@@ -167,16 +168,21 @@ def _check_file_in_colocated_files(file, colocated_files, project_root)
   return true
 end
 
-def _clean_colocated_group(file_group, generated_files_path, project, project_root)
-  $dirty = true
-
+def _clean_colocated_group(file_group, generated_files_path, project_root)
   colocated_group = file_group['Colocated']
-  colocated_group.remove_from_project if colocated_group
+  return if not colocated_group
   
+  # iterate through the files in the colocated group and remove them
+  colocated_group.files.each do |file|
+    _remove_file_from_project(file, project_root)
+  end
+  
+  colocated_group.remove_from_project
   puts "#{YB} - Removed    #{X}#{S}#{D}Colocated#{X}#{D} group#{X}"
-  
-  _save_project(project)
+  $dirty = true
+end
 
+def _remove_generated_files(generated_files_path, project_root)
   # Remove all files from the generated files folder
   relative_generated_files_path = Pathname.new(generated_files_path).relative_path_from(project_root)
   FileUtils.rm_rf(generated_files_path)
@@ -184,6 +190,9 @@ def _clean_colocated_group(file_group, generated_files_path, project, project_ro
 end
 
 def _add_file_to_project(file, project, excluded_targets, project_root, colocated_group)
+  # Ensure the file actually exists before adding it
+  return puts _err_not_exists(file) unless File.exist?(file)
+
   $dirty = true
   relative_path = file.relative_path_from(project_root)
   
@@ -192,6 +201,10 @@ def _add_file_to_project(file, project, excluded_targets, project_root, colocate
   targets_line = file_content[/colo_loco_targets:(.+)/, 1] # Get the line with the targets, if it exists
   specified_targets = targets_line&.split(',')&.map(&:strip) || []
   
+  # Check if this file is already referenced in the project to avoid duplicates
+  existing_file_ref = project.files.find { |f| f.real_path == file }
+  return puts _err_exists(relative_path) if existing_file_ref
+
   # Add the new file to all targets (or only the specified targets, if any)
   new_file = colocated_group.new_file(file)
   added_to_targets = []
@@ -259,9 +272,28 @@ def _generate_objc_header(objc_file, xcodeproj_path, generated_files_path, all_l
   return Pathname.new(header_file_path)
 end
 
+def _clean_recovered_references_group(project)
+  # Find and remove any "Recovered References" groups
+  project.groups.each do |group|
+    if group.name == "Recovered References"
+      $dirty = true
+      group.remove_from_project
+      puts "#{YB} - Removed    #{X}#{S}#{D}Recovered References#{X}#{D} group#{X}"
+    end
+  end
+end
+
 def _generate_turbomodules(project_root)
   puts "#{D}Generating embedded TurboModules#{X}"
   puts ""
   puts `node #{project_root}/bin/generateTurboModule.js generate`
   puts ""
+end
+
+def _err_exists(relative_path)
+  return "#{DB} ✓ Exists     #{X}#{D}#{relative_path.dirname}/#{DB}#{relative_path.basename}#{X}#{D} already in project#{X}"
+end
+
+def _err_not_exists(file)
+  return "#{YB} ! Warning    #{X}#{D}#{file}#{X}#{D} does not exist, skipping#{X}"
 end
