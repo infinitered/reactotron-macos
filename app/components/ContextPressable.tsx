@@ -53,9 +53,7 @@ export function ContextPressable(props: ContextPressableProps) {
 
   const handlePress = useCallback(
     (e: GestureResponderEvent) => {
-      if ((e.nativeEvent as any).button === 2) {
-        return open()
-      }
+      if ((e.nativeEvent as any).button === 2) return open()
       if (onPress) onPress(e)
     },
     [open, onPress],
