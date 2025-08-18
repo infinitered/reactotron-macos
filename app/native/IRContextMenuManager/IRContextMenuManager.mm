@@ -28,14 +28,15 @@ RCT_EXPORT_MODULE()
   [self buildMenu:menu fromEntries:items path:@[]];
 
   NSEvent *event = [NSEvent mouseEventWithType:NSEventTypeRightMouseDown
-                                       location:[self currentMouseLocation]
-                                  modifierFlags:0
-                                      timestamp:[[NSProcessInfo processInfo] systemUptime]
-                                   windowNumber:[[NSApp keyWindow] windowNumber]
-                                        context:nil
-                                    eventNumber:0
-                                     clickCount:1
-                                       pressure:1.0];
+    location:[self currentMouseLocation]
+    modifierFlags:0
+    timestamp:[[NSProcessInfo processInfo] systemUptime]
+    windowNumber:[[NSApp keyWindow] windowNumber]
+    context:nil
+    eventNumber:0
+    clickCount:1
+    pressure:1.0
+  ];
 
   [NSMenu popUpContextMenu:menu withEvent:event forView:[[NSApp keyWindow] contentView]];
 }
