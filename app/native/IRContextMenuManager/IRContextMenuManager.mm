@@ -77,11 +77,7 @@ RCT_EXPORT_MODULE()
       [self applyShortcut:shortcut toItem:menuItem];
     }
 
-    NSArray<NSString *> *currentPath = ({
-      NSMutableArray *m = [path mutableCopy];
-      if (label) [m addObject:label];
-      [m copy];
-    });
+    NSArray<NSString *> *currentPath = label ? [path arrayByAddingObject:label] : [path copy];
     menuItem.representedObject = currentPath;
 
     if ([children isKindOfClass:[NSArray class]] && children.count > 0) {
