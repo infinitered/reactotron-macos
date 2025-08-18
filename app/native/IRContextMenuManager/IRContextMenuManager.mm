@@ -128,14 +128,10 @@ RCT_EXPORT_MODULE()
   
   // Check if it's a special key
   NSString *mapped = keyMap[keyName];
-  if (mapped) {
-    return mapped;
-  }
-  
+  if (mapped) return mapped;
+
   // For single character keys, return as-is if it's a valid single character
-  if (keyName.length == 1) {
-    return keyName;
-  }
+  if (keyName.length == 1) return keyName;
   
   // Return empty string for unknown keys
   return @"";
