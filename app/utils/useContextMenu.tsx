@@ -121,7 +121,7 @@ export function useContextMenu(config: ContextMenuConfig) {
     } catch (err) {
       if (__DEV__) console.error("Context menu action threw:", err)
     }
-  }, [])
+  }, [actionsRef])
 
   // Subscribe once; handler stays stable.
   useEffect(() => {
