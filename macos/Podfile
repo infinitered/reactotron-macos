@@ -1,16 +1,14 @@
 require_relative '../node_modules/react-native-macos/scripts/react_native_pods'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 
-# React Native Colo Loco autolinks native files colocated next to your JS files
-# More info here: https://github.com/jamonholmgren/react-native-colo-loco
-# In this case, we've included the linker.rb file in the bin folder so we
-# don't have to have another npm dependency.
-require_relative "../bin/linker.rb"
-link_colocated_native_files(
-  app_name: 'Reactotron-macOS',
+# React Native Colo Loco for CocoaPods - generates files for our local pod
+# This is based on the original bin/linker.rb file, but modified to generate files for our local pod
+# See https://github.com/jamonholmgren/react-native-colo-loco for more details
+
+require_relative "../bin/pod-linker.rb"
+link_colocated_native_files_for_pod(
   app_path: "#{Pod::Config.instance.installation_root}/../app",
-  xcodeproj_path: "#{Pod::Config.instance.installation_root}/Reactotron.xcodeproj",
-  exclude_targets: [],
+  project_root: "#{Pod::Config.instance.installation_root}/..",
   clean: !ENV['COLO_LOCO_CLEAN'].nil?
 )
 
@@ -19,6 +17,9 @@ prepare_react_native_project!
 target 'Reactotron-macOS' do
   platform :macos, '11.0'
   use_native_modules!
+
+  # Local pod for all our native modules
+  pod 'IRNativeModules', :path => '..'
 
   use_react_native!(
     :path => '../node_modules/react-native-macos',
