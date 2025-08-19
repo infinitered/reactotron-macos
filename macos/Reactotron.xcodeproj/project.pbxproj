@@ -7,44 +7,46 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13051E22F3A5B693911936AE /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = E3111E273F0E935F92310CEA /* IRRunShellCommand.mm */; };
-		14573DFE6096C69167F94BFD /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = AC311A1D57A6167CC16AD1BF /* ProcessUtils.c */; };
+		0D175A6E22A1D4C3030F9ECF /* ProcessUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 03DEDD5032BF9AA9D3F93C29 /* ProcessUtils.h */; };
+		1860A1FD0B9EA714759D1FD7 /* IRExperimental.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8D819F283104F1649CC13420 /* IRExperimental.mm */; };
 		1BCAFE1EAF4275451E5A2CA2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */; };
 		1BCF4C7A5E00CBE218AF24F4 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
-		1D8DA93549564026706CA598 /* IRKeyboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4C5C4FF193FF6924911F6B7B /* IRKeyboard.mm */; };
+		1E0258E4B96C4445CA12BF04 /* IRMenuItemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 58E37E2E3E8A06DAB96CB870 /* IRMenuItemManager.h */; };
+		2313978D96BCC1F35D5115F7 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9328316ABC4E3D0CCB54AE5A /* libPods-Reactotron-macOS.a */; };
 		261E8857E7343B5DDCDD5AC5 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
-		3C4D0625003C766B8E615B7F /* IRFontList.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C4B22187A4C89049E9D62B9 /* IRFontList.h */; };
-		50F0AF88E2345F97649CF71C /* IRExperimental.mm in Sources */ = {isa = PBXBuildFile; fileRef = 10357D2F052A4350BE7BB327 /* IRExperimental.mm */; };
+		2F4CD9132A5FACEBFAB9C358 /* IRRandom.mm in Sources */ = {isa = PBXBuildFile; fileRef = AC7291404B0CE03EAD30B707 /* IRRandom.mm */; };
+		307542DB384D83D57788634B /* IRRunShellCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = BB2EB92A4881ECE7C412D855 /* IRRunShellCommand.h */; };
+		321E467A70AB2C9E3CE85F34 /* IRRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 6501CE75F1271E64FB156DF9 /* IRRandom.h */; };
 		5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5142014C2437B4B30078DB4F /* AppDelegate.mm */; };
 		514201522437B4B40078DB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 514201512437B4B40078DB4F /* Assets.xcassets */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
-		567E6E0A526C0CD4C66D1DA4 /* IRKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = A8D39487379C941CCF1AC99D /* IRKeyboard.h */; };
-		744D77CF55117FBA8CCEBC67 /* ProcessUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B28083345C44B30F8B3B25C /* ProcessUtils.h */; };
-		88504FEF75F4FA8FC2020C48 /* IRTabComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 02702DDCB26BA2351BCD5E65 /* IRTabComponentView.mm */; };
-		8B02B6E8DE17DBE388022301 /* IRTabComponentView.h in Headers */ = {isa = PBXBuildFile; fileRef = DD2BCDE1CA7F90697AB32F07 /* IRTabComponentView.h */; };
-		8F18DCD77FD177826FBC42C6 /* IRClipboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BDAB12148CA3FFEE6114F4B /* IRClipboard.h */; };
-		96B0C7A23A9DFFA352FD8B6D /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = D29E3EB27EE7E29F7AC9B162 /* IRFontList.mm */; };
-		9AD923C1315A98C07D78ED74 /* IRRunShellCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 501100EACC3D9738BEAE5167 /* IRRunShellCommand.h */; };
-		A9735F4491ED50A57F46906B /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7109EBFF3DA2EBA3808BED17 /* libPods-Reactotron-macOS.a */; };
-		B2225521ACCC3C97E6F2ACCE /* IRSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 1ED3132AE38C0D852E99444E /* IRSystemInfo.h */; };
-		CD051D8FC9D1F5611E7662B3 /* IRSystemInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0663A92A4644030541335BE7 /* IRSystemInfo.mm */; };
-		D05E71CB636A8B441BF2767F /* IRMenuItemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FDA6BFDBCAB51723C8F06F7 /* IRMenuItemManager.h */; };
+		6AD77C16EDF95A89046A1714 /* IRExperimental.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E099116A8338C8054280129 /* IRExperimental.h */; };
+		6BD54238696ED08A6BAB9002 /* IRSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 494A1764BDD5A63A7238D6F8 /* IRSystemInfo.h */; };
+		73E2BB2199B1A52F261A50EE /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 58CAA7D94E5C234204ADBD6D /* ProcessUtils.c */; };
+		7D02C2170DDE37F670C255CE /* IRMenuItemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = C61BAAF6316215E97B301880 /* IRMenuItemManager.mm */; };
+		A5CE69451CC2BF8D8895FDCF /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8DB4762448AEBF80D95EC3C4 /* IRFontList.mm */; };
+		A6EE0E7E4A7D85B0EB8FC263 /* IRKeyboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = E5BE7F5CD724EA1D79765898 /* IRKeyboard.mm */; };
+		A9BB56C3FDAB5A4C2D9779E4 /* IRRunShellCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1D2A0DBF5545113C8B39A9F5 /* IRRunShellCommand.mm */; };
+		B65A5E9651A4C3ACC1408E75 /* IRSystemInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1550BCC6B89B52A7F69FDA71 /* IRSystemInfo.mm */; };
+		B99E5342E43ACF9EC9E2EA25 /* IRKeyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 84EC6BAA6181B64DFF4CB3C2 /* IRKeyboard.h */; };
+		C42DA9F60F9F30DA22288751 /* IRClipboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 328323C99C4D6BD8FFC4520B /* IRClipboard.mm */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
-		E9E4515AB4850DD917BCE2A7 /* IRMenuItemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = AFF2BB8CC08F45F33363E811 /* IRMenuItemManager.mm */; };
 		EBA23295D3FDE3328174ADF1 /* BuildFile in Headers */ = {isa = PBXBuildFile; };
-		F63F87136DC2A2D5E50ED109 /* IRClipboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = B9B00EE8E083799DF4DCD38F /* IRClipboard.mm */; };
-		FCE9DE6DE02001421D33A0E6 /* IRExperimental.h in Headers */ = {isa = PBXBuildFile; fileRef = 986F52E0B6AAD06EB556FE5B /* IRExperimental.h */; };
+		ED12F731BB6DCFAB0EBF4EB8 /* IRClipboard.h in Headers */ = {isa = PBXBuildFile; fileRef = EC8D78744B9A1BC20CA2CE22 /* IRClipboard.h */; };
+		F737A020C16A6CCFA911DF30 /* IRTabComponentView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC6D49A37A49AB2196D370F /* IRTabComponentView.mm */; };
+		F7993E6D5DF3E39C1479B596 /* IRTabComponentView.h in Headers */ = {isa = PBXBuildFile; fileRef = F8239D3859489FD3A291C19E /* IRTabComponentView.h */; };
+		FBDE304E37A05BBA94A1815A /* IRFontList.h in Headers */ = {isa = PBXBuildFile; fileRef = 9B19433AB6C513E5D2D9A51F /* IRFontList.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		02702DDCB26BA2351BCD5E65 /* IRTabComponentView.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRTabComponentView.mm; path = ../../app/native/IRTabComponentView/IRTabComponentView.mm; sourceTree = "<group>"; };
-		0663A92A4644030541335BE7 /* IRSystemInfo.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRSystemInfo.mm; path = ../../app/native/IRSystemInfo/IRSystemInfo.mm; sourceTree = "<group>"; };
-		10357D2F052A4350BE7BB327 /* IRExperimental.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRExperimental.mm; path = ../../app/utils/experimental/IRExperimental.mm; sourceTree = "<group>"; };
-		1ED3132AE38C0D852E99444E /* IRSystemInfo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRSystemInfo.h; path = ../build/generated/colocated/IRSystemInfo.h; sourceTree = "<group>"; };
-		4C4B22187A4C89049E9D62B9 /* IRFontList.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../build/generated/colocated/IRFontList.h; sourceTree = "<group>"; };
-		4C5C4FF193FF6924911F6B7B /* IRKeyboard.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRKeyboard.mm; path = ../../app/native/IRKeyboard/IRKeyboard.mm; sourceTree = "<group>"; };
-		501100EACC3D9738BEAE5167 /* IRRunShellCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRRunShellCommand.h; path = ../build/generated/colocated/IRRunShellCommand.h; sourceTree = "<group>"; };
+		03DEDD5032BF9AA9D3F93C29 /* ProcessUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../../app/native/ProcessUtils/ProcessUtils.h; sourceTree = "<group>"; };
+		1550BCC6B89B52A7F69FDA71 /* IRSystemInfo.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRSystemInfo.mm; path = ../../app/native/IRSystemInfo/IRSystemInfo.mm; sourceTree = "<group>"; };
+		1D2A0DBF5545113C8B39A9F5 /* IRRunShellCommand.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRRunShellCommand.mm; path = ../../app/native/IRRunShellCommand/IRRunShellCommand.mm; sourceTree = "<group>"; };
+		25B6212C60F8D2924DDDD7E5 /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		328323C99C4D6BD8FFC4520B /* IRClipboard.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRClipboard.mm; path = ../../app/native/IRClipboard/IRClipboard.mm; sourceTree = "<group>"; };
+		494A1764BDD5A63A7238D6F8 /* IRSystemInfo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRSystemInfo.h; path = ../build/generated/colocated/IRSystemInfo.h; sourceTree = "<group>"; };
+		4E099116A8338C8054280129 /* IRExperimental.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRExperimental.h; path = ../build/generated/colocated/IRExperimental.h; sourceTree = "<group>"; };
 		5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		514201492437B4B30078DB4F /* Reactotron.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reactotron.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5142014B2437B4B30078DB4F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -54,22 +56,24 @@
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201572437B4B40078DB4F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* Reactotron.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reactotron.entitlements; sourceTree = "<group>"; };
-		7109EBFF3DA2EBA3808BED17 /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7FDA6BFDBCAB51723C8F06F7 /* IRMenuItemManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRMenuItemManager.h; path = ../../app/native/IRMenuItemManager/IRMenuItemManager.h; sourceTree = "<group>"; };
-		8BDAB12148CA3FFEE6114F4B /* IRClipboard.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRClipboard.h; path = ../build/generated/colocated/IRClipboard.h; sourceTree = "<group>"; };
-		986F52E0B6AAD06EB556FE5B /* IRExperimental.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRExperimental.h; path = ../build/generated/colocated/IRExperimental.h; sourceTree = "<group>"; };
-		9B28083345C44B30F8B3B25C /* ProcessUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../../app/native/ProcessUtils/ProcessUtils.h; sourceTree = "<group>"; };
-		A8D39487379C941CCF1AC99D /* IRKeyboard.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRKeyboard.h; path = ../build/generated/colocated/IRKeyboard.h; sourceTree = "<group>"; };
-		AC311A1D57A6167CC16AD1BF /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
-		AFF2BB8CC08F45F33363E811 /* IRMenuItemManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRMenuItemManager.mm; path = ../../app/native/IRMenuItemManager/IRMenuItemManager.mm; sourceTree = "<group>"; };
-		B9B00EE8E083799DF4DCD38F /* IRClipboard.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRClipboard.mm; path = ../../app/native/IRClipboard/IRClipboard.mm; sourceTree = "<group>"; };
-		D29E3EB27EE7E29F7AC9B162 /* IRFontList.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRFontList.mm; path = ../../app/native/IRFontList/IRFontList.mm; sourceTree = "<group>"; };
-		D323E577D5D36818F2121587 /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
-		DCFEB8AC56EE87DA7F1191AF /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
-		DD2BCDE1CA7F90697AB32F07 /* IRTabComponentView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRTabComponentView.h; path = ../../app/native/IRTabComponentView/IRTabComponentView.h; sourceTree = "<group>"; };
-		E3111E273F0E935F92310CEA /* IRRunShellCommand.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRRunShellCommand.mm; path = ../../app/native/IRRunShellCommand/IRRunShellCommand.mm; sourceTree = "<group>"; };
+		58CAA7D94E5C234204ADBD6D /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
+		58E37E2E3E8A06DAB96CB870 /* IRMenuItemManager.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRMenuItemManager.h; path = ../../app/native/IRMenuItemManager/IRMenuItemManager.h; sourceTree = "<group>"; };
+		5CC6D49A37A49AB2196D370F /* IRTabComponentView.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRTabComponentView.mm; path = ../../app/native/IRTabComponentView/IRTabComponentView.mm; sourceTree = "<group>"; };
+		6501CE75F1271E64FB156DF9 /* IRRandom.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRRandom.h; path = ../build/generated/colocated/IRRandom.h; sourceTree = "<group>"; };
+		84EC6BAA6181B64DFF4CB3C2 /* IRKeyboard.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRKeyboard.h; path = ../build/generated/colocated/IRKeyboard.h; sourceTree = "<group>"; };
+		8D819F283104F1649CC13420 /* IRExperimental.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRExperimental.mm; path = ../../app/utils/experimental/IRExperimental.mm; sourceTree = "<group>"; };
+		8DB4762448AEBF80D95EC3C4 /* IRFontList.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRFontList.mm; path = ../../app/native/IRFontList/IRFontList.mm; sourceTree = "<group>"; };
+		9328316ABC4E3D0CCB54AE5A /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B19433AB6C513E5D2D9A51F /* IRFontList.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../build/generated/colocated/IRFontList.h; sourceTree = "<group>"; };
+		A665FBD055CB0D93952A4C2E /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		AC7291404B0CE03EAD30B707 /* IRRandom.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRRandom.mm; path = ../build/generated/colocated/IRRandom.mm; sourceTree = "<group>"; };
+		BB2EB92A4881ECE7C412D855 /* IRRunShellCommand.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRRunShellCommand.h; path = ../build/generated/colocated/IRRunShellCommand.h; sourceTree = "<group>"; };
+		C61BAAF6316215E97B301880 /* IRMenuItemManager.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRMenuItemManager.mm; path = ../../app/native/IRMenuItemManager/IRMenuItemManager.mm; sourceTree = "<group>"; };
+		E5BE7F5CD724EA1D79765898 /* IRKeyboard.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = IRKeyboard.mm; path = ../../app/native/IRKeyboard/IRKeyboard.mm; sourceTree = "<group>"; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
+		EC8D78744B9A1BC20CA2CE22 /* IRClipboard.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRClipboard.h; path = ../build/generated/colocated/IRClipboard.h; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F8239D3859489FD3A291C19E /* IRTabComponentView.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IRTabComponentView.h; path = ../../app/native/IRTabComponentView/IRTabComponentView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,7 +81,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9735F4491ED50A57F46906B /* libPods-Reactotron-macOS.a in Frameworks */,
+				2313978D96BCC1F35D5115F7 /* libPods-Reactotron-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,33 +91,35 @@
 		01D19913288DA74FEB538384 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D323E577D5D36818F2121587 /* Pods-Reactotron-macOS.debug.xcconfig */,
-				DCFEB8AC56EE87DA7F1191AF /* Pods-Reactotron-macOS.release.xcconfig */,
+				25B6212C60F8D2924DDDD7E5 /* Pods-Reactotron-macOS.debug.xcconfig */,
+				A665FBD055CB0D93952A4C2E /* Pods-Reactotron-macOS.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		1799E92A924EED0F3F85AB53 /* Colocated */ = {
+		02ED0989E91FD62705952791 /* Colocated */ = {
 			isa = PBXGroup;
 			children = (
-				B9B00EE8E083799DF4DCD38F /* IRClipboard.mm */,
-				8BDAB12148CA3FFEE6114F4B /* IRClipboard.h */,
-				D29E3EB27EE7E29F7AC9B162 /* IRFontList.mm */,
-				4C4B22187A4C89049E9D62B9 /* IRFontList.h */,
-				4C5C4FF193FF6924911F6B7B /* IRKeyboard.mm */,
-				A8D39487379C941CCF1AC99D /* IRKeyboard.h */,
-				7FDA6BFDBCAB51723C8F06F7 /* IRMenuItemManager.h */,
-				AFF2BB8CC08F45F33363E811 /* IRMenuItemManager.mm */,
-				E3111E273F0E935F92310CEA /* IRRunShellCommand.mm */,
-				501100EACC3D9738BEAE5167 /* IRRunShellCommand.h */,
-				0663A92A4644030541335BE7 /* IRSystemInfo.mm */,
-				1ED3132AE38C0D852E99444E /* IRSystemInfo.h */,
-				DD2BCDE1CA7F90697AB32F07 /* IRTabComponentView.h */,
-				02702DDCB26BA2351BCD5E65 /* IRTabComponentView.mm */,
-				AC311A1D57A6167CC16AD1BF /* ProcessUtils.c */,
-				9B28083345C44B30F8B3B25C /* ProcessUtils.h */,
-				10357D2F052A4350BE7BB327 /* IRExperimental.mm */,
-				986F52E0B6AAD06EB556FE5B /* IRExperimental.h */,
+				328323C99C4D6BD8FFC4520B /* IRClipboard.mm */,
+				EC8D78744B9A1BC20CA2CE22 /* IRClipboard.h */,
+				8DB4762448AEBF80D95EC3C4 /* IRFontList.mm */,
+				9B19433AB6C513E5D2D9A51F /* IRFontList.h */,
+				E5BE7F5CD724EA1D79765898 /* IRKeyboard.mm */,
+				84EC6BAA6181B64DFF4CB3C2 /* IRKeyboard.h */,
+				58E37E2E3E8A06DAB96CB870 /* IRMenuItemManager.h */,
+				C61BAAF6316215E97B301880 /* IRMenuItemManager.mm */,
+				1D2A0DBF5545113C8B39A9F5 /* IRRunShellCommand.mm */,
+				BB2EB92A4881ECE7C412D855 /* IRRunShellCommand.h */,
+				1550BCC6B89B52A7F69FDA71 /* IRSystemInfo.mm */,
+				494A1764BDD5A63A7238D6F8 /* IRSystemInfo.h */,
+				F8239D3859489FD3A291C19E /* IRTabComponentView.h */,
+				5CC6D49A37A49AB2196D370F /* IRTabComponentView.mm */,
+				58CAA7D94E5C234204ADBD6D /* ProcessUtils.c */,
+				03DEDD5032BF9AA9D3F93C29 /* ProcessUtils.h */,
+				8D819F283104F1649CC13420 /* IRExperimental.mm */,
+				4E099116A8338C8054280129 /* IRExperimental.h */,
+				AC7291404B0CE03EAD30B707 /* IRRandom.mm */,
+				6501CE75F1271E64FB156DF9 /* IRRandom.h */,
 			);
 			name = Colocated;
 			sourceTree = "<group>";
@@ -122,7 +128,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				7109EBFF3DA2EBA3808BED17 /* libPods-Reactotron-macOS.a */,
+				9328316ABC4E3D0CCB54AE5A /* libPods-Reactotron-macOS.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -137,7 +143,7 @@
 				514201562437B4B40078DB4F /* Info.plist */,
 				514201572437B4B40078DB4F /* main.m */,
 				514201592437B4B40078DB4F /* Reactotron.entitlements */,
-				1799E92A924EED0F3F85AB53 /* Colocated */,
+				02ED0989E91FD62705952791 /* Colocated */,
 			);
 			path = "Reactotron-macOS";
 			sourceTree = "<group>";
@@ -181,15 +187,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				EBA23295D3FDE3328174ADF1 /* BuildFile in Headers */,
-				8F18DCD77FD177826FBC42C6 /* IRClipboard.h in Headers */,
-				3C4D0625003C766B8E615B7F /* IRFontList.h in Headers */,
-				567E6E0A526C0CD4C66D1DA4 /* IRKeyboard.h in Headers */,
-				D05E71CB636A8B441BF2767F /* IRMenuItemManager.h in Headers */,
-				9AD923C1315A98C07D78ED74 /* IRRunShellCommand.h in Headers */,
-				B2225521ACCC3C97E6F2ACCE /* IRSystemInfo.h in Headers */,
-				8B02B6E8DE17DBE388022301 /* IRTabComponentView.h in Headers */,
-				744D77CF55117FBA8CCEBC67 /* ProcessUtils.h in Headers */,
-				FCE9DE6DE02001421D33A0E6 /* IRExperimental.h in Headers */,
+				ED12F731BB6DCFAB0EBF4EB8 /* IRClipboard.h in Headers */,
+				FBDE304E37A05BBA94A1815A /* IRFontList.h in Headers */,
+				B99E5342E43ACF9EC9E2EA25 /* IRKeyboard.h in Headers */,
+				1E0258E4B96C4445CA12BF04 /* IRMenuItemManager.h in Headers */,
+				307542DB384D83D57788634B /* IRRunShellCommand.h in Headers */,
+				6BD54238696ED08A6BAB9002 /* IRSystemInfo.h in Headers */,
+				F7993E6D5DF3E39C1479B596 /* IRTabComponentView.h in Headers */,
+				0D175A6E22A1D4C3030F9ECF /* ProcessUtils.h in Headers */,
+				6AD77C16EDF95A89046A1714 /* IRExperimental.h in Headers */,
+				321E467A70AB2C9E3CE85F34 /* IRRandom.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,14 +207,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5142015A2437B4B40078DB4F /* Build configuration list for PBXNativeTarget "Reactotron-macOS" */;
 			buildPhases = (
-				45D552F8C9DED952322B2275 /* [CP] Check Pods Manifest.lock */,
+				C083374196BFC9C3712CE0C8 /* [CP] Check Pods Manifest.lock */,
 				514201452437B4B30078DB4F /* Sources */,
 				514201462437B4B30078DB4F /* Frameworks */,
 				514201472437B4B30078DB4F /* Resources */,
 				381D8A6E24576A4E00465D17 /* Bundle React Native code and images */,
 				614A44CF57166CA8B6AD60B6 /* Headers */,
-				8FDFD3324F917259FABEB75D /* [CP] Embed Pods Frameworks */,
-				A804CAD318EEC563D52F0D7D /* [CP] Copy Pods Resources */,
+				AFD58256B5B17014F9F07369 /* [CP] Embed Pods Frameworks */,
+				E4F6189825ED75E99C36F780 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -284,7 +291,25 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native-macos/scripts/react-native-xcode.sh\n";
 		};
-		45D552F8C9DED952322B2275 /* [CP] Check Pods Manifest.lock */ = {
+		AFD58256B5B17014F9F07369 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS-frameworks.sh",
+				"${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C083374196BFC9C3712CE0C8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -306,25 +331,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8FDFD3324F917259FABEB75D /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS-frameworks.sh",
-				"${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A804CAD318EEC563D52F0D7D /* [CP] Copy Pods Resources */ = {
+		E4F6189825ED75E99C36F780 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -361,15 +368,16 @@
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
 				1BCF4C7A5E00CBE218AF24F4 /* BuildFile in Sources */,
 				261E8857E7343B5DDCDD5AC5 /* BuildFile in Sources */,
-				F63F87136DC2A2D5E50ED109 /* IRClipboard.mm in Sources */,
-				96B0C7A23A9DFFA352FD8B6D /* IRFontList.mm in Sources */,
-				1D8DA93549564026706CA598 /* IRKeyboard.mm in Sources */,
-				E9E4515AB4850DD917BCE2A7 /* IRMenuItemManager.mm in Sources */,
-				13051E22F3A5B693911936AE /* IRRunShellCommand.mm in Sources */,
-				CD051D8FC9D1F5611E7662B3 /* IRSystemInfo.mm in Sources */,
-				88504FEF75F4FA8FC2020C48 /* IRTabComponentView.mm in Sources */,
-				14573DFE6096C69167F94BFD /* ProcessUtils.c in Sources */,
-				50F0AF88E2345F97649CF71C /* IRExperimental.mm in Sources */,
+				C42DA9F60F9F30DA22288751 /* IRClipboard.mm in Sources */,
+				A5CE69451CC2BF8D8895FDCF /* IRFontList.mm in Sources */,
+				A6EE0E7E4A7D85B0EB8FC263 /* IRKeyboard.mm in Sources */,
+				7D02C2170DDE37F670C255CE /* IRMenuItemManager.mm in Sources */,
+				A9BB56C3FDAB5A4C2D9779E4 /* IRRunShellCommand.mm in Sources */,
+				B65A5E9651A4C3ACC1408E75 /* IRSystemInfo.mm in Sources */,
+				F737A020C16A6CCFA911DF30 /* IRTabComponentView.mm in Sources */,
+				73E2BB2199B1A52F261A50EE /* ProcessUtils.c in Sources */,
+				1860A1FD0B9EA714759D1FD7 /* IRExperimental.mm in Sources */,
+				2F4CD9132A5FACEBFAB9C358 /* IRRandom.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,7 +397,7 @@
 /* Begin XCBuildConfiguration section */
 		5142015B2437B4B40078DB4F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D323E577D5D36818F2121587 /* Pods-Reactotron-macOS.debug.xcconfig */;
+			baseConfigurationReference = 25B6212C60F8D2924DDDD7E5 /* Pods-Reactotron-macOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -416,7 +424,7 @@
 		};
 		5142015C2437B4B40078DB4F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = DCFEB8AC56EE87DA7F1191AF /* Pods-Reactotron-macOS.release.xcconfig */;
+			baseConfigurationReference = A665FBD055CB0D93952A4C2E /* Pods-Reactotron-macOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

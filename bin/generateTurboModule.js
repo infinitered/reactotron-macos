@@ -3,33 +3,36 @@
 const fs = require("fs")
 const path = require("path")
 
+// Check if NO_COLOR is set
+const nc = (t) => (process.env.NO_COLOR ? "" : t)
+
 // Color constants for console output
-const red = "\x1b[31m"
-const green = "\x1b[32m"
-const yellow = "\x1b[33m"
-const blue = "\x1b[34m"
-const dkgray = "\x1b[90m"
+const red = nc("\x1b[31m")
+const green = nc("\x1b[32m")
+const yellow = nc("\x1b[33m")
+const blue = nc("\x1b[34m")
+const dkgray = nc("\x1b[90m")
 const x = "\x1b[0m"
 
 // Print colored output
 function printSuccess(message) {
-  console.log(` ${green}✓${x}${dkgray} ${message}`)
+  console.log(` ${green}✓${x}${dkgray} ${message}${x}`)
 }
 
 function printError(message) {
-  console.log(` ${red}✗${x}${dkgray} ${message}`)
+  console.log(` ${red}✗${x}${dkgray} ${message}${x}`)
 }
 
 function printWarning(message) {
-  console.log(` ${yellow}⚠${x}${dkgray} ${message}`)
+  console.log(` ${yellow}⚠${x}${dkgray} ${message}${x}`)
 }
 
 function printInfo(message) {
-  console.log(` ${blue}ℹ${x}${dkgray} ${message}`)
+  console.log(` ${blue}ℹ${x}${dkgray} ${message}${x}`)
 }
 
 function printStep(message) {
-  console.log(` ${dkgray}→${x}${dkgray} ${message}`)
+  console.log(` ${dkgray}→${x}${dkgray} ${message}${x}`)
 }
 
 // Parse turbomodule comment and extract module info
