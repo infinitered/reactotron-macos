@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
 
   # Include all native modules and generated files
   s.source_files = [
-    "app/native/**/*.{h,m,mm,c,cpp,swift}",
+    "app/**/*.{h,m,mm,c,cpp,swift}",
     "app/utils/experimental/*.{h,m,mm,swift}",
     "macos/build/generated/colocated/**/*.{h,m,mm,c,cpp,swift}"
   ]
