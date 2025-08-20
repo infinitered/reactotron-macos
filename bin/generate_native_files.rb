@@ -19,7 +19,7 @@ $changes_made = false
 
 # This method will generate files for the IRNativeModules pod
 # instead of directly modifying the Xcode project
-def link_colocated_native_files_for_pod(options = {})
+def generate_native_files_for_pod(options = {})
   puts "🚀 #{GB}React Native Colo Loco (CocoaPods)#{X}"
   puts ""
   puts "#{D}Running ./bin/pod-linker.rb from #{__FILE__}#{X}"

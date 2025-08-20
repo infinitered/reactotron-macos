@@ -5,8 +5,8 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 # This is based on the original bin/linker.rb file, but modified to generate files for our local pod
 # See https://github.com/jamonholmgren/react-native-colo-loco for more details
 
-require_relative "../bin/pod-linker.rb"
-link_colocated_native_files_for_pod(
+require_relative "../bin/generate_native_files.rb"
+generate_native_files_for_pod(
   app_path: "#{Pod::Config.instance.installation_root}/../app",
   project_root: "#{Pod::Config.instance.installation_root}/..",
   clean: !ENV['COLO_LOCO_CLEAN'].nil?
