@@ -4,25 +4,60 @@ require 'fileutils'
 require 'pathname'
 
 # Color constants for output
-R = "\033[31m"    # Red
-RB = "\033[31;1m" # Red bold
-G = "\033[32m"    # Green
-GB = "\033[32;1m" # Green bold
-Y = "\033[33m"    # Yellow 
-YB = "\033[33;1m" # Yellow bold
-D = "\033[90m"    # Dark gray
-DB = "\033[90;1m" # Dark gray bold
-S = "\033[9m"     # Strikethrough
-X = "\033[0m"     # Reset
+if ENV['NO_COLOR']
+  R = ""           # Red
+  RB = ""          # Red bold
+  G = ""           # Green
+  GB = ""          # Green bold
+  BB = ""          # Blue bold
+  Y = ""           # Yellow 
+  YB = ""          # Yellow bold
+  D = ""           # Dark gray
+  DD = ""          # Darker gray
+  DB = ""          # Dark gray bold
+  DDB = ""         # Darker gray bold
+  S = ""           # Strikethrough
+  X = "\033[0m"     # Reset
+elsif ENV['PREFERS_CONTRAST'] == 'more'
+  R = "\033[91m"    # Bright red
+  RB = "\033[91m"   # Bright red
+  G = "\033[92m"    # Bright green
+  GB = "\033[92m"   # Bright green
+  BB = "\033[94m"   # Bright blue
+  Y = "\033[93m"    # Bright yellow
+  YB = "\033[93m"   # Bright yellow
+  D = "\033[37m"    # White
+  DD = "\033[37m"     # White
+  DB = "\033[37m"   # White
+  DDB = "\033[37m"  # White
+  S = "\033[9m"     # Strikethrough
+  X = "\033[0m"       # Reset
+else
+  R = "\033[31m"    # Red
+  RB = "\033[31;1m" # Red bold
+  G = "\033[32m"    # Green
+  GB = "\033[32;1m" # Green bold
+  BB = "\033[32;1m" # Blue bold
+  Y = "\033[33m"    # Yellow 
+  YB = "\033[33;1m" # Yellow bold
+  D = "\033[90m"    # Dark gray
+  DD = "\033[90;2m" # Darker gray
+  DB = "\033[90;1m" # Dark gray bold
+  DDB = "\033[90;1;2m" # Darker gray bold
+  S = "\033[9m"     # Strikethrough
+  X = "\033[0m"     # Reset
+end
 
 $changes_made = false
+
+puts "#{X}"
 
 # This method will generate files for the IRNativeModules pod
 # instead of directly modifying the Xcode project
 def generate_native_files_for_pod(options = {})
-  puts "🚀 #{GB}React Native Colo Loco (CocoaPods)#{X}"
+  puts "🤪 #{BB}React Native Colo Loco (CocoaPods)#{X}"
   puts ""
-  puts "#{D}Running ./bin/pod-linker.rb from #{__FILE__}#{X}"
+  puts "#{D}Running ./bin/generate_native_files.rb from #{__FILE__}#{X}"
   puts ""
 
   _verify_options!(options)
@@ -33,7 +68,7 @@ def generate_native_files_for_pod(options = {})
   
   relative_app_path = Pathname.new(app_path).relative_path_from(project_root)
   
-  puts "#{D}  App Path: #{GB}#{relative_app_path}#{X}"
+  puts "#{D}  App Path: #{BB}#{relative_app_path}#{X}"
   puts "#{D}  Project Root: #{G}#{project_root}#{X}"
   puts "#{D}  clean: #{G}#{clean}#{X}" if clean
   puts ""
@@ -104,7 +139,7 @@ def _check_app_path(app_path)
   return true if File.exist?(app_path)
   puts "#{RB}React Native Colo Loco error:#{X}"
   puts ""
-  puts "#{Y}  No files found in #{GB}#{app_path}#{X}#{Y}.#{X}"
+  puts "#{Y}  No files found in #{BB}#{app_path}#{X}#{Y}.#{X}"
   puts "#{Y}  Please check your app_path.#{X}"
   puts ""
   return false
@@ -116,7 +151,7 @@ def _clean_generated_files(generated_files_path, project_root)
   
   if File.exist?(generated_files_path)
     FileUtils.rm_rf(generated_files_path)
-    puts "#{YB} - Removed    #{X}#{S}#{D}#{relative_path}#{X}#{D} folder#{X}"
+    puts "#{YB} ➖ Removed    #{X}#{S}#{D}#{relative_path}#{X}#{D} folder#{X}"
   end
   
   puts ""
@@ -135,7 +170,7 @@ def _generate_objc_header(objc_file, generated_files_path, project_root)
   # Don't regenerate if file exists and is newer than source
   if File.exist?(header_file_path) && File.mtime(header_file_path) > File.mtime(objc_file)
     relative_header = Pathname.new(header_file_path).relative_path_from(project_root)
-    puts "#{DB} ✓ Up-to-date #{X}#{D}#{relative_header}#{X}"
+    puts "#{DB} ✔️ Exists     #{X}#{DB}#{relative_header.basename}#{X} #{DD}#{relative_header.dirname}#{X}"
     return
   end
 
@@ -144,7 +179,7 @@ def _generate_objc_header(objc_file, generated_files_path, project_root)
   File.write(header_file_path, header_file_content)
   
   relative_header = Pathname.new(header_file_path).relative_path_from(project_root)
-  puts "#{GB} + Generated  #{X}#{D}#{relative_header}#{X}"
+  puts "#{BB} ➕ Generated #{X} #{BB}#{relative_header.basename}#{X} #{DD}#{relative_header.dirname}#{X}"
   $changes_made = true
   
   return Pathname.new(header_file_path)
@@ -157,4 +192,12 @@ def _generate_turbomodules(project_root)
   puts result
   puts ""
   $changes_made = true if result.include?("Generated") || result.include?("processed")
+end
+
+def _info_file_exists(relative_path)
+  return "#{DB} ✔️ Exists     #{X}#{DB}#{relative_path.basename}#{X} #{DD}#{relative_path.dirname}#{X}"
+end
+
+def _err_not_exists(file)
+  return "#{YB} ⚠️ Warning    #{X}#{D}#{file}#{X}#{D} does not exist, skipping#{X}"
 end
