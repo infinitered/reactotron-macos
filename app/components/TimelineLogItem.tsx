@@ -1,4 +1,4 @@
-import { MenuListEntry } from "app/utils/useContextMenu"
+import { MenuListEntry } from "app/utils/useActionMenu"
 import { TimelineItemLog } from "../types"
 import { TimelineItem } from "./TimelineItem"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
@@ -34,7 +34,7 @@ export function TimelineLogItem({ item, isSelected = false, onSelect }: Timeline
   const preview =
     message.toString().substring(0, 100) + (message.toString().length > 100 ? "..." : "")
 
-  const contextMenu: MenuListEntry[] = [
+  const actionMenu: MenuListEntry[] = [
     {
       label: "Copy Message",
       action: () => IRClipboard.setString(message),
@@ -51,7 +51,7 @@ export function TimelineLogItem({ item, isSelected = false, onSelect }: Timeline
       isTagged={important}
       isSelected={isSelected}
       onSelect={onSelect}
-      contextMenu={contextMenu}
+      actionMenu={actionMenu}
     />
   )
 }

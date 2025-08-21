@@ -1,7 +1,7 @@
 import { TimelineItemNetwork } from "../types"
 import { TimelineItem } from "./TimelineItem"
 import { useTheme, useThemeName } from "../theme/theme"
-import type { MenuListEntry } from "../utils/useContextMenu"
+import type { MenuListEntry } from "../utils/useActionMenu"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 
 type TimelineNetworkItemProps = {
@@ -66,7 +66,7 @@ export function TimelineNetworkItem({
     ? `${payload?.response?.status || ""} ${payload?.response?.statusText || ""}`
     : "UNKNOWN"
 
-  const contextMenu: MenuListEntry[] = [
+  const actionMenu: MenuListEntry[] = [
     {
       label: "Copy",
       children: [
@@ -94,7 +94,7 @@ export function TimelineNetworkItem({
       responseStatusCode={responseStatusCode}
       isSelected={isSelected}
       onSelect={onSelect}
-      contextMenu={contextMenu}
+      actionMenu={actionMenu}
     />
   )
 }

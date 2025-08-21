@@ -1,28 +1,28 @@
 import React, { useCallback } from "react"
 import { Pressable, type PressableProps, type GestureResponderEvent } from "react-native"
-import { useContextMenu, type ContextMenuConfig } from "../utils/useContextMenu" // adjust path
+import { useActionMenu, type ActionMenuConfig } from "../utils/useActionMenu" // adjust path
 
 /**
- * # ContextPressable (macOS)
+ * # PressableWithRightClick (macOS)
  *
  * A minimal wrapper around `Pressable` that also supports a native
- * context menu on secondary click (right-click or ctrl-click). It wires into your
- * `useContextMenu` hook and opens the menu at the cursor location.
+ * action menu on right-click or ctrl-click. It wires into your
+ * `useActionMenu` hook and opens the menu at the cursor location.
  *
  * ## Props
- * - `items`: The context menu structure (including nested children and `SEPARATOR`).
+ * - `items`: The action menu structure (including nested children and `SEPARATOR`).
  * - All other props are forwarded to the underlying `Pressable`.
  *
  * ## Behavior
  * - **Primary click** behaves like a normal `Pressable` (`onPress`).
- * - **Secondary click** (right-click) or **ctrl-click** opens the context menu.
- * - Menu actions are resolved via the `useContextMenu` hook.
+ * - **Right-click** or **ctrl-click** opens the action menu.
+ * - Menu actions are resolved via the `useActionMenu` hook.
  *
  * ## Example
  * ```tsx
- * import { SEPARATOR } from "./useContextMenu"
+ * import { SEPARATOR } from "./useActionMenu"
  *
- * <ContextPressable
+ * <PressableWithRightClick
  *   items={[
  *     { label: "Open", action: () => console.log("Open") },
  *     SEPARATOR,
@@ -39,17 +39,17 @@ import { useContextMenu, type ContextMenuConfig } from "../utils/useContextMenu"
  *   style={{ padding: 12 }}
  * >
  *   {children}
- * </ContextPressable>
+ * </PressableWithRightClick>
  * ```
  */
 
-export interface ContextPressableProps extends PressableProps {
-  items: ContextMenuConfig["items"]
+export interface PressableWithRightClickProps extends PressableProps {
+  items: ActionMenuConfig["items"]
 }
 
-export function ContextPressable(props: ContextPressableProps) {
+export function PressableWithRightClick(props: PressableWithRightClickProps) {
   const { items, onPress, ...rest } = props
-  const { open } = useContextMenu({ items })
+  const { open } = useActionMenu({ items })
 
   const handlePress = useCallback(
     (e: GestureResponderEvent) => {
@@ -62,4 +62,4 @@ export function ContextPressable(props: ContextPressableProps) {
   return <Pressable onPress={handlePress} {...rest} />
 }
 
-export default ContextPressable
+export default PressableWithRightClick
