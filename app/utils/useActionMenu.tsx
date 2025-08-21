@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import NativeIRActionMenuManager, {
   SEPARATOR,
   type ActionMenuItemPressedEvent,
@@ -100,7 +100,7 @@ export function useActionMenu(config: ActionMenuConfig) {
   }, [config.items])
 
   // Keep the latest map in a ref without changing onPress identity.
-  useEffect(() => {
+  useLayoutEffect(() => {
     actionsRef.current = actionMap
   }, [actionMap])
 
@@ -121,7 +121,7 @@ export function useActionMenu(config: ActionMenuConfig) {
     } catch (err) {
       if (__DEV__) console.error("Action menu action threw:", err)
     }
-  }, [actionsRef])
+  }, [])
 
   // Subscribe once; handler stays stable.
   useEffect(() => {
