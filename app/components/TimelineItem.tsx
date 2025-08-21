@@ -1,5 +1,7 @@
-import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
+import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
+import PressableWithRightClick from "./PressableWithRightClick"
+import { MenuListEntry } from "../utils/useActionMenu"
 
 /**
  * A single item in the timeline.
@@ -20,6 +22,7 @@ type TimelineItemProps = {
   responseStatusCode?: number
   isSelected?: boolean
   onSelect?: () => void
+  actionMenu?: MenuListEntry[]
 }
 
 export function TimelineItem({
@@ -33,6 +36,7 @@ export function TimelineItem({
   responseStatusCode,
   isSelected = false,
   onSelect,
+  actionMenu,
 }: TimelineItemProps) {
   const [themeName] = useThemeName()
 
@@ -44,7 +48,11 @@ export function TimelineItem({
 
   return (
     <View style={[$container(themeName), isSelected && $containerSelected(themeName)]}>
-      <Pressable style={$pressableContainer(themeName)} onPress={handlePress}>
+      <PressableWithRightClick
+        style={$pressableContainer(themeName)}
+        onPress={handlePress}
+        items={actionMenu ?? []}
+      >
         {/* Top Row: Title + Status + Time */}
         <View style={$topRow}>
           <View style={$leftSection}>
@@ -76,7 +84,7 @@ export function TimelineItem({
           </Text>
           {!!deltaTime && <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>}
         </View>
-      </Pressable>
+      </PressableWithRightClick>
     </View>
   )
 }
