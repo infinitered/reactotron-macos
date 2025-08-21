@@ -2,18 +2,50 @@
 require 'xcodeproj'
 
 # Color constants for output
-R = "\033[31m"    # Red
-RB = "\033[31;1m" # Red bold
-G = "\033[32m"    # Green
-GB = "\033[32;1m" # Green bold
-Y = "\033[33m"    # Yellow 
-YB = "\033[33;1m" # Yellow bold
-D = "\033[90m"    # Dark gray
-DB = "\033[90;1m" # Dark gray bold
-S = "\033[9m"     # Strikethrough
-X = "\033[0m"     # Reset
+if ENV['NO_COLOR']
+  R = ""           # Red
+  RB = ""          # Red bold
+  G = ""           # Green
+  BB = ""          # Blue bold
+  Y = ""           # Yellow 
+  YB = ""          # Yellow bold
+  D = ""           # Dark gray
+  DD = ""          # Darker gray
+  DB = ""          # Dark gray bold
+  DDB = ""         # Darker gray bold
+  S = ""           # Strikethrough
+  X = "\033[0m"     # Reset
+elsif ENV['PREFERS_CONTRAST'] == 'more'
+  R = "\033[91m"    # Bright red
+  RB = "\033[91m"   # Bright red
+  G = "\033[92m"    # Bright green
+  BB = "\033[94m"   # Bright blue
+  Y = "\033[93m"    # Bright yellow
+  YB = "\033[93m"   # Bright yellow
+  D = "\033[37m"    # White
+  DD = "\033[37m"     # White
+  DB = "\033[37m"   # White
+  DDB = "\033[37m"  # White
+  S = "\033[9m"     # Strikethrough
+  X = "\033[0m"       # Reset
+else
+  R = "\033[31m"    # Red
+  RB = "\033[31;1m" # Red bold
+  G = "\033[32m"    # Green
+  BB = "\033[32;1m" # Blue bold
+  Y = "\033[33m"    # Yellow 
+  YB = "\033[33;1m" # Yellow bold
+  D = "\033[90m"    # Dark gray
+  DD = "\033[90;2m" # Darker gray
+  DB = "\033[90;1m" # Dark gray bold
+  DDB = "\033[90;1;2m" # Darker gray bold
+  S = "\033[9m"     # Strikethrough
+  X = "\033[0m"     # Reset
+end
 
 $dirty = false
+
+puts "#{X}"
 
 # This method will search your project files
 # for Objective-C, Swift, or other native files
@@ -22,7 +54,7 @@ $dirty = false
 # They will be grouped into a folder called "Colocated"
 # and linked to all available targets.
 def link_colocated_native_files(options = {})
-  puts "🤪 #{GB}React Native Colo Loco#{X}"
+  puts "🤪 #{BB}React Native Colo Loco#{X}"
   puts ""
   puts "#{D}Running ./bin/linker.rb from #{__FILE__}#{X}"
   puts ""
@@ -39,11 +71,11 @@ def link_colocated_native_files(options = {})
   relative_app_path = Pathname.new(app_path).relative_path_from(project_root)
   relative_xcodeproj_path = Pathname.new(xcodeproj_path).relative_path_from(project_root)
 
-  puts "#{D}  App Name: #{GB}#{app_name}#{X}"
-  puts "#{D}  App Path: #{GB}#{relative_app_path}#{X}"
+  puts "#{D}  App Name: #{BB}#{app_name}#{X}"
+  puts "#{D}  App Path: #{BB}#{relative_app_path}#{X}"
   puts "#{D}  xcodeprj: #{G}#{relative_xcodeproj_path}#{X}"
   puts "#{D}  excluded: #{G}#{excluded_targets}#{X}"
-  puts "#{D}  clean: #{G}#{clean}#{X}" if clean
+  puts "#{D}  clean:    #{G}#{clean}#{X}" if clean
   puts ""
   # if app_path/ios/Podfile exists, stop and warn the user
   podfile_path = "#{app_path}/macos/Podfile"
@@ -56,11 +88,12 @@ def link_colocated_native_files(options = {})
 
   generated_files_path = File.join(File.dirname(xcodeproj_path), 'build', 'generated', 'colocated')
 
-  # if clean is true, remove the Colocated group if it exists
   if clean
-    _clean_colocated_group(file_group, generated_files_path, project, project_root)
-    return # Done?
+    _clean_colocated_group(file_group, generated_files_path, project_root)
+    _save_project(project)
+    _remove_generated_files(generated_files_path, project_root)
   end
+
 
   # Ensure the generated files directory exists before running TurboModule generation
   FileUtils.mkdir_p(generated_files_path)
@@ -71,7 +104,8 @@ def link_colocated_native_files(options = {})
   # Get generated files after TurboModule generation
   generated_files = Dir.glob(File.join(generated_files_path, '**/*.{h,m,mm,c,swift,cpp}')).map { |file| Pathname.new(file).realpath }
   
-  puts "#{D}Looking for files to link to #{GB}#{app_name}#{X} in #{G}#{relative_app_path}#{X}"
+  puts "#{X}"
+  puts "#{D}Looking for files to link to #{BB}#{app_name}#{X} in #{G}#{relative_app_path}#{X}"
   puts ""
 
   # Get all the colocated files in the app_path
@@ -111,7 +145,7 @@ def _save_project(project)
   puts ""
   print "#{D}Saving Xcode project #{G}#{relative_project_path}#{X}...#{X}"
   project.save
-  puts "#{GB}Done.#{X}"
+  puts "#{BB}Done.#{X}"
   puts ""
   $dirty = false
 end
@@ -138,7 +172,7 @@ def _check_app_path(app_path)
   return true if File.exist?(app_path)
   puts "#{RB}React Native Colo Loco error:#{X}"
   puts ""
-  puts "#{Y}  No files found in #{GB}#{app_path}#{X}#{Y}."
+  puts "#{Y}  No files found in #{BB}#{app_path}#{X}#{Y}."
   puts "#{Y}  Please check your app_path.#{X}"
   puts "#{Y}  Skipping linking of native files.#{X}"
   puts ""
@@ -149,7 +183,7 @@ def _check_file_group(file_group, app_name, project)
   return true unless file_group.nil?
   puts "#{RB}React Native Colo Loco error:#{X}"
   puts ""
-  puts "#{Y}  No project found in #{GB}#{xcodeproj_path}#{X}#{Y} with name #{GB}#{app_name}#{X}."
+  puts "#{Y}  No project found in #{BB}#{xcodeproj_path}#{X}#{Y} with name #{BB}#{app_name}#{X}."
   puts "#{Y}  Skipping linking of native files.#{X}"
   puts ""
   puts "#{D}  Found:#{X}"
@@ -163,27 +197,35 @@ end
 def _check_file_in_colocated_files(file, colocated_files, project_root)
   return false unless colocated_files.map(&:to_s).include?(file.real_path.to_s)
   relative_path = file.real_path.relative_path_from(project_root)
-  puts "#{DB} ✓ Checked    #{X}#{D}#{relative_path.dirname}/#{DB}#{relative_path.basename}#{X}"
+  puts "#{D} ✔️  Checked    #{X}#{BB}#{relative_path.basename}#{X}#{D} #{DD}#{relative_path.dirname}#{X}"
   return true
 end
 
-def _clean_colocated_group(file_group, generated_files_path, project, project_root)
-  $dirty = true
-
+def _clean_colocated_group(file_group, generated_files_path, project_root)
   colocated_group = file_group['Colocated']
-  colocated_group.remove_from_project if colocated_group
+  return if not colocated_group
   
-  puts "#{YB} - Removed    #{X}#{S}#{D}Colocated#{X}#{D} group#{X}"
+  # iterate through the files in the colocated group and remove them
+  colocated_group.files.each do |file|
+    _remove_file_from_project(file, project_root)
+  end
   
-  _save_project(project)
+  colocated_group.remove_from_project
+  puts "#{YB} ➖ Removed    #{X}#{S}#{YB}Colocated#{X} #{S}#{DD}group#{X}"
+  $dirty = true
+end
 
+def _remove_generated_files(generated_files_path, project_root)
   # Remove all files from the generated files folder
   relative_generated_files_path = Pathname.new(generated_files_path).relative_path_from(project_root)
   FileUtils.rm_rf(generated_files_path)
-  puts "#{YB} - Removed    #{X}#{S}#{D}#{relative_generated_files_path}#{X}#{D} folder#{X}"
+  puts "#{YB} ➖ Removed    #{X}#{S}#{D}#{relative_generated_files_path}#{X}#{D} folder#{X}"
 end
 
 def _add_file_to_project(file, project, excluded_targets, project_root, colocated_group)
+  # Ensure the file actually exists before adding it
+  return puts _err_not_exists(file) unless File.exist?(file)
+
   $dirty = true
   relative_path = file.relative_path_from(project_root)
   
@@ -192,6 +234,10 @@ def _add_file_to_project(file, project, excluded_targets, project_root, colocate
   targets_line = file_content[/colo_loco_targets:(.+)/, 1] # Get the line with the targets, if it exists
   specified_targets = targets_line&.split(',')&.map(&:strip) || []
   
+  # Check if this file is already referenced in the project to avoid duplicates
+  existing_file_ref = project.files.find { |f| f.real_path == file }
+  return puts _info_file_exists(relative_path) if existing_file_ref
+
   # Add the new file to all targets (or only the specified targets, if any)
   new_file = colocated_group.new_file(file)
   added_to_targets = []
@@ -203,7 +249,7 @@ def _add_file_to_project(file, project, excluded_targets, project_root, colocate
       added_to_targets.push(target.name)
     end
   end
-  puts "#{GB} + Linked     #{X}#{D}#{relative_path.dirname}/#{GB}#{relative_path.basename}#{X} to #{added_to_targets.join(', ')}"
+  puts "#{G} 🔗 Linked     #{X}#{BB}#{relative_path.basename}#{X} #{DD}#{relative_path.dirname}#{X}"
 end
 
 def _remove_files_from_group(colocated_group, colocated_files, project_root)
@@ -216,7 +262,7 @@ def _remove_file_from_project(file, project_root)
   $dirty = true
   relative_path = file.real_path.relative_path_from(project_root)
   file.remove_from_project
-  puts "#{YB} - Removed    #{X}#{S}#{D}#{relative_path.dirname}/#{YB}#{relative_path.basename}#{X}"
+  puts "#{YB} ➖ Removed    #{X}#{S}#{YB}#{relative_path.basename}#{X} #{S}#{DD}#{relative_path.dirname}#{X}"
 end
 
 # Verify that the required options were provided
@@ -231,7 +277,7 @@ def _colocated_verify_options!(options)
     raise "#{RB}link_colocated_native_files - You must specify a path to your Xcode project#{X}"
   end
   if not File.exist?(options[:xcodeproj_path])
-    raise "#{RB}link_colocated_native_files - Xcode project not found at #{GB}#{options[:xcodeproj_path]}#{X}#{RB}.#{X}"
+    raise "#{RB}link_colocated_native_files - Xcode project not found at #{BB}#{options[:xcodeproj_path]}#{X}#{RB}.#{X}"
   end
 end
 
@@ -248,13 +294,15 @@ def _generate_objc_header(objc_file, xcodeproj_path, generated_files_path, all_l
   header_file_path = File.join(generated_files_path, header_file.basename)
   # Check if the header file exists in the project, and don't generate it
   if all_linked_files.map { |f| f.basename }.include?(header_file.basename)
-    puts "#{DB} ✓ Exists     #{X}#{D}#{header_file.basename}#{X}"
+    puts "#{DB} ✔️ Exists     #{X}#{DB}#{header_file.basename}#{X}"
   else
     header_file_content = template_header.gsub("MyTemplate", file_no_ext.to_s)
     FileUtils.mkdir_p(File.dirname(header_file_path))
     File.write(header_file_path, header_file_content)
     relative_header_file = header_file.relative_path_from(project_root)
-    puts "#{GB} + Generated #{X} #{D}#{relative_header_file}#{X}"
+    filename = relative_header_file.basename
+    fullpath = relative_header_file.dirname
+    puts "#{BB} ➕ Generated #{X} #{BB}#{filename}#{X} #{DD}#{fullpath}#{X}"
   end
   return Pathname.new(header_file_path)
 end
@@ -264,4 +312,12 @@ def _generate_turbomodules(project_root)
   puts ""
   puts `node #{project_root}/bin/generateTurboModule.js generate`
   puts ""
+end
+
+def _info_file_exists(relative_path)
+  return "#{DB} ✔️ Exists     #{X}#{DB}#{relative_path.basename}#{X} #{DD}#{relative_path.dirname}#{X}"
+end
+
+def _err_not_exists(file)
+  return "#{YB} ⚠️ Warning    #{X}#{D}#{file}#{X}#{D} does not exist, skipping#{X}"
 end
