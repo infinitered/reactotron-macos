@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Set common environment variables
+export REACT_NATIVE_PATH=./node_modules/react-native-macos
+export RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH
+export RCT_NEW_ARCH_ENABLED=1
+
+
+if [ "$1" = "clean" ]; then
+  # Clean install with deintegrate
+  export COLO_LOCO_CLEAN=1
+  cd macos || exit 1
+  pod deintegrate
+  cd - || exit 1
+fi  
+
+pod install --project-directory=macos
