@@ -5,29 +5,29 @@ import { TurboModuleRegistry } from "react-native"
 // Keep this constant identical to the menu bar manager for familiarity
 export const SEPARATOR = "menu-item-separator" as const
 
-export interface ContextMenuItemPressedEvent {
+export interface ActionMenuItemPressedEvent {
   // Path of labels leading to the clicked item, e.g. ["Copy", "As JSON"]
   menuPath: string[]
 }
 
-// JS description of a context menu item (no functions passed to native)
-export interface ContextMenuItem {
+// JS description of an action menu item (no functions passed to native)
+export interface ActionMenuItem {
   label: string
   shortcut?: string
   enabled?: boolean
   checked?: boolean
-  children?: ContextMenuListEntry[]
+  children?: ActionMenuListEntry[]
 }
 
-export type ContextMenuListEntry = ContextMenuItem | typeof SEPARATOR
+export type ActionMenuListEntry = ActionMenuItem | typeof SEPARATOR
 
 export interface Spec extends TurboModule {
-  // Show a native context menu at current mouse location
-  showContextMenu(items: ContextMenuListEntry[]): void
+  // Show a native action menu at current mouse location
+  showActionMenu(items: ActionMenuListEntry[]): void
 
-  readonly onContextMenuItemPressed: EventEmitter<ContextMenuItemPressedEvent>
+  readonly onActionMenuItemPressed: EventEmitter<ActionMenuItemPressedEvent>
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>("IRContextMenuManager")
+export default TurboModuleRegistry.getEnforcing<Spec>("IRActionMenuManager")
 
 

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef } from "react"
-import NativeIRContextMenuManager, {
+import NativeIRActionMenuManager, {
   SEPARATOR,
-  type ContextMenuItemPressedEvent,
-} from "../native/IRContextMenuManager/NativeIRContextMenuManager"
+  type ActionMenuItemPressedEvent,
+} from "../native/IRActionMenuManager/NativeIRActionMenuManager"
 
 export { SEPARATOR }
 
@@ -21,7 +21,7 @@ export type MenuItem = {
 
 export type MenuListEntry = MenuItem | typeof SEPARATOR
 
-export interface ContextMenuConfig {
+export interface ActionMenuConfig {
   items: MenuListEntry[]
 }
 
@@ -39,7 +39,7 @@ type NativeMenuItem = {
 
 type NativeMenuListEntry = NativeMenuItem | typeof SEPARATOR
 
-export function useContextMenu(config: ContextMenuConfig) {
+export function useActionMenu(config: ActionMenuConfig) {
   // We keep the latest actionMap in a ref so onPress doesn't resubscribe.
   const actionsRef = useRef<Map<string, () => AsyncableVoid>>(new Map())
 
@@ -73,7 +73,7 @@ export function useContextMenu(config: ContextMenuConfig) {
           const key = makeKey(path)
           if (__DEV__ && nextMap.has(key)) {
             // Useful when two sibling items share id/label
-            console.warn(`Duplicate context-menu path: ${path.join(" > ")}`)
+            console.warn(`Duplicate action-menu path: ${path.join(" > ")}`)
           }
           nextMap.set(key, action)
         }
@@ -104,7 +104,7 @@ export function useContextMenu(config: ContextMenuConfig) {
     actionsRef.current = actionMap
   }, [actionMap])
 
-  const onPress = useCallback((evt: ContextMenuItemPressedEvent) => {
+  const onPress = useCallback((evt: ActionMenuItemPressedEvent) => {
     // evt.menuPath is assumed to mirror our id/label path; we support either.
     const key = makeKey(evt.menuPath)
     const action = actionsRef.current.get(key)
@@ -115,22 +115,22 @@ export function useContextMenu(config: ContextMenuConfig) {
       // catch errors from async actions
       if (maybePromise && typeof (maybePromise as Promise<void>).then === "function") {
         ;(maybePromise as Promise<void>).catch((err) => {
-          if (__DEV__) console.error("Context menu action rejected:", err)
+          if (__DEV__) console.error("Action menu action rejected:", err)
         })
       }
     } catch (err) {
-      if (__DEV__) console.error("Context menu action threw:", err)
+      if (__DEV__) console.error("Action menu action threw:", err)
     }
   }, [actionsRef])
 
   // Subscribe once; handler stays stable.
   useEffect(() => {
-    const sub = NativeIRContextMenuManager.onContextMenuItemPressed(onPress)
+    const sub = NativeIRActionMenuManager.onActionMenuItemPressed(onPress)
     return () => sub.remove()
   }, [onPress])
 
   const open = useCallback(() => {
-    NativeIRContextMenuManager.showContextMenu(nativeItems)
+    NativeIRActionMenuManager.showActionMenu(nativeItems)
   }, [nativeItems])
 
   return { open }

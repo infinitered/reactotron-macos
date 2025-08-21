@@ -1,28 +1,28 @@
-#import "IRContextMenuManager.h"
+#import "IRActionMenuManager.h"
 #import <Cocoa/Cocoa.h>
 #import <React/RCTUtils.h>
 
 static NSString * const kSeparatorString = @"menu-item-separator";
 
-@implementation IRContextMenuManager
+@implementation IRActionMenuManager
 
 RCT_EXPORT_MODULE()
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeIRContextMenuManagerSpecJSI>(params);
+  return std::make_shared<facebook::react::NativeIRActionMenuManagerSpecJSI>(params);
 }
 
 #pragma mark - API
 
-- (void)showContextMenu:(NSArray *)items {
+- (void)showActionMenu:(NSArray *)items {
   RCTExecuteOnMainQueue(^{
-    [self presentContextMenuWithItems:items];
+    [self presentActionMenuWithItems:items];
   });
 }
 
 #pragma mark - Helpers
 
-- (void)presentContextMenuWithItems:(NSArray *)items {
+- (void)presentActionMenuWithItems:(NSArray *)items {
   NSMenu *menu = [[NSMenu alloc] initWithTitle:@""];
 
   [self buildMenu:menu fromEntries:items path:@[]];
@@ -159,7 +159,7 @@ RCT_EXPORT_MODULE()
 - (void)_ir_menuItemPressed:(NSMenuItem *)sender {
   NSArray<NSString *> *path = sender.representedObject;
   if (![path isKindOfClass:[NSArray class]]) return;
-  [self emitOnContextMenuItemPressed:@{ @"menuPath": path }];
+  [self emitOnActionMenuItemPressed:@{ @"menuPath": path }];
 }
 
 @end
