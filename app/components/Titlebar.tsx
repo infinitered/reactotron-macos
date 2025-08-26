@@ -1,12 +1,19 @@
 import { useTheme, useThemeName, withTheme } from "../theme/theme"
 import { Platform, View, ViewStyle } from "react-native"
+import { Icon } from "./Icon"
+import ActionButton from "./ActionButton"
 
 export const Titlebar = () => {
   const [themeName] = useThemeName()
+  const theme = useTheme(themeName)
 
   return (
     <View style={$container(themeName)}>
       <TrafficLightSpacer />
+      <ActionButton
+        icon={() => <Icon icon="panelLeftClose" size={16} color={theme.colors.neutral} />}
+        onClick={() => {}}
+      />
     </View>
   )
 }
