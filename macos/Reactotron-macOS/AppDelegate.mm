@@ -3,6 +3,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTDevloadingViewSetEnabled.h>
 #import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
+#import "WindowSetup.h"
 
 @implementation AppDelegate
 
@@ -20,7 +21,10 @@
   // Enable Fabric views
   self.dependencyProvider = [RCTAppDependencyProvider new];
 
-  return [super applicationDidFinishLaunching:notification];
+  [super applicationDidFinishLaunching:notification];
+  
+  // Configure window chrome before RN mounts
+  IRConfigureWindow(self.window);
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

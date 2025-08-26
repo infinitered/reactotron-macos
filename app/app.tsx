@@ -11,6 +11,7 @@ import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { AppHeader } from "./components/AppHeader"
 import { useMenuItem } from "./utils/useMenuItem"
+import { Titlebar } from "./components/Titlebar"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -43,6 +44,7 @@ function App(): React.JSX.Element {
 
   return (
     <View style={$container(theme)}>
+      <Titlebar />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <AppHeader />
       <View style={$contentContainer(theme)}>
