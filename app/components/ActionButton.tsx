@@ -1,4 +1,5 @@
-import { GestureResponderEvent, Pressable, ViewStyle } from "react-native"
+import { GestureResponderEvent, ViewStyle } from "react-native"
+import { Pressable } from "react-native-macos"
 import { useThemeName, withTheme } from "../theme/theme"
 
 interface ActionButtonProps {
@@ -14,6 +15,9 @@ function ActionButton({ icon: Icon, onClick, style }: ActionButtonProps) {
     <Pressable
       style={({ pressed }) => [$container(theme), style, $pressed(pressed)]}
       onPress={onClick}
+      // TODO: Add hover support https://github.com/microsoft/react-native-macos/issues/2313
+      // onHoverIn={() => setHovered(true)}
+      // onHoverOut={() => setHovered(false)}
     >
       <Icon size={24} />
     </Pressable>
@@ -25,6 +29,7 @@ const $container = withTheme<ViewStyle>(({ spacing }) => ({
   padding: spacing.sm,
   justifyContent: "center",
   alignItems: "center",
+  cursor: "pointer",
 }))
 
 const $pressed = (pressed: boolean) => ({
