@@ -1,5 +1,5 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
+import { useThemeName, themed } from "../theme/theme"
 import PressableWithRightClick from "./PressableWithRightClick"
 import { MenuListEntry } from "../utils/useActionMenu"
 
@@ -98,18 +98,18 @@ function formatTime(date: Date | number) {
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $container = themed<ViewStyle>(({ colors, spacing }) => ({
   marginHorizontal: spacing.sm,
   marginVertical: spacing.xs,
   borderRadius: spacing.xs,
   backgroundColor: colors.background,
 }))
 
-const $containerSelected = withTheme<ViewStyle>(({ colors }) => ({
+const $containerSelected = themed<ViewStyle>(({ colors }) => ({
   backgroundColor: colors.neutralVery + "60", // Selection highlight override
 }))
 
-const $pressableContainer = withTheme<ViewStyle>(({ spacing }) => ({
+const $pressableContainer = themed<ViewStyle>(({ spacing }) => ({
   marginHorizontal: spacing.md,
   paddingVertical: spacing.sm,
   cursor: "pointer",
@@ -143,23 +143,23 @@ const $bottomRow: ViewStyle = {
   alignItems: "baseline",
 }
 
-const $titleText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $titleText = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.caption,
   fontWeight: "500",
   color: colors.mainText,
 }))
 
-const $titleTextImportant = withTheme<TextStyle>(() => ({
+const $titleTextImportant = themed<TextStyle>(() => ({
   fontWeight: "600", // Override for important items
 }))
 
-const $statusCode = withTheme<TextStyle>(({ colors, typography }) => ({
+const $statusCode = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.small,
   fontWeight: "400",
   color: colors.neutral,
 }))
 
-const $timeText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $timeText = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.small,
   color: colors.neutral,
   fontWeight: "400",
@@ -167,7 +167,7 @@ const $timeText = withTheme<TextStyle>(({ colors, typography }) => ({
   textAlign: "right",
 }))
 
-const $previewText = withTheme<TextStyle>(({ colors, spacing, typography }) => ({
+const $previewText = themed<TextStyle>(({ colors, spacing, typography }) => ({
   fontSize: typography.caption,
   color: colors.neutral,
   fontWeight: "400",
@@ -175,7 +175,7 @@ const $previewText = withTheme<TextStyle>(({ colors, spacing, typography }) => (
   marginRight: spacing.xs,
 }))
 
-const $deltaText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $deltaText = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.small,
   color: colors.neutral,
   fontWeight: "400",
@@ -183,7 +183,7 @@ const $deltaText = withTheme<TextStyle>(({ colors, typography }) => ({
 }))
 
 // Visual indicators
-const $tagDot = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $tagDot = themed<ViewStyle>(({ colors, spacing }) => ({
   width: 6,
   height: 6,
   borderRadius: 3,
@@ -191,7 +191,7 @@ const $tagDot = withTheme<ViewStyle>(({ colors, spacing }) => ({
   marginRight: spacing.sm,
 }))
 
-const $importantDot = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $importantDot = themed<ViewStyle>(({ colors, spacing }) => ({
   width: 4,
   height: 4,
   borderRadius: 2,

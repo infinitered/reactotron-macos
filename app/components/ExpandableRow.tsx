@@ -1,7 +1,8 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
-import { useThemeName, withTheme, type ThemeName, useTheme } from "../theme/theme"
+import { useThemeName, themed, type ThemeName, useTheme } from "../theme/theme"
 import ActionButton from "../components/ActionButton"
 import { useGlobal } from "../state/useGlobal"
+import { $flex } from "../theme/basics"
 
 type ExpandableRowProps = {
   id: string
@@ -68,7 +69,7 @@ export function ExpandableRow({
             ))}
           </View>
         )}
-        <View style={$spacer} />
+        <View style={$flex} />
         <View style={$expandIconContainer}>
           <Text style={$expandIcon(themeName)}>{isOpen ? "▲" : "▼"}</Text>
         </View>
@@ -109,7 +110,7 @@ const $timestampContainer: ViewStyle = {
   paddingTop: 4,
 }
 
-const $timestampText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $timestampText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   // fontFamily: typography.code.normal,
   fontSize: typography.caption,
@@ -118,7 +119,7 @@ const $timestampText = withTheme<TextStyle>(({ colors, typography }) => ({
   textAlign: "left",
 }))
 
-const $deltaText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $deltaText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   // fontFamily: typography.code.normal,
   fontSize: typography.caption * 0.95,
@@ -164,7 +165,7 @@ const $previewContainer: ViewStyle = {
   paddingTop: 4,
 }
 
-const $previewText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $previewText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   // fontFamily: typography.code.normal,
   fontSize: typography.body,
@@ -175,16 +176,12 @@ const $toolbarContainer: ViewStyle = {
   alignItems: "center",
 }
 
-const $spacer: ViewStyle = {
-  flex: 1,
-}
-
 const $expandIconContainer: ViewStyle = {
   alignItems: "center",
   justifyContent: "center",
 }
 
-const $expandIcon = withTheme<TextStyle>(({ colors }) => ({
+const $expandIcon = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
   fontSize: 16,
 }))

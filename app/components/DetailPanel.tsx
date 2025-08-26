@@ -1,9 +1,10 @@
 import { View, Text, ScrollView, type ViewStyle, type TextStyle } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
+import { useThemeName, themed } from "../theme/theme"
 import { TimelineItem } from "../types"
 import { TreeView } from "./TreeView"
 import ActionButton from "./ActionButton"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
+import { $flex } from "../theme/basics"
 
 type DetailPanelProps = {
   selectedItem: TimelineItem | null
@@ -34,7 +35,7 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
   return (
     <View style={$container(themeName)}>
       <View style={$header(themeName)}>
-        <View style={$headerContent}>
+        <View style={$flex}>
           <View style={$headerTitleRow}>
             <View style={$selectedIndicator(themeName)} />
             <Text style={$headerTitle(themeName)}>
@@ -65,7 +66,7 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
       </View>
 
       <ScrollView
-        style={$content}
+        style={$flex}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={$scrollContent(themeName)}
@@ -205,14 +206,14 @@ function DetailSection({ title, children }: { title: string; children: React.Rea
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors }) => ({
+const $container = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   backgroundColor: colors.cardBackground,
   borderLeftWidth: 1,
   borderLeftColor: colors.border,
 }))
 
-const $emptyContainer = withTheme<ViewStyle>(({ colors }) => ({
+const $emptyContainer = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
@@ -221,7 +222,7 @@ const $emptyContainer = withTheme<ViewStyle>(({ colors }) => ({
   borderLeftColor: colors.border,
 }))
 
-const $emptyCard = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $emptyCard = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.background,
   borderRadius: 12,
   borderWidth: 1,
@@ -231,13 +232,13 @@ const $emptyCard = withTheme<ViewStyle>(({ colors, spacing }) => ({
   maxWidth: 300,
 }))
 
-const $emptyIcon = withTheme<TextStyle>(({ spacing }) => ({
+const $emptyIcon = themed<TextStyle>(({ spacing }) => ({
   fontSize: 48,
   marginBottom: spacing.md,
   opacity: 0.5,
 }))
 
-const $emptyTitle = withTheme<TextStyle>(({ colors, typography }) => ({
+const $emptyTitle = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.subheading,
   fontWeight: "600",
@@ -245,14 +246,14 @@ const $emptyTitle = withTheme<TextStyle>(({ colors, typography }) => ({
   textAlign: "center",
 }))
 
-const $emptyText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $emptyText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   fontSize: typography.body,
   textAlign: "center",
   lineHeight: typography.body * 1.5,
 }))
 
-const $header = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $header = themed<ViewStyle>(({ colors, spacing }) => ({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
@@ -262,16 +263,12 @@ const $header = withTheme<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.background,
 }))
 
-const $headerContent: ViewStyle = {
-  flex: 1,
-}
-
 const $headerTitleRow: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
 }
 
-const $selectedIndicator = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $selectedIndicator = themed<ViewStyle>(({ colors, spacing }) => ({
   width: spacing.xxs,
   height: spacing.md,
   backgroundColor: colors.primary,
@@ -279,42 +276,38 @@ const $selectedIndicator = withTheme<ViewStyle>(({ colors, spacing }) => ({
   marginRight: spacing.sm,
 }))
 
-const $headerTitle = withTheme<TextStyle>(({ colors, typography, spacing }) => ({
+const $headerTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.mainText,
   fontSize: typography.subheading,
   fontFamily: typography.primary.semiBold,
   marginBottom: spacing.xxs,
 }))
 
-const $headerInfo = withTheme<ViewStyle>(({ spacing }) => ({
+const $headerInfo = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   gap: spacing.sm,
 }))
 
-const $headerInfoText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $headerInfoText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   fontSize: typography.caption,
 }))
 
-const $headerActions = withTheme<ViewStyle>(({ spacing }) => ({
+const $headerActions = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   gap: spacing.xs,
 }))
 
-const $content: ViewStyle = {
-  flex: 1,
-}
-
-const $scrollContent = withTheme<ViewStyle>(({ spacing }) => ({
+const $scrollContent = themed<ViewStyle>(({ spacing }) => ({
   paddingBottom: spacing.xl, // Extra padding at bottom for better scrolling
 }))
 
-const $detailContent = withTheme<ViewStyle>(({ spacing }) => ({
+const $detailContent = themed<ViewStyle>(({ spacing }) => ({
   flex: 1,
   padding: spacing.md,
 }))
 
-const $section = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $section = themed<ViewStyle>(({ colors, spacing }) => ({
   marginBottom: spacing.lg,
   backgroundColor: colors.background,
   borderRadius: spacing.xs,
@@ -323,7 +316,7 @@ const $section = withTheme<ViewStyle>(({ colors, spacing }) => ({
   overflow: "hidden",
 }))
 
-const $sectionHeader = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $sectionHeader = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.cardBackground,
   paddingVertical: spacing.sm,
   paddingHorizontal: spacing.md,
@@ -331,25 +324,25 @@ const $sectionHeader = withTheme<ViewStyle>(({ colors, spacing }) => ({
   borderBottomColor: colors.border,
 }))
 
-const $sectionTitle = withTheme<TextStyle>(({ colors, typography }) => ({
+const $sectionTitle = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.body,
   fontFamily: typography.primary.semiBold,
   letterSpacing: 0.5,
 }))
 
-const $sectionContent = withTheme<ViewStyle>(({ spacing }) => ({
+const $sectionContent = themed<ViewStyle>(({ spacing }) => ({
   padding: spacing.md,
   backgroundColor: "transparent",
 }))
 
-const $valueText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $valueText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.body,
   fontFamily: typography.code.normal,
 }))
 
-const $errorText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $errorText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.danger,
   fontSize: typography.body,
   fontFamily: typography.code.normal,

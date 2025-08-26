@@ -4,7 +4,7 @@
  * Likely to be removed; double-check that it is even used.
  */
 import { Pressable, Text, TextStyle, View, ViewStyle } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
+import { useThemeName, themed } from "../theme/theme"
 
 interface InfoCardProps {
   title: string
@@ -13,19 +13,17 @@ interface InfoCardProps {
 }
 
 export function InfoCard(props: InfoCardProps) {
-  const [theme] = useThemeName()
-
   return (
-    <View style={$cardContainer(theme)}>
-      <View style={$card(theme)}>
-        <View style={$accentBar(theme)} />
-        <View style={$cardContent(theme)}>
-          <Pressable style={$button(theme)} onPress={props.onPress}>
-            <Text style={$buttonText(theme)}>▶️ Run</Text>
+    <View style={$cardContainer()}>
+      <View style={$card()}>
+        <View style={$accentBar()} />
+        <View style={$cardContent()}>
+          <Pressable style={$button()} onPress={props.onPress}>
+            <Text style={$buttonText()}>▶️ Run</Text>
           </Pressable>
-          <View style={$cardText(theme)}>
-            <Text style={$testLabel(theme)}>{props.title}</Text>
-            <Text style={$testDesc(theme)}>{props.description}</Text>
+          <View style={$cardText()}>
+            <Text style={$testLabel()}>{props.title}</Text>
+            <Text style={$testDesc()}>{props.description}</Text>
           </View>
         </View>
       </View>
@@ -33,7 +31,7 @@ export function InfoCard(props: InfoCardProps) {
   )
 }
 
-const $cardContainer = withTheme<ViewStyle>(() => ({
+const $cardContainer = themed<ViewStyle>(() => ({
   gap: 24,
   display: "flex",
   flexDirection: "row",
@@ -41,7 +39,7 @@ const $cardContainer = withTheme<ViewStyle>(() => ({
   justifyContent: "space-between",
 }))
 
-const $card = withTheme<ViewStyle>(({ colors }) => ({
+const $card = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   flexDirection: "row",
   alignItems: "stretch",
@@ -54,13 +52,13 @@ const $card = withTheme<ViewStyle>(({ colors }) => ({
   shadowOffset: { width: 0, height: 2 },
   overflow: "hidden",
 }))
-const $accentBar = withTheme<ViewStyle>(({ colors }) => ({
+const $accentBar = themed<ViewStyle>(({ colors }) => ({
   width: 6,
   backgroundColor: colors.primary,
   borderTopLeftRadius: 14,
   borderBottomLeftRadius: 14,
 }))
-const $cardContent = withTheme<ViewStyle>(() => ({
+const $cardContent = themed<ViewStyle>(() => ({
   flex: 1,
   padding: 18,
   justifyContent: "space-between",
@@ -68,23 +66,23 @@ const $cardContent = withTheme<ViewStyle>(() => ({
   alignItems: "center",
   gap: 16,
 }))
-const $cardText = withTheme<ViewStyle>(() => ({
+const $cardText = themed<ViewStyle>(() => ({
   flex: 1,
   justifyContent: "center",
 }))
-const $testLabel = withTheme<TextStyle>(({ colors }) => ({
+const $testLabel = themed<TextStyle>(({ colors }) => ({
   fontSize: 17,
   fontWeight: "700",
   marginBottom: 4,
   color: colors.mainText,
 }))
-const $testDesc = withTheme<TextStyle>(({ colors }) => ({
+const $testDesc = themed<TextStyle>(({ colors }) => ({
   fontSize: 14,
   color: colors.neutral,
   marginBottom: 16,
 }))
 
-const $button = withTheme<ViewStyle>(({ colors }) => ({
+const $button = themed<ViewStyle>(({ colors }) => ({
   backgroundColor: colors.primary,
   borderRadius: 8,
   paddingVertical: 12,
@@ -97,7 +95,7 @@ const $button = withTheme<ViewStyle>(({ colors }) => ({
   shadowOffset: { width: 0, height: 2 },
 }))
 
-const $buttonText = withTheme<TextStyle>(({ typography, colors }) => ({
+const $buttonText = themed<TextStyle>(({ typography, colors }) => ({
   color: colors.background,
   fontWeight: "bold",
   fontSize: typography.body,

@@ -1,5 +1,5 @@
 import { Text, type ViewStyle, type TextStyle, Pressable, View } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
+import { useThemeName, themed } from "../theme/theme"
 import { useState } from "react"
 import { traverse } from "../utils/traverse"
 import IRKeyboard from "../native/IRKeyboard/NativeIRKeyboard"
@@ -150,63 +150,63 @@ const $nodeRow = (level: number): ViewStyle => ({
   marginLeft: level * 16 + 4,
 })
 
-const $expandIcon = withTheme<TextStyle>(({ colors }) => ({
+const $expandIcon = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
   fontSize: 10,
   marginRight: 4,
   width: 12,
 }))
 
-const $nodeLabel = withTheme<TextStyle>(({ colors, typography }) => ({
+const $nodeLabel = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   // fontFamily: typography.code.normal,
   fontSize: typography.body,
   marginRight: 8,
 }))
 
-const $stringValue = withTheme<TextStyle>((_theme) => ({
+const $stringValue = themed<TextStyle>((_theme) => ({
   color: "#4CAF50",
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $numberValue = withTheme<TextStyle>((_theme) => ({
+const $numberValue = themed<TextStyle>((_theme) => ({
   color: "#2196F3",
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $booleanValue = withTheme<TextStyle>((_theme) => ({
+const $booleanValue = themed<TextStyle>((_theme) => ({
   color: "#FF9800",
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $nullValue = withTheme<TextStyle>(({ colors }) => ({
+const $nullValue = themed<TextStyle>(({ colors }) => ({
   color: colors.neutralVery,
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $undefinedValue = withTheme<TextStyle>(({ colors }) => ({
+const $undefinedValue = themed<TextStyle>(({ colors }) => ({
   color: colors.neutralVery,
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $arrayValue = withTheme<TextStyle>((_theme) => ({
+const $arrayValue = themed<TextStyle>((_theme) => ({
   color: "#9C27B0",
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $objectValue = withTheme<TextStyle>((_theme) => ({
+const $objectValue = themed<TextStyle>((_theme) => ({
   color: "#607D8B",
   // fontFamily: "Courier",
   fontSize: 12,
 }))
 
-const $defaultValue = withTheme<TextStyle>(({ colors }) => ({
+const $defaultValue = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
   // fontFamily: "Courier",
   fontSize: 12,

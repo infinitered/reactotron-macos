@@ -6,7 +6,7 @@
  */
 import { StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
-import { useTheme, useThemeName, withTheme } from "./theme/theme"
+import { useTheme, themed } from "./theme/theme"
 import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { AppHeader } from "./components/AppHeader"
@@ -23,8 +23,7 @@ const menuConfig = {
 }
 
 function App(): React.JSX.Element {
-  const [theme] = useThemeName()
-  const { colors } = useTheme(theme)
+  const { colors } = useTheme()
 
   useMenuItem(menuConfig)
 
@@ -42,23 +41,23 @@ function App(): React.JSX.Element {
   useEffect(() => connectToServer(), [])
 
   return (
-    <View style={$container(theme)}>
+    <View style={$container()}>
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <AppHeader />
-      <View style={$contentContainer(theme)}>
+      <View style={$contentContainer}>
         <TimelineScreen />
       </View>
     </View>
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors }) => ({
+const $container = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   backgroundColor: colors.background,
 }))
 
-const $contentContainer = withTheme<ViewStyle>(({ spacing }) => ({
+const $contentContainer: ViewStyle = {
   flex: 1,
-}))
+}
 
 export default App
