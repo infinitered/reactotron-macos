@@ -3,6 +3,7 @@ import { Animated, View, ViewStyle, Text, Pressable, TextStyle } from "react-nat
 import { useTheme, useThemeName, withTheme } from "../theme/theme"
 import { useSidebar } from "../state/useSidebar"
 import { useGlobal } from "../state/useGlobal"
+import { Icon } from "./Icon"
 
 interface SidebarProps {
   width?: number
@@ -57,16 +58,17 @@ const $container = (theme: any): ViewStyle => ({
 })
 
 const MENU_ITEMS = [
-  { id: "logs", label: "Logs" },
-  { id: "network", label: "Network" },
-  { id: "performance", label: "Performance" },
-  { id: "plugins", label: "Plugins" },
+  { id: "logs", label: "Logs", icon: "scrollText" },
+  { id: "network", label: "Network", icon: "chevronsLeftRightEllipsis" },
+  { id: "performance", label: "Performance", icon: "circleGauge" },
+  { id: "plugins", label: "Plugins", icon: "plug" },
 ] as const
 
 type MenuItemId = (typeof MENU_ITEMS)[number]["id"]
 
 const SidebarMenu = () => {
   const [themeName] = useThemeName()
+  const theme = useTheme(themeName)
   const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
   })
@@ -87,6 +89,11 @@ const SidebarMenu = () => {
           ]}
           onPress={() => handleItemPress(item.id)}
         >
+          <Icon
+            icon={item.icon}
+            size={16}
+            color={activeItem === item.id ? theme.colors.primary : theme.colors.neutral}
+          />
           <Text
             style={[
               $menuItemText(themeName),
@@ -116,6 +123,10 @@ const $menuItem = withTheme<ViewStyle>((theme) => ({
   marginBottom: theme.spacing.xs,
   borderRadius: 6,
   cursor: "pointer",
+  marginRight: 8,
+  borderColor: "red",
+  flexDirection: "row",
+  gap: 8,
 }))
 
 const $menuItemActive = withTheme<ViewStyle>((theme) => ({

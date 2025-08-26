@@ -69,6 +69,10 @@ export function Icon(props: IconProps) {
 export const iconRegistry = {
   panelLeftClose: require("../../assets/icons/panelLeftClose.png"),
   panelLeftOpen: require("../../assets/icons/panelLeftOpen.png"),
+  plug: require("../../assets/icons/plug.png"),
+  scrollText: require("../../assets/icons/scrollText.png"),
+  chevronsLeftRightEllipsis: require("../../assets/icons/chevronsLeftRightEllipsis.png"),
+  circleGauge: require("../../assets/icons/circleGauge.png"),
 }
 
 const $imageStyleBase: ImageStyle = {
