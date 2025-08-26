@@ -7,11 +7,12 @@
 import { StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar"
 import { Sidebar } from "./components/Sidebar"
+import { useSidebar } from "./state/useSidebar"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -19,13 +20,26 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
-const menuConfig = {
-  remove: ["File", "Edit", "Format"],
-}
-
 function App(): React.JSX.Element {
   const [theme] = useThemeName()
   const { colors } = useTheme(theme)
+  const { toggleSidebar } = useSidebar()
+
+  const menuConfig = useMemo(
+    () => ({
+      remove: ["File", "Edit", "Format"],
+      items: {
+        View: [
+          {
+            label: "Toggle Sidebar",
+            shortcut: "cmd+b",
+            action: toggleSidebar,
+          },
+        ],
+      },
+    }),
+    [toggleSidebar],
+  )
 
   useMenuItem(menuConfig)
 
