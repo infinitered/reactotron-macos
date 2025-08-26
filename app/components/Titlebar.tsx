@@ -14,12 +14,13 @@ export const Titlebar = () => {
       <TrafficLightSpacer />
       <ActionButton
         icon={() => (
-          <Icon 
-            icon={isOpen ? "panelLeftClose" : "panelLeftOpen"} 
-            size={16} 
-            color={theme.colors.neutral} 
+          <Icon
+            icon={isOpen ? "panelLeftClose" : "panelLeftOpen"}
+            size={18}
+            color={theme.colors.neutral}
           />
         )}
+        style={$sidebarContainerOverride}
         onClick={toggleSidebar}
       />
     </View>
@@ -35,12 +36,18 @@ const TrafficLightSpacer = () => {
 }
 
 const $container = withTheme<ViewStyle>((theme) => ({
-  backgroundColor: theme.colors.cardBackground,
+  backgroundColor: theme.colors.navigation,
   paddingHorizontal: theme.spacing.sm,
   flexDirection: "row",
   alignItems: "center",
+  justifyContent: "space-between",
   height: 36,
 }))
+
+const $sidebarContainerOverride = {
+  marginRight: 0,
+  paddingHorizontal: 0,
+}
 
 const $macOSTrafficSpacer = {
   width: 52,

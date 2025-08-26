@@ -8,6 +8,7 @@ export const colorsLight = {
   success: "#008000",
   danger: "#ff0000",
   primary: "#cf6b4c",
+  navigation: "#F9FAFB",
 }
 export type Colors = typeof colorsLight
 
@@ -22,4 +23,5 @@ export const colorsDark: Partial<Colors> = {
   success: "#4CAF50",
   danger: "#FF5252",
   primary: "#FFB86C",
+  navigation: "#202020",
 }

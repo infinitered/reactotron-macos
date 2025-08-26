@@ -58,7 +58,7 @@ function App(): React.JSX.Element {
 
   return (
     <View style={$container(theme)}>
-      <Titlebar />
+      {/* <Titlebar /> */}
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <View style={$mainContent}>
         <Sidebar />

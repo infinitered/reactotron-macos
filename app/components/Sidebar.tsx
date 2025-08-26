@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react"
-import { Animated, View, ViewStyle, Text, Pressable, TextStyle } from "react-native"
+import { Animated, View, ViewStyle, Text, Pressable, TextStyle, StyleSheet } from "react-native"
 import { useTheme, useThemeName, withTheme } from "../theme/theme"
 import { useSidebar } from "../state/useSidebar"
 import { useGlobal } from "../state/useGlobal"
 import { Icon } from "./Icon"
+import { Titlebar } from "./Titlebar"
 
 interface SidebarProps {
   width?: number
@@ -40,6 +41,7 @@ export const Sidebar = ({ width = 250 }: SidebarProps) => {
   return (
     <Animated.View style={{ width: animatedWidth }}>
       <Animated.View style={[$container(theme), { transform: [{ translateX: animatedPosition }] }]}>
+        <Titlebar />
         <View style={$content(themeName)}>
           <SidebarMenu />
         </View>
@@ -49,12 +51,11 @@ export const Sidebar = ({ width = 250 }: SidebarProps) => {
 }
 
 const $container = (theme: any): ViewStyle => ({
-  backgroundColor: theme.colors.cardBackground,
-  borderRightWidth: 1,
-  borderRightColor: theme.colors.neutral,
+  backgroundColor: "#F9FAFB",
   overflow: "hidden",
   flex: 1,
-  flexDirection: "row",
+  borderWidth: StyleSheet.hairlineWidth,
+  borderColor: theme.colors.border + 60,
 })
 
 const MENU_ITEMS = [
@@ -91,8 +92,9 @@ const SidebarMenu = () => {
         >
           <Icon
             icon={item.icon}
-            size={16}
-            color={activeItem === item.id ? theme.colors.primary : theme.colors.neutral}
+            size={18}
+            key={`${item.id}-${activeItem === item.id ? "active" : "inactive"}-icon`}
+            color={activeItem === item.id ? theme.colors.background : theme.colors.neutral}
           />
           <Text
             style={[
@@ -110,7 +112,7 @@ const SidebarMenu = () => {
 
 const $content = withTheme<ViewStyle>((theme) => ({
   flex: 1,
-  padding: theme.spacing.md,
+  padding: theme.spacing.sm,
 }))
 
 const $menu: ViewStyle = {
@@ -118,15 +120,15 @@ const $menu: ViewStyle = {
 }
 
 const $menuItem = withTheme<ViewStyle>((theme) => ({
-  paddingHorizontal: theme.spacing.md,
-  paddingVertical: theme.spacing.sm,
-  marginBottom: theme.spacing.xs,
+  paddingHorizontal: theme.spacing.sm,
+  paddingVertical: theme.spacing.xs,
+  marginBottom: theme.spacing.xs / 2,
   borderRadius: 6,
   cursor: "pointer",
   marginRight: 8,
   borderColor: "red",
   flexDirection: "row",
-  gap: 8,
+  gap: theme.spacing.sm,
 }))
 
 const $menuItemActive = withTheme<ViewStyle>((theme) => ({
@@ -138,8 +140,9 @@ const $menuItemPressed: ViewStyle = {
 }
 
 const $menuItemText = withTheme<TextStyle>((theme) => ({
-  fontSize: theme.typography.small,
-  color: theme.colors.mainText,
+  fontSize: theme.typography.caption,
+  color: theme.colors.mainText + "bb",
+  fontWeight: "700",
 }))
 
 const $menuItemTextActive = withTheme<TextStyle>((theme) => ({
