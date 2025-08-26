@@ -9,9 +9,9 @@ import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
-import { AppHeader } from "./components/AppHeader"
 import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar"
+import { Sidebar } from "./components/Sidebar"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -46,8 +46,11 @@ function App(): React.JSX.Element {
     <View style={$container(theme)}>
       <Titlebar />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <View style={$contentContainer(theme)}>
-        <TimelineScreen />
+      <View style={$mainContent}>
+        <Sidebar />
+        <View style={$contentContainer(theme)}>
+          <TimelineScreen />
+        </View>
       </View>
     </View>
   )
@@ -58,7 +61,12 @@ const $container = withTheme<ViewStyle>(({ colors }) => ({
   backgroundColor: colors.background,
 }))
 
-const $contentContainer = withTheme<ViewStyle>(({ spacing }) => ({
+const $mainContent: ViewStyle = {
+  flex: 1,
+  flexDirection: "row",
+}
+
+const $contentContainer = withTheme<ViewStyle>(() => ({
   flex: 1,
 }))
 
