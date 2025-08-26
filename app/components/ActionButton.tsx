@@ -1,4 +1,4 @@
-import { GestureResponderEvent, TouchableOpacity, ViewStyle } from "react-native"
+import { GestureResponderEvent, Pressable, ViewStyle } from "react-native"
 import { useThemeName, withTheme } from "../theme/theme"
 
 interface ActionButtonProps {
@@ -11,9 +11,12 @@ function ActionButton({ icon: Icon, onClick, style }: ActionButtonProps) {
   const [theme] = useThemeName()
 
   return (
-    <TouchableOpacity style={[$container(theme), style]} onPress={onClick} activeOpacity={0.7}>
+    <Pressable
+      style={({ pressed }) => [$container(theme), style, $pressed(pressed)]}
+      onPress={onClick}
+    >
       <Icon size={24} />
-    </TouchableOpacity>
+    </Pressable>
   )
 }
 
@@ -23,5 +26,9 @@ const $container = withTheme<ViewStyle>(({ spacing }) => ({
   justifyContent: "center",
   alignItems: "center",
 }))
+
+const $pressed = (pressed: boolean) => ({
+  opacity: pressed ? 0.5 : 1,
+})
 
 export default ActionButton
