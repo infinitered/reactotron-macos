@@ -8,7 +8,7 @@ import { LegendList } from "@legendapp/list"
 import { View, ViewStyle } from "react-native-macos"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
-import { themed } from "../theme/theme"
+import { themed, useThemeName } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
 
 /**
@@ -24,6 +24,8 @@ const TimelineItemRenderer = ({
   onSelectItem: (item: TimelineItem) => void
 }) => {
   if (!item) return null
+
+  useThemeName()
 
   const handleSelectItem = () => {
     onSelectItem(item)

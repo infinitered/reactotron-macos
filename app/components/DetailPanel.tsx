@@ -42,7 +42,7 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
           </View>
           <View style={$headerInfo()}>
             <Text style={$headerInfoText()}>{new Date(selectedItem.date).toLocaleString()}</Text>
-            {selectedItem.deltaTime && (
+            {!!selectedItem.deltaTime && (
               <Text style={$headerInfoText()}>+{selectedItem.deltaTime}ms</Text>
             )}
           </View>
