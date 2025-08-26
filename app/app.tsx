@@ -46,7 +46,6 @@ function App(): React.JSX.Element {
     <View style={$container(theme)}>
       <Titlebar />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <AppHeader />
       <View style={$contentContainer(theme)}>
         <TimelineScreen />
       </View>
