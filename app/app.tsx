@@ -42,11 +42,6 @@ function App(): React.JSX.Element {
   // and handle all websocket events.
   useEffect(() => connectToServer(), [])
 
-  // useEffect(() => {
-  //   NativeIRTitlebar.setupTitlebar()
-  //   NativeIRTitlebar.setTrafficLightPosition(12, 26)
-  // }, [])
-
   return (
     <View style={$container(theme)}>
       <Titlebar />
