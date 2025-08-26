@@ -10,6 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 // - Position traffic lights relative to the titlebar container's top-left
 // - Preserve native spacing between buttons
 // - Lock intrinsic sizes to prevent future layout passes from squishing them
+
 // Finds the private titlebar container by walking up from a standard button.
 static inline NSView *_IRTitlebarContainer(NSWindow *w) {
   NSView *btn = [w standardWindowButton:NSWindowCloseButton];
@@ -49,9 +50,7 @@ static inline void IRConfigureWindow(NSWindow * _Nullable window) {
   auto removeConstraintsFor = ^(NSView *v) {
     NSMutableArray<NSLayoutConstraint *> *toRemove = [NSMutableArray array];
     for (NSLayoutConstraint *c in v.constraints) {
-      if (c.firstItem == v || c.secondItem == v) {
-        [toRemove addObject:c];
-      }
+      if (c.firstItem == v || c.secondItem == v) [toRemove addObject:c];
     }
     for (NSLayoutConstraint *c in tb.constraints) {
       if (c.firstItem == v || c.secondItem == v) {

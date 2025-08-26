@@ -22,6 +22,7 @@
   self.dependencyProvider = [RCTAppDependencyProvider new];
 
   [super applicationDidFinishLaunching:notification];
+  
   // Configure window chrome before RN mounts
   IRConfigureWindow(self.window);
 }
