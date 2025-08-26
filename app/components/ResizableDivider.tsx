@@ -1,5 +1,5 @@
 import { View, PanResponder, type ViewStyle } from "react-native"
-import { useThemeName, themed } from "../theme/theme"
+import { themed } from "../theme/theme"
 import { useRef, useState } from "react"
 
 type ResizableDividerProps = {
@@ -13,7 +13,6 @@ export function ResizableDivider({
   minWidth = 300,
   maxWidth = 800,
 }: ResizableDividerProps) {
-  const [themeName] = useThemeName()
   const [isDragging, setIsDragging] = useState(false)
 
   const panResponder = useRef(
@@ -37,14 +36,14 @@ export function ResizableDivider({
     }),
   ).current
 
-  return <View {...panResponder.panHandlers} style={$divider(themeName, isDragging)} />
+  return <View {...panResponder.panHandlers} style={$divider(isDragging)} />
 }
 
-const $divider = (themeName: "light" | "dark", isDragging: boolean) =>
+const $divider = (isDragging: boolean) =>
   themed<ViewStyle>(({ colors }) => ({
     width: 4,
     backgroundColor: isDragging ? colors.neutral : colors.neutralVery,
     cursor: "col-resize",
     opacity: isDragging ? 1 : 0.6,
     transition: "all 0.2s ease",
-  }))(themeName)
+  }))()

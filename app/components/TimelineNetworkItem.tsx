@@ -1,6 +1,6 @@
 import { TimelineItemNetwork } from "../types"
 import { TimelineItem } from "./TimelineItem"
-import { useTheme, useThemeName } from "../theme/theme"
+import { useTheme } from "../theme/theme"
 import type { MenuListEntry } from "../utils/useActionMenu"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 
@@ -23,8 +23,7 @@ export function TimelineNetworkItem({
 
   const { payload, date, deltaTime, important } = item
 
-  const [themeName] = useThemeName()
-  const { colors } = useTheme(themeName)
+  const { colors } = useTheme()
 
   // Determine status and color
   let status: string = "UNKNOWN"

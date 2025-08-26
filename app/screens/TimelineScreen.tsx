@@ -8,7 +8,7 @@ import { LegendList } from "@legendapp/list"
 import { View, ViewStyle } from "react-native-macos"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
-import { themed } from "app/theme/theme"
+import { themed } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
 
 /**

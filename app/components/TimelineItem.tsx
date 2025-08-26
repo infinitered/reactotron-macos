@@ -38,8 +38,6 @@ export function TimelineItem({
   onSelect,
   actionMenu,
 }: TimelineItemProps) {
-  const [themeName] = useThemeName()
-
   const time = formatTime(date)
 
   const handlePress = () => {
@@ -47,42 +45,36 @@ export function TimelineItem({
   }
 
   return (
-    <View style={[$container(themeName), isSelected && $containerSelected(themeName)]}>
+    <View style={[$container(), isSelected && $containerSelected()]}>
       <PressableWithRightClick
-        style={$pressableContainer(themeName)}
+        style={$pressableContainer()}
         onPress={handlePress}
         items={actionMenu ?? []}
       >
         {/* Top Row: Title + Status + Time */}
         <View style={$topRow}>
           <View style={$leftSection}>
-            {isTagged && <View style={$tagDot(themeName)} />}
+            {isTagged && <View style={$tagDot()} />}
             <Text
-              style={[
-                $titleText(themeName),
-                isImportant && $titleTextImportant(themeName),
-                { color: titleColor },
-              ]}
+              style={[$titleText(), isImportant && $titleTextImportant(), { color: titleColor }]}
               numberOfLines={1}
             >
               {title}
-              {responseStatusCode && (
-                <Text style={$statusCode(themeName)}> ({responseStatusCode})</Text>
-              )}
+              {responseStatusCode && <Text style={$statusCode()}> ({responseStatusCode})</Text>}
             </Text>
           </View>
           <View style={$rightSection}>
-            <Text style={$timeText(themeName)}>{time}</Text>
-            {isImportant && <View style={$importantDot(themeName)} />}
+            <Text style={$timeText()}>{time}</Text>
+            {isImportant && <View style={$importantDot()} />}
           </View>
         </View>
 
         {/* Bottom Row: Preview + Delta Time */}
         <View style={$bottomRow}>
-          <Text style={$previewText(themeName)} numberOfLines={1}>
+          <Text style={$previewText()} numberOfLines={1}>
             {preview}
           </Text>
-          {!!deltaTime && <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text>}
+          {!!deltaTime && <Text style={$deltaText()}>+{deltaTime}ms</Text>}
         </View>
       </PressableWithRightClick>
     </View>

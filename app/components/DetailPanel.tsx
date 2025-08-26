@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, type ViewStyle, type TextStyle } from "react-native"
-import { useThemeName, themed } from "../theme/theme"
+import { themed } from "../theme/theme"
 import { TimelineItem } from "../types"
 import { TreeView } from "./TreeView"
 import ActionButton from "./ActionButton"
@@ -17,41 +17,37 @@ type DetailPanelProps = {
  */
 
 export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
-  const [themeName] = useThemeName()
-
   // Show empty state when no item is selected
   if (!selectedItem) {
     return (
-      <View style={$emptyContainer(themeName)}>
-        <View style={$emptyCard(themeName)}>
-          <Text style={$emptyIcon(themeName)}>📋</Text>
-          <Text style={$emptyTitle(themeName)}>No Selection</Text>
-          <Text style={$emptyText(themeName)}>Select a timeline item to view details</Text>
+      <View style={$emptyContainer()}>
+        <View style={$emptyCard()}>
+          <Text style={$emptyIcon()}>📋</Text>
+          <Text style={$emptyTitle()}>No Selection</Text>
+          <Text style={$emptyText()}>Select a timeline item to view details</Text>
         </View>
       </View>
     )
   }
 
   return (
-    <View style={$container(themeName)}>
-      <View style={$header(themeName)}>
+    <View style={$container()}>
+      <View style={$header()}>
         <View style={$flex}>
           <View style={$headerTitleRow}>
-            <View style={$selectedIndicator(themeName)} />
-            <Text style={$headerTitle(themeName)}>
+            <View style={$selectedIndicator()} />
+            <Text style={$headerTitle()}>
               {selectedItem.type === "log" ? "Log Details" : "Network Details"}
             </Text>
           </View>
-          <View style={$headerInfo(themeName)}>
-            <Text style={$headerInfoText(themeName)}>
-              {new Date(selectedItem.date).toLocaleString()}
-            </Text>
+          <View style={$headerInfo()}>
+            <Text style={$headerInfoText()}>{new Date(selectedItem.date).toLocaleString()}</Text>
             {selectedItem.deltaTime && (
-              <Text style={$headerInfoText(themeName)}>+{selectedItem.deltaTime}ms</Text>
+              <Text style={$headerInfoText()}>+{selectedItem.deltaTime}ms</Text>
             )}
           </View>
         </View>
-        <View style={$headerActions(themeName)}>
+        <View style={$headerActions()}>
           <ActionButton
             icon={({ size }) => <Text style={{ fontSize: size }}>📋</Text>}
             onClick={() => IRClipboard.setString(JSON.stringify(selectedItem.payload))}
@@ -69,7 +65,7 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         style={$flex}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={$scrollContent(themeName)}
+        contentContainerStyle={$scrollContent()}
       >
         {/* Render appropriate content based on timeline item type */}
         {selectedItem.type === "log" ? (
@@ -86,18 +82,17 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
  * Renders detailed content for log timeline items including level, message, stack trace, and metadata.
  */
 function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
-  const [themeName] = useThemeName()
   const { payload } = item
 
   return (
-    <View style={$detailContent(themeName)}>
+    <View style={$detailContent()}>
       <DetailSection title="Log Level">
-        <Text style={$valueText(themeName)}>{payload.level.toUpperCase()}</Text>
+        <Text style={$valueText()}>{payload.level.toUpperCase()}</Text>
       </DetailSection>
 
       <DetailSection title="Message">
         {typeof payload.message === "string" ? (
-          <Text style={$valueText(themeName)}>{payload.message}</Text>
+          <Text style={$valueText()}>{payload.message}</Text>
         ) : (
           <TreeView data={payload.message} />
         )}
@@ -139,11 +134,10 @@ function NetworkDetailContent({
 }: {
   item: TimelineItem & { type: "api.request" | "api.response" }
 }) {
-  const [themeName] = useThemeName()
   const { payload } = item
 
   return (
-    <View style={$detailContent(themeName)}>
+    <View style={$detailContent()}>
       {/* Show request data if available */}
       {payload.request && (
         <>
@@ -165,7 +159,7 @@ function NetworkDetailContent({
       {/* Show error information if request failed */}
       {payload.error && (
         <DetailSection title="Error">
-          <Text style={$errorText(themeName)}>{payload.error}</Text>
+          <Text style={$errorText()}>{payload.error}</Text>
         </DetailSection>
       )}
 
@@ -194,14 +188,12 @@ function NetworkDetailContent({
  * A reusable section component with a header and content area for organizing detail information.
  */
 function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
-  const [themeName] = useThemeName()
-
   return (
-    <View style={$section(themeName)}>
-      <View style={$sectionHeader(themeName)}>
-        <Text style={$sectionTitle(themeName)}>{title}</Text>
+    <View style={$section()}>
+      <View style={$sectionHeader()}>
+        <Text style={$sectionTitle()}>{title}</Text>
       </View>
-      <View style={$sectionContent(themeName)}>{children}</View>
+      <View style={$sectionContent()}>{children}</View>
     </View>
   )
 }

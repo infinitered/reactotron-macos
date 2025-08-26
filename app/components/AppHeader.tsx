@@ -24,31 +24,26 @@ export function AppHeader() {
 
   return (
     <Header>
-      <View style={$tabContainer(theme)}>
+      <View style={$tabContainer()}>
         {clientIds.map((id) => (
           <ClientTab key={id} clientId={id} />
         ))}
       </View>
       <HeaderTitle title={`Reactotron ${reactotronAppId}`} />
-      <View style={$statusRow(theme)}>
+      <View style={$statusRow()}>
         <View>
-          <TextInput value={"SEARCHING"} placeholder="Search" style={{ width: 100 }} />
+          <TextInput value={"SEARCHING"} placeholder="Search" style={$searchInput} />
           <Text>Search</Text>
         </View>
-        <View style={$statusItem(theme)}>
-          <View
-            style={[
-              $dot(theme),
-              error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
-            ]}
-          />
-          <Text style={$statusText(theme)}>Server</Text>
+        <View style={$statusItem()}>
+          <View style={[$dot(), error ? $dotRed() : isConnected ? $dotGreen() : $dotGray()]} />
+          <Text style={$statusText()}>Server</Text>
           <ClearLogsButton />
         </View>
-        <View style={$divider(theme)} />
-        <View style={$statusItem(theme)}>
-          <View style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]} />
-          <Text style={$statusText(theme)}>{arch}</Text>
+        <View style={$divider()} />
+        <View style={$statusItem()}>
+          <View style={[$dot(), arch === "Fabric" ? $dotGreen() : $dotOrange()]} />
+          <Text style={$statusText()}>{arch}</Text>
         </View>
       </View>
       <ActionButton
@@ -107,3 +102,5 @@ const $statusText = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
   fontWeight: "600",
 }))
+
+const $searchInput: ViewStyle = { width: 100 }
