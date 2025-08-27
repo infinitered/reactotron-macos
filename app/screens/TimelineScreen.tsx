@@ -10,6 +10,7 @@ import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
+import { useTimeline } from "../utils/useTimeline"
 
 /**
  * Renders the correct component for each timeline item.
@@ -42,7 +43,8 @@ const TimelineItemRenderer = ({
 }
 
 export function TimelineScreen() {
-  const [timelineItems] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  // TODO: Use a global state for the filters, set by the user in the TimelineToolbar
+  const timelineItems = useTimeline({ types: ["log", "api.request", "api.response"] })
   const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
     persist: true,
   })
