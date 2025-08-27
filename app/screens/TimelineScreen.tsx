@@ -4,12 +4,15 @@ import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
+import { TimelineToolbar, TimelineFilters } from "../components/TimelineToolbar"
 import { LegendList } from "@legendapp/list"
 import { View, ViewStyle } from "react-native-macos"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
+import { useMemo, useState } from "react"
+import { filterAndSortTimelineItems } from "app/utils/timelineFilters"
 
 /**
  * Renders the correct component for each timeline item.
@@ -48,6 +51,16 @@ export function TimelineScreen() {
   })
   const { selectedItem, setSelectedItemId } = useSelectedTimelineItems()
 
+  const [filters, setFilters] = useState<TimelineFilters>({
+    type: "all",
+    logLevel: "all",
+    sortBy: "time-newest",
+  })
+
+  const filteredAndSortedItems = useMemo(() => {
+    return filterAndSortTimelineItems(timelineItems, filters)
+  }, [timelineItems, filters])
+
   const handleSelectItem = (item: TimelineItem) => {
     // Toggle selection: if clicking the same item, deselect it
     setSelectedItemId((prev) => (prev === item.id ? null : item.id))
@@ -73,6 +86,31 @@ export function TimelineScreen() {
           contentContainerStyle={$contentContainer()} // making some room for the scrollbar
           ItemSeparatorComponent={Separator}
         />
+        <View style={{ flex: 1 }}>
+          <TimelineToolbar
+            filters={filters}
+            onFiltersChange={setFilters}
+            itemCount={timelineItems.length}
+            filteredCount={filteredAndSortedItems.length}
+          />
+          <LegendList<TimelineItem>
+            data={filteredAndSortedItems}
+            extraData={selectedItem?.id}
+            renderItem={({ item }) => (
+              <TimelineItemRenderer
+                item={item}
+                isSelected={selectedItem?.id === item.id}
+                onSelectItem={handleSelectItem}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+            estimatedItemSize={60}
+            recycleItems
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 8 }} // making some room for the scrollbar
+            ItemSeparatorComponent={Separator}
+          />
+        </View>
       </View>
       <ResizableDivider onResize={setTimelineWidth} minWidth={300} maxWidth={800} />
       <View style={$flex}>
