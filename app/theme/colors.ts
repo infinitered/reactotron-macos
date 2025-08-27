@@ -8,7 +8,7 @@ export const colorsLight = {
   success: "#008000",
   danger: "#ff0000",
   primary: "#cf6b4c",
-  navigation: "#F9FAFB",
+  navigation: "#F9F8F7",
 }
 export type Colors = typeof colorsLight
 
