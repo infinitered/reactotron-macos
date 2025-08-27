@@ -4,7 +4,7 @@
  *
  * @format
  */
-import { StatusBar, View, type ViewStyle } from "react-native"
+import { DevSettings, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect, useMemo } from "react"
@@ -36,6 +36,13 @@ function App(): React.JSX.Element {
             action: toggleSidebar,
           },
         ],
+        Window: [
+          {
+            label: "Reload",
+            shortcut: "cmd+shift+r",
+            action: () => DevSettings.reload(),
+          },
+        ],
       },
     }),
     [toggleSidebar],
@@ -58,7 +65,7 @@ function App(): React.JSX.Element {
 
   return (
     <View style={$container(theme)}>
-      {/* <Titlebar /> */}
+      <Titlebar />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <View style={$mainContent}>
         <Sidebar />
