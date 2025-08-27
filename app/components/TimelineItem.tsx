@@ -61,7 +61,7 @@ export function TimelineItem({
               style={[
                 $titleText(themeName),
                 isImportant && $titleTextImportant(themeName),
-                { color: titleColor },
+                titleColor && { color: titleColor },
               ]}
               numberOfLines={1}
             >
