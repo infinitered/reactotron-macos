@@ -9,6 +9,7 @@ export const colorsLight = {
   danger: "#ff0000",
   primary: "#cf6b4c",
   navigation: "#F9F8F7",
+  keyline: "#E4E3E1",
 }
 export type Colors = typeof colorsLight
 
@@ -24,4 +25,5 @@ export const colorsDark: Partial<Colors> = {
   danger: "#FF5252",
   primary: "#FFB86C",
   navigation: "#202020",
+  keyline: "#333333",
 }
