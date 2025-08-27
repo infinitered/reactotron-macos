@@ -1,5 +1,5 @@
 import { useTheme, useThemeName, withTheme } from "../theme/theme"
-import { Platform, View, ViewStyle } from "react-native"
+import { Platform, StyleSheet, View, ViewStyle } from "react-native"
 import { Icon } from "./Icon"
 import ActionButton from "./ActionButton"
 import { useSidebar } from "../state/useSidebar"
@@ -10,19 +10,20 @@ export const Titlebar = () => {
   const { isOpen, toggleSidebar } = useSidebar()
 
   return (
-    <View style={$container(themeName)}>
-      <TrafficLightSpacer />
-      <ActionButton
-        icon={() => (
-          <Icon
-            icon={isOpen ? "panelLeftClose" : "panelLeftOpen"}
-            size={18}
-            color={theme.colors.neutral}
-          />
-        )}
-        style={$sidebarContainerOverride}
-        onClick={toggleSidebar}
-      />
+    <View style={$borderContainer(themeName)}>
+      <View style={$container(themeName)}>
+        <TrafficLightSpacer />
+        <ActionButton
+          icon={() => (
+            <Icon
+              icon={isOpen ? "panelLeftClose" : "panelLeftOpen"}
+              size={18}
+              color={theme.colors.neutral}
+            />
+          )}
+          onClick={toggleSidebar}
+        />
+      </View>
     </View>
   )
 }
@@ -35,19 +36,18 @@ const TrafficLightSpacer = () => {
   })
 }
 
+const $borderContainer = withTheme<ViewStyle>((theme) => ({
+  backgroundColor: theme.colors.keyline,
+  padding: 1,
+}))
+
 const $container = withTheme<ViewStyle>((theme) => ({
   backgroundColor: theme.colors.navigation,
   paddingHorizontal: theme.spacing.sm,
   flexDirection: "row",
   alignItems: "center",
-  justifyContent: "space-between",
   height: 36,
 }))
-
-const $sidebarContainerOverride = {
-  marginRight: 0,
-  paddingHorizontal: 0,
-}
 
 const $macOSTrafficSpacer = {
   width: 52,
