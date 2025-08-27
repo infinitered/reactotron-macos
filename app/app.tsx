@@ -4,7 +4,7 @@
  *
  * @format
  */
-import { DevSettings, StatusBar, View, type ViewStyle } from "react-native"
+import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, useThemeName, withTheme } from "./theme/theme"
 import { useEffect, useMemo } from "react"
@@ -35,6 +35,15 @@ function App(): React.JSX.Element {
             shortcut: "cmd+b",
             action: toggleSidebar,
           },
+          ...(__DEV__
+            ? [
+                {
+                  label: "Toggle Dev Menu",
+                  shortcut: "cmd+shift+d",
+                  action: () => NativeModules.DevMenu.show(),
+                },
+              ]
+            : []),
         ],
         Window: [
           {
