@@ -56,7 +56,11 @@ export function TimelineItem({
           <View style={$leftSection}>
             {isTagged && <View style={$tagDot()} />}
             <Text
-              style={[$titleText(), isImportant && $titleTextImportant(), { color: titleColor }]}
+              style={[
+                $titleText(),
+                isImportant && $titleTextImportant(),
+                titleColor && { color: titleColor },
+              ]}
               numberOfLines={1}
             >
               {title}
