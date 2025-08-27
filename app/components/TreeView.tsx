@@ -3,6 +3,7 @@ import { themed } from "../theme/theme"
 import { useState } from "react"
 import { traverse } from "../utils/traverse"
 import IRKeyboard from "../native/IRKeyboard/NativeIRKeyboard"
+import { typography } from "../theme/typography"
 
 // max level to avoid infinite recursion
 const MAX_LEVEL = 10
@@ -73,19 +74,20 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
     } else if (Array.isArray(data)) {
       if (data.length === 0) return <Text style={$arrayValue()}>[empty]</Text>
 
-      const maxPreview = 3
-      const previewItems = data.slice(0, maxPreview)
-      const remaining = data.length - maxPreview
+      if (data.length > 2) {
+        return <Text style={$arrayValue()}>[] {data.length} items</Text>
+      }
 
-      const previewText = previewItems.map((item) => item.toString()).join(", ")
+      const previewText = data
+        .map((item) => {
+          if (item && typeof item === "object") {
+            return "{...}"
+          }
+          return item.toString()
+        })
+        .join(", ")
 
-      const suffix = remaining > 0 ? `, ...${remaining} more` : ""
-      return (
-        <Text style={$arrayValue()}>
-          [{previewText}
-          {suffix}]
-        </Text>
-      )
+      return <Text style={$arrayValue()}>[{previewText}]</Text>
     } else if (type === "object") {
       const keys = Object.keys(data)
       return <Text pointerEvents="none" style={$objectValue()}>{`{${keys.length} keys}`}</Text>
@@ -156,55 +158,55 @@ const $expandIcon = themed<TextStyle>(({ colors }) => ({
 
 const $nodeLabel = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
-  // fontFamily: typography.code.normal,
+  fontFamily: typography.code.normal,
   fontSize: typography.body,
   marginRight: 8,
 }))
 
 const $stringValue = themed<TextStyle>((_theme) => ({
   color: "#4CAF50",
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
 
 const $numberValue = themed<TextStyle>((_theme) => ({
   color: "#2196F3",
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
 
 const $booleanValue = themed<TextStyle>((_theme) => ({
   color: "#FF9800",
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
 
 const $nullValue = themed<TextStyle>(({ colors }) => ({
   color: colors.neutralVery,
-  // fontFamily: "Courier",
+  fontFamily: "Courier",
   fontSize: 12,
 }))
 
 const $undefinedValue = themed<TextStyle>(({ colors }) => ({
   color: colors.neutralVery,
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
 
 const $arrayValue = themed<TextStyle>((_theme) => ({
   color: "#9C27B0",
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
 
 const $objectValue = themed<TextStyle>((_theme) => ({
   color: "#607D8B",
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
 
 const $defaultValue = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
-  // fontFamily: "Courier",
+  fontFamily: typography.code.normal,
   fontSize: 12,
 }))
