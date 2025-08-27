@@ -1,9 +1,10 @@
 import { View, Text, ScrollView, type ViewStyle, type TextStyle } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
+import { themed } from "../theme/theme"
 import { TimelineItem } from "../types"
 import { TreeView } from "./TreeView"
 import ActionButton from "./ActionButton"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
+import { $flex } from "../theme/basics"
 
 type DetailPanelProps = {
   selectedItem: TimelineItem | null
@@ -16,41 +17,37 @@ type DetailPanelProps = {
  */
 
 export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
-  const [themeName] = useThemeName()
-
   // Show empty state when no item is selected
   if (!selectedItem) {
     return (
-      <View style={$emptyContainer(themeName)}>
-        <View style={$emptyCard(themeName)}>
-          <Text style={$emptyIcon(themeName)}>📋</Text>
-          <Text style={$emptyTitle(themeName)}>No Selection</Text>
-          <Text style={$emptyText(themeName)}>Select a timeline item to view details</Text>
+      <View style={$emptyContainer()}>
+        <View style={$emptyCard()}>
+          <Text style={$emptyIcon()}>📋</Text>
+          <Text style={$emptyTitle()}>No Selection</Text>
+          <Text style={$emptyText()}>Select a timeline item to view details</Text>
         </View>
       </View>
     )
   }
 
   return (
-    <View style={$container(themeName)}>
-      <View style={$header(themeName)}>
-        <View style={$headerContent}>
+    <View style={$container()}>
+      <View style={$header()}>
+        <View style={$flex}>
           <View style={$headerTitleRow}>
-            <View style={$selectedIndicator(themeName)} />
-            <Text style={$headerTitle(themeName)}>
+            <View style={$selectedIndicator()} />
+            <Text style={$headerTitle()}>
               {selectedItem.type === "log" ? "Log Details" : "Network Details"}
             </Text>
           </View>
-          <View style={$headerInfo(themeName)}>
-            <Text style={$headerInfoText(themeName)}>
-              {new Date(selectedItem.date).toLocaleString()}
-            </Text>
-            {selectedItem.deltaTime && (
-              <Text style={$headerInfoText(themeName)}>+{selectedItem.deltaTime}ms</Text>
+          <View style={$headerInfo()}>
+            <Text style={$headerInfoText()}>{new Date(selectedItem.date).toLocaleString()}</Text>
+            {!!selectedItem.deltaTime && (
+              <Text style={$headerInfoText()}>+{selectedItem.deltaTime}ms</Text>
             )}
           </View>
         </View>
-        <View style={$headerActions(themeName)}>
+        <View style={$headerActions()}>
           <ActionButton
             icon={({ size }) => <Text style={{ fontSize: size }}>📋</Text>}
             onClick={() => IRClipboard.setString(JSON.stringify(selectedItem.payload))}
@@ -65,10 +62,10 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
       </View>
 
       <ScrollView
-        style={$content}
+        style={$flex}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={$scrollContent(themeName)}
+        contentContainerStyle={$scrollContent()}
       >
         {/* Render appropriate content based on timeline item type */}
         {selectedItem.type === "log" ? (
@@ -85,18 +82,17 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
  * Renders detailed content for log timeline items including level, message, stack trace, and metadata.
  */
 function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
-  const [themeName] = useThemeName()
   const { payload } = item
 
   return (
-    <View style={$detailContent(themeName)}>
+    <View style={$detailContent()}>
       <DetailSection title="Log Level">
-        <Text style={$valueText(themeName)}>{payload.level.toUpperCase()}</Text>
+        <Text style={$valueText()}>{payload.level.toUpperCase()}</Text>
       </DetailSection>
 
       <DetailSection title="Message">
         {typeof payload.message === "string" ? (
-          <Text style={$valueText(themeName)}>{payload.message}</Text>
+          <Text style={$valueText()}>{payload.message}</Text>
         ) : (
           <TreeView data={payload.message} />
         )}
@@ -138,11 +134,10 @@ function NetworkDetailContent({
 }: {
   item: TimelineItem & { type: "api.request" | "api.response" }
 }) {
-  const [themeName] = useThemeName()
   const { payload } = item
 
   return (
-    <View style={$detailContent(themeName)}>
+    <View style={$detailContent()}>
       {/* Show request data if available */}
       {payload.request && (
         <>
@@ -164,7 +159,7 @@ function NetworkDetailContent({
       {/* Show error information if request failed */}
       {payload.error && (
         <DetailSection title="Error">
-          <Text style={$errorText(themeName)}>{payload.error}</Text>
+          <Text style={$errorText()}>{payload.error}</Text>
         </DetailSection>
       )}
 
@@ -193,26 +188,24 @@ function NetworkDetailContent({
  * A reusable section component with a header and content area for organizing detail information.
  */
 function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
-  const [themeName] = useThemeName()
-
   return (
-    <View style={$section(themeName)}>
-      <View style={$sectionHeader(themeName)}>
-        <Text style={$sectionTitle(themeName)}>{title}</Text>
+    <View style={$section()}>
+      <View style={$sectionHeader()}>
+        <Text style={$sectionTitle()}>{title}</Text>
       </View>
-      <View style={$sectionContent(themeName)}>{children}</View>
+      <View style={$sectionContent()}>{children}</View>
     </View>
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors }) => ({
+const $container = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   backgroundColor: colors.cardBackground,
   borderLeftWidth: 1,
   borderLeftColor: colors.border,
 }))
 
-const $emptyContainer = withTheme<ViewStyle>(({ colors }) => ({
+const $emptyContainer = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
@@ -221,7 +214,7 @@ const $emptyContainer = withTheme<ViewStyle>(({ colors }) => ({
   borderLeftColor: colors.border,
 }))
 
-const $emptyCard = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $emptyCard = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.background,
   borderRadius: 12,
   borderWidth: 1,
@@ -231,13 +224,13 @@ const $emptyCard = withTheme<ViewStyle>(({ colors, spacing }) => ({
   maxWidth: 300,
 }))
 
-const $emptyIcon = withTheme<TextStyle>(({ spacing }) => ({
+const $emptyIcon = themed<TextStyle>(({ spacing }) => ({
   fontSize: 48,
   marginBottom: spacing.md,
   opacity: 0.5,
 }))
 
-const $emptyTitle = withTheme<TextStyle>(({ colors, typography }) => ({
+const $emptyTitle = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.subheading,
   fontWeight: "600",
@@ -245,14 +238,14 @@ const $emptyTitle = withTheme<TextStyle>(({ colors, typography }) => ({
   textAlign: "center",
 }))
 
-const $emptyText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $emptyText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   fontSize: typography.body,
   textAlign: "center",
   lineHeight: typography.body * 1.5,
 }))
 
-const $header = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $header = themed<ViewStyle>(({ colors, spacing }) => ({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
@@ -262,16 +255,12 @@ const $header = withTheme<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.background,
 }))
 
-const $headerContent: ViewStyle = {
-  flex: 1,
-}
-
 const $headerTitleRow: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
 }
 
-const $selectedIndicator = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $selectedIndicator = themed<ViewStyle>(({ colors, spacing }) => ({
   width: spacing.xxs,
   height: spacing.md,
   backgroundColor: colors.primary,
@@ -279,42 +268,38 @@ const $selectedIndicator = withTheme<ViewStyle>(({ colors, spacing }) => ({
   marginRight: spacing.sm,
 }))
 
-const $headerTitle = withTheme<TextStyle>(({ colors, typography, spacing }) => ({
+const $headerTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.mainText,
   fontSize: typography.subheading,
   fontFamily: typography.primary.semiBold,
   marginBottom: spacing.xxs,
 }))
 
-const $headerInfo = withTheme<ViewStyle>(({ spacing }) => ({
+const $headerInfo = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   gap: spacing.sm,
 }))
 
-const $headerInfoText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $headerInfoText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   fontSize: typography.caption,
 }))
 
-const $headerActions = withTheme<ViewStyle>(({ spacing }) => ({
+const $headerActions = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   gap: spacing.xs,
 }))
 
-const $content: ViewStyle = {
-  flex: 1,
-}
-
-const $scrollContent = withTheme<ViewStyle>(({ spacing }) => ({
+const $scrollContent = themed<ViewStyle>(({ spacing }) => ({
   paddingBottom: spacing.xl, // Extra padding at bottom for better scrolling
 }))
 
-const $detailContent = withTheme<ViewStyle>(({ spacing }) => ({
+const $detailContent = themed<ViewStyle>(({ spacing }) => ({
   flex: 1,
   padding: spacing.md,
 }))
 
-const $section = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $section = themed<ViewStyle>(({ colors, spacing }) => ({
   marginBottom: spacing.lg,
   backgroundColor: colors.background,
   borderRadius: spacing.xs,
@@ -323,7 +308,7 @@ const $section = withTheme<ViewStyle>(({ colors, spacing }) => ({
   overflow: "hidden",
 }))
 
-const $sectionHeader = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $sectionHeader = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.cardBackground,
   paddingVertical: spacing.sm,
   paddingHorizontal: spacing.md,
@@ -331,25 +316,25 @@ const $sectionHeader = withTheme<ViewStyle>(({ colors, spacing }) => ({
   borderBottomColor: colors.border,
 }))
 
-const $sectionTitle = withTheme<TextStyle>(({ colors, typography }) => ({
+const $sectionTitle = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.body,
   fontFamily: typography.primary.semiBold,
   letterSpacing: 0.5,
 }))
 
-const $sectionContent = withTheme<ViewStyle>(({ spacing }) => ({
+const $sectionContent = themed<ViewStyle>(({ spacing }) => ({
   padding: spacing.md,
   backgroundColor: "transparent",
 }))
 
-const $valueText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $valueText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.body,
   fontFamily: typography.code.normal,
 }))
 
-const $errorText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $errorText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.danger,
   fontSize: typography.body,
   fontFamily: typography.code.normal,

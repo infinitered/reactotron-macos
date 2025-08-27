@@ -1,5 +1,5 @@
 type TCallback<T, R> = (key: string, value: T, path: string[]) => R
-type Result<T, R> = R | undefined
+type Result<R> = R | undefined
 
 /**
  * Traverse an object and call a callback for each node, including the parent.
@@ -17,7 +17,7 @@ export function traverse<T, R = any>(
   max: number = 20,
   key: string = "root",
   path: string[] = [],
-): Result<T, R> {
+): Result<R> {
   // call the callback for this node itself
   const result = cb(key, o, path)
 
