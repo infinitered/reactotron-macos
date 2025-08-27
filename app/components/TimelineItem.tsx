@@ -1,5 +1,5 @@
 import { Text, View, type ViewStyle, type TextStyle } from "react-native"
-import { useThemeName, themed } from "../theme/theme"
+import { themed } from "../theme/theme"
 import PressableWithRightClick from "./PressableWithRightClick"
 import { MenuListEntry } from "../utils/useActionMenu"
 

@@ -4,7 +4,7 @@
  * Likely to be removed; double-check that it is even used.
  */
 import { Pressable, Text, TextStyle, View, ViewStyle } from "react-native"
-import { useThemeName, themed } from "../theme/theme"
+import { themed } from "../theme/theme"
 
 interface InfoCardProps {
   title: string
