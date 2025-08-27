@@ -9,6 +9,7 @@
     "pod": "./bin/pod-install",
     "pod-clean": "./bin/pod-install clean",
     "lint": "eslint .",
+    "ci": "npm run lint",
     "start": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 ./node_modules/react-native-macos/scripts/packager.sh start",
     "test": "jest",
     "postinstall": "ln -sf $(pwd)/node_modules/react-native-macos $(pwd)/node_modules/react-native && patch-package"
