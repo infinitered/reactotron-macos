@@ -11,8 +11,9 @@ import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar"
-import { Sidebar } from "./components/Sidebar"
+import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
+import { AppHeader } from "./components/AppHeader"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -79,6 +80,7 @@ function App(): React.JSX.Element {
       <View style={$mainContent}>
         <Sidebar />
         <View style={$contentContainer(theme)}>
+          <AppHeader />
           <TimelineScreen />
         </View>
       </View>
