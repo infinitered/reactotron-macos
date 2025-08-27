@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ViewStyle, TextStyle } from "react-native"
-import { useTheme, useThemeName, withTheme } from "../theme/theme"
+import { useThemeName, themed } from "../theme/theme"
 
 export type FilterType = "all" | "log" | "network"
 export type LogLevel = "all" | "debug" | "warn" | "error"
@@ -18,11 +18,11 @@ interface TimelineToolbarProps {
   filteredCount: number
 }
 
-export function TimelineToolbar({ 
-  filters, 
-  onFiltersChange, 
-  itemCount, 
-  filteredCount 
+export function TimelineToolbar({
+  filters,
+  onFiltersChange,
+  itemCount,
+  filteredCount,
 }: TimelineToolbarProps) {
   const [themeName] = useThemeName()
 
@@ -33,49 +33,48 @@ export function TimelineToolbar({
   return (
     <View style={$container(themeName)}>
       <View style={$content}>
-        <FilterSection 
-          title="Type" 
+        <FilterSection
+          title="Type"
           options={[
             { key: "all", label: "All" },
             { key: "log", label: "Logs" },
-            { key: "network", label: "Network" }
+            { key: "network", label: "Network" },
           ]}
           selected={filters.type}
           onSelect={(value) => updateFilter("type", value)}
         />
 
-        <FilterSection 
-          title="Level" 
+        <FilterSection
+          title="Level"
           options={[
             { key: "all", label: "All" },
             { key: "debug", label: "Debug" },
             { key: "warn", label: "Warn" },
-            { key: "error", label: "Error" }
+            { key: "error", label: "Error" },
           ]}
           selected={filters.logLevel}
           onSelect={(value) => updateFilter("logLevel", value)}
         />
 
-        <FilterSection 
-          title="Sort" 
+        <FilterSection
+          title="Sort"
           options={[
             { key: "time-newest", label: "↓ Newest" },
             { key: "time-oldest", label: "↑ Oldest" },
             { key: "type", label: "Type" },
-            { key: "level", label: "Level" }
+            { key: "level", label: "Level" },
           ]}
           selected={filters.sortBy}
           onSelect={(value) => updateFilter("sortBy", value)}
         />
 
         <View style={$spacer} />
-        
+
         <View style={$statsContainer}>
           <Text style={$statsText(themeName)}>
-            {filteredCount === itemCount 
+            {filteredCount === itemCount
               ? `${itemCount} items`
-              : `${filteredCount} of ${itemCount}`
-            }
+              : `${filteredCount} of ${itemCount}`}
           </Text>
         </View>
       </View>
@@ -91,11 +90,9 @@ interface FilterSectionProps {
 }
 
 function FilterSection({ title, options, selected, onSelect }: FilterSectionProps) {
-  const [themeName] = useThemeName()
-  
   return (
     <View style={$filterSection}>
-      <Text style={$sectionTitle(themeName)}>{title}</Text>
+      <Text style={$sectionTitle()}>{title}</Text>
       <View style={$buttonGroup}>
         {options.map((option) => (
           <FilterButton
@@ -118,27 +115,23 @@ interface FilterButtonProps {
 
 function FilterButton({ label, isSelected, onPress }: FilterButtonProps) {
   const [themeName] = useThemeName()
-  
+
   return (
     <TouchableOpacity
-      style={[
-        $filterButton(themeName),
-        isSelected && $filterButtonSelected(themeName)
-      ]}
+      style={[$filterButton(themeName), isSelected && $filterButtonSelected(themeName)]}
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <Text style={[
-        $filterButtonText(themeName),
-        isSelected && $filterButtonTextSelected(themeName)
-      ]}>
+      <Text
+        style={[$filterButtonText(themeName), isSelected && $filterButtonTextSelected(themeName)]}
+      >
         {label}
       </Text>
     </TouchableOpacity>
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $container = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.cardBackground,
   borderBottomWidth: 1,
   borderBottomColor: colors.border,
@@ -154,6 +147,7 @@ const $container = withTheme<ViewStyle>(({ colors, spacing }) => ({
 const $content: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
+  flexWrap: "wrap",
   gap: 20,
 }
 
@@ -162,7 +156,7 @@ const $filterSection: ViewStyle = {
   gap: 6,
 }
 
-const $sectionTitle = withTheme<TextStyle>(({ colors }) => ({
+const $sectionTitle = themed<TextStyle>(({ colors }) => ({
   fontSize: 11,
   fontWeight: "600",
   color: colors.neutral,
@@ -184,13 +178,13 @@ const $statsContainer: ViewStyle = {
   alignItems: "flex-end",
 }
 
-const $statsText = withTheme<TextStyle>(({ colors }) => ({
+const $statsText = themed<TextStyle>(({ colors }) => ({
   fontSize: 11,
   color: colors.neutral,
   fontWeight: "500",
 }))
 
-const $filterButton = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $filterButton = themed<ViewStyle>(({ colors, spacing }) => ({
   paddingHorizontal: spacing.xs,
   paddingVertical: 6,
   borderRadius: 6,
@@ -207,7 +201,7 @@ const $filterButton = withTheme<ViewStyle>(({ colors, spacing }) => ({
   elevation: 1,
 }))
 
-const $filterButtonSelected = withTheme<ViewStyle>(({ colors }) => ({
+const $filterButtonSelected = themed<ViewStyle>(({ colors }) => ({
   backgroundColor: colors.primary,
   borderColor: colors.primary,
   shadowColor: colors.primary,
@@ -217,13 +211,13 @@ const $filterButtonSelected = withTheme<ViewStyle>(({ colors }) => ({
   elevation: 3,
 }))
 
-const $filterButtonText = withTheme<TextStyle>(({ colors }) => ({
+const $filterButtonText = themed<TextStyle>(({ colors }) => ({
   fontSize: 11,
   fontWeight: "500",
   color: colors.mainText,
 }))
 
-const $filterButtonTextSelected = withTheme<TextStyle>(({ colors }) => ({
+const $filterButtonTextSelected = themed<TextStyle>(({ colors }) => ({
   color: colors.background,
   fontWeight: "600",
 }))

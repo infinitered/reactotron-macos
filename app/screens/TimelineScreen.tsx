@@ -12,7 +12,8 @@ import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
 import { useMemo, useState } from "react"
-import { filterAndSortTimelineItems } from "app/utils/timelineFilters"
+import { filterAndSortTimelineItems } from "../utils/timelineFilters"
+import { Titlebar } from "app/components/Titlebar"
 
 /**
  * Renders the correct component for each timeline item.
@@ -69,30 +70,15 @@ export function TimelineScreen() {
   return (
     <View style={[$flex, $row]}>
       <View style={{ width: timelineWidth }}>
-        <LegendList<TimelineItem>
-          data={timelineItems}
-          extraData={selectedItem?.id}
-          renderItem={({ item }) => (
-            <TimelineItemRenderer
-              item={item}
-              isSelected={selectedItem?.id === item.id}
-              onSelectItem={handleSelectItem}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-          estimatedItemSize={60}
-          recycleItems
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={$contentContainer()} // making some room for the scrollbar
-          ItemSeparatorComponent={Separator}
-        />
         <View style={{ flex: 1 }}>
-          <TimelineToolbar
-            filters={filters}
-            onFiltersChange={setFilters}
-            itemCount={timelineItems.length}
-            filteredCount={filteredAndSortedItems.length}
-          />
+          <View style={$timelineToolbarContainer()}>
+            <TimelineToolbar
+              filters={filters}
+              onFiltersChange={setFilters}
+              itemCount={timelineItems.length}
+              filteredCount={filteredAndSortedItems.length}
+            />
+          </View>
           <LegendList<TimelineItem>
             data={filteredAndSortedItems}
             extraData={selectedItem?.id}
@@ -119,6 +105,15 @@ export function TimelineScreen() {
     </View>
   )
 }
+
+const $timelineToolbarContainer = themed<ViewStyle>(({ spacing }) => ({
+  padding: spacing.xs,
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 1000,
+}))
 
 const $contentContainer = themed<ViewStyle>(({ spacing }) => ({
   paddingRight: spacing.xs,
