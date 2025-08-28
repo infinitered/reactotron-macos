@@ -1,6 +1,6 @@
 import React from "react"
 import { Animated, View, ViewStyle, Pressable, TextStyle } from "react-native"
-import { useTheme, useThemeName, withTheme } from "../../theme/theme"
+import { themed, useTheme, useThemeName, withTheme } from "../../theme/theme"
 import { useGlobal } from "../../state/useGlobal"
 import { Icon } from "../Icon"
 
@@ -21,7 +21,7 @@ interface SidebarMenuProps {
 
 export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuProps) => {
   const [themeName] = useThemeName()
-  const theme = useTheme(themeName)
+  const theme = useTheme()
 
   const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
@@ -45,8 +45,8 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
           <Pressable
             key={item.id}
             style={({ pressed }) => [
-              $menuItem(themeName),
-              active && $menuItemActive(themeName),
+              $menuItem(),
+              active && $menuItemActive(),
               pressed && $menuItemPressed,
             ]}
             onPress={() => setActiveItem(item.id)}
@@ -70,8 +70,8 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
             {mounted && (
               <Animated.Text
                 style={[
-                  $menuItemText(themeName),
-                  active && $menuItemTextActive(themeName),
+                  $menuItemText(),
+                  active && $menuItemTextActive(),
                   { opacity: labelOpacity, marginLeft: 8 },
                 ]}
                 numberOfLines={1}
@@ -91,7 +91,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
 
 const $menu: ViewStyle = { flex: 1, marginTop: 12, width: "100%" }
 
-const $menuItem = withTheme<ViewStyle>(({ spacing }) => ({
+const $menuItem = themed<ViewStyle>(({ spacing }) => ({
   paddingVertical: spacing.xs,
   marginBottom: spacing.xxs,
   borderRadius: 6,
@@ -101,18 +101,18 @@ const $menuItem = withTheme<ViewStyle>(({ spacing }) => ({
   minWidth: 0,
 }))
 
-const $menuItemActive = withTheme<ViewStyle>((theme) => ({
+const $menuItemActive = themed<ViewStyle>((theme) => ({
   backgroundColor: theme.colors.primary,
 }))
 
 const $menuItemPressed: ViewStyle = { opacity: 0.7 }
 
-const $menuItemText = withTheme<TextStyle>((theme) => ({
+const $menuItemText = themed<TextStyle>((theme) => ({
   fontSize: theme.typography.caption,
   color: theme.colors.mainText,
   fontWeight: "700",
 }))
 
-const $menuItemTextActive = withTheme<TextStyle>((theme) => ({
+const $menuItemTextActive = themed<TextStyle>((theme) => ({
   color: theme.colors.mainTextInverted,
 }))

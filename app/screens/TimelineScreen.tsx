@@ -5,9 +5,11 @@ import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
-import { View } from "react-native-macos"
+import { View, ViewStyle } from "react-native-macos"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
+import { themed, useThemeName } from "../theme/theme"
+import { $flex, $row } from "../theme/basics"
 
 /**
  * Renders the correct component for each timeline item.
@@ -22,6 +24,8 @@ const TimelineItemRenderer = ({
   onSelectItem: (item: TimelineItem) => void
 }) => {
   if (!item) return null
+
+  useThemeName()
 
   const handleSelectItem = () => {
     onSelectItem(item)
@@ -50,7 +54,7 @@ export function TimelineScreen() {
   }
 
   return (
-    <View style={{ flex: 1, flexDirection: "row" }}>
+    <View style={[$flex, $row]}>
       <View style={{ width: timelineWidth }}>
         <LegendList<TimelineItem>
           data={timelineItems}
@@ -66,14 +70,18 @@ export function TimelineScreen() {
           estimatedItemSize={60}
           recycleItems
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingRight: 8 }} // making some room for the scrollbar
+          contentContainerStyle={$contentContainer()} // making some room for the scrollbar
           ItemSeparatorComponent={Separator}
         />
       </View>
       <ResizableDivider onResize={setTimelineWidth} minWidth={300} maxWidth={800} />
-      <View style={{ flex: 1 }}>
+      <View style={$flex}>
         <DetailPanel selectedItem={selectedItem} onClose={() => setSelectedItemId(null)} />
       </View>
     </View>
   )
 }
+
+const $contentContainer = themed<ViewStyle>(({ spacing }) => ({
+  paddingRight: spacing.xs,
+}))

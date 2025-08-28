@@ -1,6 +1,6 @@
 import React from "react"
 import { Animated, View, ViewStyle, StyleSheet } from "react-native"
-import { useTheme, useThemeName, withTheme } from "../../theme/theme"
+import { themed, useTheme, useThemeName, withTheme } from "../../theme/theme"
 import { AnimatedReactotronLogo } from "./AnimatedReactotronLogo"
 import { useSidebarAnimationProgress } from "./useSidebarAnimationProgress"
 import { SidebarMenu } from "./SidebarMenu"
@@ -12,8 +12,7 @@ const EXPANDED_WIDTH = 250
 const COLLAPSED_WIDTH = 60
 
 export const Sidebar = () => {
-  const [themeName] = useThemeName()
-  const theme = useTheme(themeName)
+  const theme = useTheme()
   const { progress, mounted } = useSidebarAnimationProgress()
 
   const animatedWidth = progress.interpolate({
@@ -23,8 +22,8 @@ export const Sidebar = () => {
 
   return (
     <Animated.View style={{ width: animatedWidth, overflow: "hidden" }}>
-      <View style={$container(theme)}>
-        <View style={$content(themeName)}>
+      <View style={$container()}>
+        <View style={$content()}>
           <AnimatedReactotronLogo progress={progress} mounted={mounted} />
           <SidebarMenu progress={progress} mounted={mounted} collapsedWidth={COLLAPSED_WIDTH} />
         </View>
@@ -33,7 +32,7 @@ export const Sidebar = () => {
   )
 }
 
-const $container = (theme: any): ViewStyle => ({
+const $container = themed<ViewStyle>((theme) => ({
   flex: 1,
   overflow: "hidden",
   backgroundColor: theme.colors.navigation,
@@ -42,9 +41,9 @@ const $container = (theme: any): ViewStyle => ({
   // RN macOS doesn't seem to support borderBottomWidth so it's all or nothing
   // This makes it so we don't get a double border from the Titlebar border
   marginTop: -StyleSheet.hairlineWidth,
-})
+}))
 
-const $content = withTheme<ViewStyle>((theme) => ({
+const $content = themed<ViewStyle>((theme) => ({
   flex: 1,
   padding: theme.spacing.sm,
 }))

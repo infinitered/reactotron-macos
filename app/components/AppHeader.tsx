@@ -10,7 +10,7 @@ import { ClearLogsButton } from "./ClearLogsButton"
 import { ClientTab } from "./ClientTab"
 import Header from "./Header"
 import { HeaderTitle } from "./HeaderTitle"
-import { useThemeName, withTheme } from "../theme/theme"
+import { useThemeName, themed } from "../theme/theme"
 import { useGlobal } from "../state/useGlobal"
 import { getReactotronAppId } from "../state/connectToServer"
 
@@ -24,31 +24,26 @@ export function AppHeader() {
 
   return (
     <Header>
-      <View style={$tabContainer(theme)}>
+      <View style={$tabContainer()}>
         {clientIds.map((id) => (
           <ClientTab key={id} clientId={id} />
         ))}
       </View>
       <HeaderTitle title={`Reactotron ${reactotronAppId}`} />
-      <View style={$statusRow(theme)}>
+      <View style={$statusRow()}>
         <View>
-          <TextInput value={"SEARCHING"} placeholder="Search" style={{ width: 100 }} />
+          <TextInput value={"SEARCHING"} placeholder="Search" style={$searchInput} />
           <Text>Search</Text>
         </View>
-        <View style={$statusItem(theme)}>
-          <View
-            style={[
-              $dot(theme),
-              error ? $dotRed(theme) : isConnected ? $dotGreen(theme) : $dotGray(theme),
-            ]}
-          />
-          <Text style={$statusText(theme)}>Server</Text>
+        <View style={$statusItem()}>
+          <View style={[$dot(), error ? $dotRed() : isConnected ? $dotGreen() : $dotGray()]} />
+          <Text style={$statusText()}>Server</Text>
           <ClearLogsButton />
         </View>
-        <View style={$divider(theme)} />
-        <View style={$statusItem(theme)}>
-          <View style={[$dot(theme), arch === "Fabric" ? $dotGreen(theme) : $dotOrange(theme)]} />
-          <Text style={$statusText(theme)}>{arch}</Text>
+        <View style={$divider()} />
+        <View style={$statusItem()}>
+          <View style={[$dot(), arch === "Fabric" ? $dotGreen() : $dotOrange()]} />
+          <Text style={$statusText()}>{arch}</Text>
         </View>
       </View>
       <ActionButton
@@ -61,27 +56,27 @@ export function AppHeader() {
   )
 }
 
-const $tabContainer = withTheme<ViewStyle>(({ spacing }) => ({
+const $tabContainer = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   paddingHorizontal: spacing.xl,
   paddingVertical: spacing.md,
   gap: spacing.md,
 }))
 
-const $statusRow = withTheme<ViewStyle>(({ spacing }) => ({
+const $statusRow = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   alignItems: "center",
   padding: spacing.sm,
   justifyContent: "center",
 }))
 
-const $statusItem = withTheme<ViewStyle>(() => ({
+const $statusItem = themed<ViewStyle>(() => ({
   flexDirection: "row",
   alignItems: "center",
   minWidth: 80,
 }))
 
-const $divider = withTheme<ViewStyle>(({ colors, spacing }) => ({
+const $divider = themed<ViewStyle>(({ colors, spacing }) => ({
   width: 1,
   height: 24,
   backgroundColor: colors.border,
@@ -89,7 +84,7 @@ const $divider = withTheme<ViewStyle>(({ colors, spacing }) => ({
   borderRadius: 1,
 }))
 
-const $dot = withTheme<ViewStyle>(({ colors }) => ({
+const $dot = themed<ViewStyle>(({ colors }) => ({
   width: 12,
   height: 12,
   borderRadius: 6,
@@ -97,13 +92,15 @@ const $dot = withTheme<ViewStyle>(({ colors }) => ({
   borderWidth: 1,
   borderColor: colors.border,
 }))
-const $dotGray = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.neutral }))
-const $dotGreen = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.success }))
-const $dotRed = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.danger }))
-const $dotOrange = withTheme<ViewStyle>(({ colors }) => ({ backgroundColor: colors.primary }))
+const $dotGray = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.neutral }))
+const $dotGreen = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.success }))
+const $dotRed = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.danger }))
+const $dotOrange = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.primary }))
 
-const $statusText = withTheme<TextStyle>(({ colors }) => ({
+const $statusText = themed<TextStyle>(({ colors }) => ({
   fontSize: 16,
   color: colors.mainText,
   fontWeight: "600",
 }))
+
+const $searchInput: ViewStyle = { width: 100 }

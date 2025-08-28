@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react"
 import { View, ViewStyle } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
+import { themed } from "../theme/theme"
 
 export interface HeaderProps {}
 
@@ -9,16 +9,15 @@ export interface HeaderProps {}
  */
 export function Header(props: PropsWithChildren<HeaderProps>) {
   const { children } = props
-  const [theme] = useThemeName()
 
   return (
-    <View style={$container(theme)}>
-      <View style={$contentContainer(theme)}>{children}</View>
+    <View style={$container()}>
+      <View style={$contentContainer()}>{children}</View>
     </View>
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors }) => ({
+const $container = themed<ViewStyle>(({ colors }) => ({
   backgroundColor: colors.cardBackground,
   borderBottomColor: colors.border,
   borderBottomWidth: 1,
@@ -29,7 +28,7 @@ const $container = withTheme<ViewStyle>(({ colors }) => ({
   shadowRadius: 5,
 }))
 
-const $contentContainer = withTheme<ViewStyle>(() => ({
+const $contentContainer = themed<ViewStyle>(() => ({
   alignItems: "center",
   flexDirection: "row",
   height: 70,

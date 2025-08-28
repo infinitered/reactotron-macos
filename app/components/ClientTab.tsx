@@ -1,12 +1,11 @@
 import type { ClientData } from "../types"
 import { useGlobal } from "../state/useGlobal"
-import { useThemeName, withTheme } from "../theme/theme"
+import { themed } from "../theme/theme"
 import { Pressable, Text, TextStyle, ViewStyle } from "react-native"
 
 const tabgroup = "activeClientId"
 
 export function ClientTab({ clientId }: { clientId: string }) {
-  const [theme] = useThemeName()
   const [clientData] = useGlobal<ClientData>(`client-${clientId}`, {} as ClientData)
 
   const label: string = (clientData?.name ?? clientId) + "\n"
@@ -16,32 +15,32 @@ export function ClientTab({ clientId }: { clientId: string }) {
   const active = activeTab === label
 
   return (
-    <Pressable key={clientId} onPress={() => setActiveTab(label)} style={$container(theme)}>
-      <Text style={[$tab(theme), active ? $tabActive(theme) : {}]}>{label}</Text>
-      <Text style={$os(theme)}>{os}</Text>
+    <Pressable key={clientId} onPress={() => setActiveTab(label)} style={$container()}>
+      <Text style={[$tab(), active ? $tabActive() : {}]}>{label}</Text>
+      <Text style={$os()}>{os}</Text>
     </Pressable>
   )
 }
 
-const $container = withTheme<ViewStyle>(({ spacing }) => ({
+const $container = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "column",
   alignItems: "flex-start",
   gap: spacing.xxs,
   cursor: "pointer",
 }))
 
-const $tab = withTheme<TextStyle>(({ spacing, colors }) => ({
+const $tab = themed<TextStyle>(({ spacing, colors }) => ({
   fontSize: spacing.md,
   color: colors.mainText,
 }))
 
-const $tabActive = withTheme<TextStyle>(({ colors }) => ({
+const $tabActive = themed<TextStyle>(({ colors }) => ({
   borderBottomColor: colors.primary,
   color: colors.mainText,
   textDecorationLine: "underline",
 }))
 
-const $os = withTheme<TextStyle>(({ colors }) => ({
+const $os = themed<TextStyle>(({ colors }) => ({
   fontSize: 12,
   color: colors.mainText,
 }))

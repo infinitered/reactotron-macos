@@ -1,4 +1,4 @@
-import { useThemeName, withTheme } from "../../theme/theme"
+import { themed, useThemeName, withTheme } from "../../theme/theme"
 import { Animated, ImageStyle, View, ViewStyle } from "react-native-macos"
 
 type AnimatedReactotronLogoProps = {
@@ -7,12 +7,12 @@ type AnimatedReactotronLogoProps = {
 }
 
 export const AnimatedReactotronLogo = ({ progress, mounted }: AnimatedReactotronLogoProps) => {
+  const [themeName] = useThemeName()
   const logoScale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.78, 1] })
   const logoTextOpacity = progress // fade out the reactotron text when collapsed
-  const [themeName] = useThemeName()
 
   return (
-    <View style={$logoRow(themeName)}>
+    <View style={$logoRow()}>
       <Animated.Image
         source={require("../../../assets/images/reactotronLogo.png")}
         style={[$logo, { transform: [{ scale: logoScale }] }]}
@@ -22,7 +22,7 @@ export const AnimatedReactotronLogo = ({ progress, mounted }: AnimatedReactotron
         <Animated.Image
           key={`${themeName}-reactotronText`}
           source={require("../../../assets/images/reactotronText.png")}
-          style={[$logoText(themeName), { opacity: logoTextOpacity }]}
+          style={[$logoText(), { opacity: logoTextOpacity }]}
           resizeMode="contain"
         />
       )}
@@ -35,12 +35,12 @@ const $logo = {
   height: 36,
 }
 
-const $logoText = withTheme<ImageStyle>((theme) => ({
+const $logoText = themed<ImageStyle>((theme) => ({
   height: 36 * 0.54, // this magic number is the aspect ratio of the logo text compared to the logo
   tintColor: theme.colors.mainText,
 }))
 
-const $logoRow = withTheme<ViewStyle>(({ spacing }) => ({
+const $logoRow = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   alignItems: "center",
   gap: spacing.xs,

@@ -1,7 +1,8 @@
 import { Text, View, type ViewStyle, type TextStyle, Pressable } from "react-native"
-import { useThemeName, withTheme, type ThemeName, useTheme } from "../theme/theme"
+import { themed } from "../theme/theme"
 import ActionButton from "../components/ActionButton"
 import { useGlobal } from "../state/useGlobal"
+import { $flex } from "../theme/basics"
 
 type ExpandableRowProps = {
   id: string
@@ -34,29 +35,27 @@ export function ExpandableRow({
   responseStatusCode,
   children,
 }: ExpandableRowProps) {
-  const [themeName] = useThemeName()
   const [isOpen, setIsOpen] = useGlobal(`timeline-${id}-open`, false, { persist: true })
-
   const time = formatTime(date)
 
   return (
-    <View style={$container(themeName, isOpen)}>
+    <View style={$container(isOpen)}>
       <Pressable style={$topBarContainer} onPress={() => setIsOpen(!isOpen)}>
         <View style={$timestampContainer}>
-          <Text style={$timestampText(themeName)}>{time}</Text>
-          {deltaTime ? <Text style={$deltaText(themeName)}>+{deltaTime}ms</Text> : null}
+          <Text style={$timestampText()}>{time}</Text>
+          {deltaTime ? <Text style={$deltaText()}>+{deltaTime}ms</Text> : null}
         </View>
         <View style={$titleContainer}>
-          <View style={$titleText(themeName, isImportant)}>
+          <View style={$titleText(isImportant)}>
             {isTagged && <Text style={$tagIcon}>🏷️</Text>}
-            <Text style={[$titleLabel(themeName, isImportant), { color: titleColor }]}>
+            <Text style={[$titleLabel(isImportant), { color: titleColor }]}>
               {title} {responseStatusCode ? `(${responseStatusCode})` : ""}
             </Text>
           </View>
         </View>
         {!isOpen && (
           <View style={$previewContainer}>
-            <Text style={$previewText(themeName)} numberOfLines={1}>
+            <Text style={$previewText()} numberOfLines={1}>
               {preview}
             </Text>
           </View>
@@ -68,9 +67,9 @@ export function ExpandableRow({
             ))}
           </View>
         )}
-        <View style={$spacer} />
+        <View style={$flex} />
         <View style={$expandIconContainer}>
-          <Text style={$expandIcon(themeName)}>{isOpen ? "▲" : "▼"}</Text>
+          <Text style={$expandIcon()}>{isOpen ? "▲" : "▼"}</Text>
         </View>
       </Pressable>
       {isOpen && <View style={$childrenContainer}>{children}</View>}
@@ -87,15 +86,13 @@ function formatTime(date: Date | number) {
   )
 }
 
-const $container = (themeName: ThemeName, isOpen: boolean): ViewStyle => {
-  const theme = useTheme(themeName)
-  return {
+const $container = (isOpen: boolean) =>
+  themed<ViewStyle>(({ colors }) => ({
     flexDirection: "column",
     borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-    backgroundColor: isOpen ? theme.colors.cardBackground : theme.colors.background,
-  }
-}
+    borderBottomColor: colors.border,
+    backgroundColor: isOpen ? colors.cardBackground : colors.background,
+  }))()
 
 const $topBarContainer: ViewStyle = {
   flexDirection: "row",
@@ -109,7 +106,7 @@ const $timestampContainer: ViewStyle = {
   paddingTop: 4,
 }
 
-const $timestampText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $timestampText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   // fontFamily: typography.code.normal,
   fontSize: typography.caption,
@@ -118,7 +115,7 @@ const $timestampText = withTheme<TextStyle>(({ colors, typography }) => ({
   textAlign: "left",
 }))
 
-const $deltaText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $deltaText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   // fontFamily: typography.code.normal,
   fontSize: typography.caption * 0.95,
@@ -134,25 +131,21 @@ const $titleContainer: ViewStyle = {
   width: 168,
 }
 
-const $titleText = (themeName: ThemeName, isImportant: boolean): ViewStyle => {
-  const theme = useTheme(themeName)
-  return {
+const $titleText = (isImportant: boolean) =>
+  themed<ViewStyle>(({ colors }) => ({
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: isImportant ? theme.colors.primary : "transparent",
+    backgroundColor: isImportant ? colors.primary : "transparent",
     borderRadius: 4,
     padding: 4,
-  }
-}
+  }))()
 
-const $titleLabel = (themeName: ThemeName, isImportant: boolean): TextStyle => {
-  const theme = useTheme(themeName)
-  return {
-    color: isImportant ? theme.colors.background : theme.colors.primary,
+const $titleLabel = (isImportant: boolean) =>
+  themed<TextStyle>(({ colors }) => ({
+    color: isImportant ? colors.background : colors.primary,
     fontSize: 12,
     fontWeight: "500",
-  }
-}
+  }))()
 
 const $tagIcon: TextStyle = {
   marginRight: 4,
@@ -164,7 +157,7 @@ const $previewContainer: ViewStyle = {
   paddingTop: 4,
 }
 
-const $previewText = withTheme<TextStyle>(({ colors, typography }) => ({
+const $previewText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   // fontFamily: typography.code.normal,
   fontSize: typography.body,
@@ -175,16 +168,12 @@ const $toolbarContainer: ViewStyle = {
   alignItems: "center",
 }
 
-const $spacer: ViewStyle = {
-  flex: 1,
-}
-
 const $expandIconContainer: ViewStyle = {
   alignItems: "center",
   justifyContent: "center",
 }
 
-const $expandIcon = withTheme<TextStyle>(({ colors }) => ({
+const $expandIcon = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
   fontSize: 16,
 }))

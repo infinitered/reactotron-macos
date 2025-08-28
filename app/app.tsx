@@ -6,7 +6,7 @@
  */
 import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
-import { useTheme, useThemeName, withTheme } from "./theme/theme"
+import { useTheme, themed } from "./theme/theme"
 import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useMenuItem } from "./utils/useMenuItem"
@@ -22,8 +22,7 @@ if (__DEV__) {
 }
 
 function App(): React.JSX.Element {
-  const [theme] = useThemeName()
-  const { colors } = useTheme(theme)
+  const { colors } = useTheme()
   const { toggleSidebar } = useSidebar()
 
   const menuConfig = useMemo(
@@ -74,12 +73,12 @@ function App(): React.JSX.Element {
   useEffect(() => connectToServer(), [])
 
   return (
-    <View style={$container(theme)}>
+    <View style={$container()}>
       <Titlebar />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <View style={$mainContent}>
         <Sidebar />
-        <View style={$contentContainer(theme)}>
+        <View style={$contentContainer}>
           <AppHeader />
           <TimelineScreen />
         </View>
@@ -88,7 +87,7 @@ function App(): React.JSX.Element {
   )
 }
 
-const $container = withTheme<ViewStyle>(({ colors }) => ({
+const $container = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   backgroundColor: colors.background,
 }))
@@ -98,8 +97,8 @@ const $mainContent: ViewStyle = {
   flexDirection: "row",
 }
 
-const $contentContainer = withTheme<ViewStyle>(() => ({
+const $contentContainer: ViewStyle = {
   flex: 1,
-}))
+}
 
 export default App

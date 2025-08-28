@@ -1,6 +1,5 @@
-import { GestureResponderEvent, ViewStyle } from "react-native"
-import { Pressable } from "react-native-macos"
-import { useThemeName, withTheme } from "../theme/theme"
+import { GestureResponderEvent, TouchableOpacity, ViewStyle, Pressable } from "react-native"
+import { themed } from "../theme/theme"
 
 interface ActionButtonProps {
   icon: React.ElementType<{ size: number }>
@@ -9,22 +8,21 @@ interface ActionButtonProps {
 }
 
 function ActionButton({ icon: Icon, onClick, style }: ActionButtonProps) {
-  const [theme] = useThemeName()
-
   return (
-    <Pressable
-      style={({ pressed }) => [$container(theme), style, $pressed(pressed)]}
-      onPress={onClick}
-      // TODO: Add hover support https://github.com/microsoft/react-native-macos/issues/2313
-      // onHoverIn={() => setHovered(true)}
-      // onHoverOut={() => setHovered(false)}
-    >
+    //   <Pressable
+    //   style={({ pressed }) => [$container(theme), style, $pressed(pressed)]}
+    //   onPress={onClick}
+    //   // TODO: Add hover support https://github.com/microsoft/react-native-macos/issues/2313
+    //   // onHoverIn={() => setHovered(true)}
+    //   // onHoverOut={() => setHovered(false)}
+    // >
+    <TouchableOpacity style={[$container(), style]} onPress={onClick} activeOpacity={0.7}>
       <Icon size={24} />
-    </Pressable>
+    </TouchableOpacity>
   )
 }
 
-const $container = withTheme<ViewStyle>(({ spacing }) => ({
+const $container = themed<ViewStyle>(({ spacing }) => ({
   marginHorizontal: spacing.sm,
   padding: spacing.sm,
   justifyContent: "center",

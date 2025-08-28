@@ -1,4 +1,4 @@
-import { useTheme, useThemeName, withTheme } from "../theme/theme"
+import { themed, useTheme, useThemeName, withTheme } from "../theme/theme"
 import { Platform, StyleSheet, View, ViewStyle } from "react-native"
 import { Icon } from "./Icon"
 import ActionButton from "./ActionButton"
@@ -10,8 +10,8 @@ export const Titlebar = () => {
   const { isOpen, toggleSidebar } = useSidebar()
 
   return (
-    <View style={$borderContainer(themeName)}>
-      <View style={$container(themeName)}>
+    <View style={$borderContainer()}>
+      <View style={$container()}>
         <TrafficLightSpacer />
         <ActionButton
           icon={() => (
@@ -36,12 +36,12 @@ const TrafficLightSpacer = () => {
   })
 }
 
-const $borderContainer = withTheme<ViewStyle>((theme) => ({
+const $borderContainer = themed<ViewStyle>((theme) => ({
   backgroundColor: theme.colors.keyline,
   padding: 1,
 }))
 
-const $container = withTheme<ViewStyle>((theme) => ({
+const $container = themed<ViewStyle>((theme) => ({
   backgroundColor: theme.colors.navigation,
   paddingHorizontal: theme.spacing.sm,
   flexDirection: "row",
