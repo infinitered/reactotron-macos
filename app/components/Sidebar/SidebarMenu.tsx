@@ -59,9 +59,11 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
               <Icon
                 icon={item.icon}
                 size={18}
-                color={active ? theme.colors.background : theme.colors.neutral}
+                color={active ? theme.colors.mainTextInverted : theme.colors.neutral}
                 // TODO: don't love this but it's the only thing that works to change the icon color
-                key={`${item.id}-${activeItem === item.id ? "active" : "inactive"}-icon`}
+                key={`${item.id}-${
+                  activeItem === item.id ? "active" : "inactive"
+                }-${themeName}-icon`}
               />
             </View>
 
@@ -112,5 +114,5 @@ const $menuItemText = withTheme<TextStyle>((theme) => ({
 }))
 
 const $menuItemTextActive = withTheme<TextStyle>((theme) => ({
-  color: theme.colors.background,
+  color: theme.colors.mainTextInverted,
 }))

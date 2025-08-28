@@ -1,5 +1,5 @@
 import { useThemeName, withTheme } from "../../theme/theme"
-import { Animated, View, ViewStyle } from "react-native-macos"
+import { Animated, ImageStyle, View, ViewStyle } from "react-native-macos"
 
 type AnimatedReactotronLogoProps = {
   progress: Animated.Value // 0 = collapsed, 1 = expanded (animated in the sidebar)
@@ -20,8 +20,9 @@ export const AnimatedReactotronLogo = ({ progress, mounted }: AnimatedReactotron
       />
       {mounted && (
         <Animated.Image
+          key={`${themeName}-reactotronText`}
           source={require("../../../assets/images/reactotronText.png")}
-          style={[$logoText, { opacity: logoTextOpacity }]}
+          style={[$logoText(themeName), { opacity: logoTextOpacity }]}
           resizeMode="contain"
         />
       )}
@@ -34,9 +35,10 @@ const $logo = {
   height: 36,
 }
 
-const $logoText = {
+const $logoText = withTheme<ImageStyle>((theme) => ({
   height: 36 * 0.54, // this magic number is the aspect ratio of the logo text compared to the logo
-}
+  tintColor: theme.colors.mainText,
+}))
 
 const $logoRow = withTheme<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
