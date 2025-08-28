@@ -49,8 +49,7 @@ export function Icon(props: IconProps) {
     ...viewProps
   } = props
 
-  const [themeName] = useThemeName()
-  const theme = useTheme(themeName)
+  const theme = useTheme()
 
   const $imageStyle: StyleProp<ImageStyle> = [
     $imageStyleBase,

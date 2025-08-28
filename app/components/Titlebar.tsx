@@ -1,12 +1,11 @@
-import { themed, useTheme, useThemeName, withTheme } from "../theme/theme"
-import { Platform, StyleSheet, View, ViewStyle } from "react-native"
+import { themed, useTheme } from "../theme/theme"
+import { Platform, View, ViewStyle } from "react-native"
 import { Icon } from "./Icon"
 import ActionButton from "./ActionButton"
 import { useSidebar } from "../state/useSidebar"
 
 export const Titlebar = () => {
-  const [themeName] = useThemeName()
-  const theme = useTheme(themeName)
+  const theme = useTheme()
   const { isOpen, toggleSidebar } = useSidebar()
 
   return (
