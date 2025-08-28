@@ -1,11 +1,9 @@
-import { useTheme, useThemeName, withTheme } from "../theme/theme"
+import { themed } from "../theme/theme"
 import { Platform, View, ViewStyle } from "react-native"
 
 export const Titlebar = () => {
-  const [themeName] = useThemeName()
-
   return (
-    <View style={$container(themeName)}>
+    <View style={$container()}>
       <TrafficLightSpacer />
     </View>
   )
@@ -19,9 +17,9 @@ const TrafficLightSpacer = () => {
   })
 }
 
-const $container = withTheme<ViewStyle>((theme) => ({
-  backgroundColor: theme.colors.cardBackground,
-  paddingHorizontal: theme.spacing.sm,
+const $container = themed<ViewStyle>(({ colors, spacing }) => ({
+  backgroundColor: colors.cardBackground,
+  paddingHorizontal: spacing.sm,
   flexDirection: "row",
   alignItems: "center",
   height: 36,

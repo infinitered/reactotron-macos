@@ -1,11 +1,10 @@
 import { useState } from "react"
 import { View, Text, type TextStyle, type ViewStyle } from "react-native"
-import { useThemeName, useTheme, withTheme } from "../theme/theme"
+import { useTheme, themed } from "../theme/theme"
 import { useSystemInfo } from "../utils/system"
 
 export function SystemInfo() {
-  const [theme] = useThemeName()
-  const { colors } = useTheme(theme)
+  const { colors } = useTheme()
   const [cpuData, setCpuData] = useState<number[]>([])
   const [memoryData, setMemoryData] = useState<number[]>([])
   const [maxMemory, setMaxMemory] = useState<number>(0)
@@ -39,24 +38,24 @@ export function SystemInfo() {
   )
 
   return (
-    <View style={$systemInfoContainer(theme)}>
-      <Text style={$systemInfoTitle(theme)}>System Info</Text>
+    <View style={$systemInfoContainer()}>
+      <Text style={$systemInfoTitle()}>System Info</Text>
 
-      <View style={$chartContainer(theme)}>
-        <View style={$chartSection(theme)}>
-          <Text style={$chartLabel(theme)}>CPU Usage</Text>
-          <View style={$chartBars(theme)}>
+      <View style={$chartContainer()}>
+        <View style={$chartSection()}>
+          <Text style={$chartLabel()}>CPU Usage</Text>
+          <View style={$chartBars()}>
             {cpuData.map((usage, _index) => renderBar(usage, 100, getCpuColor(usage), 80))}
           </View>
-          <Text style={$chartValue(theme)}>{cpuData[cpuData.length - 1]?.toFixed(1) || 0}%</Text>
+          <Text style={$chartValue()}>{cpuData[cpuData.length - 1]?.toFixed(1) || 0}%</Text>
         </View>
 
-        <View style={$chartSection(theme)}>
-          <Text style={$chartLabel(theme)}>Memory Usage</Text>
-          <View style={$chartBars(theme)}>
+        <View style={$chartSection()}>
+          <Text style={$chartLabel()}>Memory Usage</Text>
+          <View style={$chartBars()}>
             {memoryData.map((usage, _index) => renderBar(usage, maxMemory, colors.primary, 80))}
           </View>
-          <Text style={$chartValue(theme)}>
+          <Text style={$chartValue()}>
             {memoryData[memoryData.length - 1]?.toFixed(1) || 0} MB / {maxMemory.toFixed(1)} MB
           </Text>
         </View>
@@ -65,42 +64,42 @@ export function SystemInfo() {
   )
 }
 
-const $systemInfoContainer = withTheme<ViewStyle>(({ spacing }) => ({
+const $systemInfoContainer = themed<ViewStyle>(({ spacing }) => ({
   gap: spacing.lg,
 }))
 
-const $systemInfoTitle = withTheme<TextStyle>(({ colors, typography }) => ({
+const $systemInfoTitle = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.heading,
   fontWeight: "600",
   color: colors.mainText,
   textAlign: "center",
 }))
 
-const $chartContainer = withTheme<ViewStyle>(({ spacing }) => ({
+const $chartContainer = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   gap: spacing.xl,
 }))
 
-const $chartSection = withTheme<ViewStyle>(({ spacing }) => ({
+const $chartSection = themed<ViewStyle>(({ spacing }) => ({
   flex: 1,
   alignItems: "center",
   gap: spacing.sm,
 }))
 
-const $chartLabel = withTheme<TextStyle>(({ colors, typography }) => ({
+const $chartLabel = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.caption,
   fontWeight: "500",
   color: colors.neutral,
 }))
 
-const $chartBars = withTheme<ViewStyle>(({ spacing }) => ({
+const $chartBars = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   alignItems: "flex-end",
   height: 80,
   paddingVertical: spacing.xs,
 }))
 
-const $chartValue = withTheme<TextStyle>(({ colors, typography }) => ({
+const $chartValue = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.caption,
   fontWeight: "600",
   color: colors.mainText,

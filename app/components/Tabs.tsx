@@ -1,16 +1,12 @@
 import { Text, View, type ViewStyle } from "react-native"
-import { useThemeName, withTheme } from "../theme/theme"
 import IRTabComponentView from "../native/IRTabComponentView/NativeIRTabNativeComponent"
+import { themed } from "../theme/theme"
+import { $flex } from "../theme/basics"
 
-/**
- * Experimental; probably will change.
- */
 export function Tabs() {
-  const [theme] = useThemeName()
-
   return (
     <IRTabComponentView
-      style={$tabs(theme)}
+      style={$flex}
       tabs={[
         { id: "home", title: "Home" },
         { id: "settings", title: "Settings" },
@@ -19,21 +15,17 @@ export function Tabs() {
         console.log("selectedTabId", event.nativeEvent.selectedTabId)
       }}
     >
-      <View style={$tab(theme)} key="home" id="home">
+      <View style={$panel()} key="home" id="home">
         <Text>Home</Text>
       </View>
-      <View style={$tab(theme)} key="settings" id="settings">
+      <View style={$panel()} key="settings" id="settings">
         <Text>Settings</Text>
       </View>
     </IRTabComponentView>
   )
 }
 
-const $tabs = withTheme<ViewStyle>(({}) => ({
-  flex: 1,
-}))
-
-const $tab = withTheme<ViewStyle>(({}) => ({
+const $panel = themed<ViewStyle>(({}) => ({
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
