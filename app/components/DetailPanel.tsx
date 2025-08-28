@@ -200,7 +200,7 @@ function DetailSection({ title, children }: { title: string; children: React.Rea
 
 const $container = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
-  backgroundColor: colors.cardBackground,
+  backgroundColor: colors.background,
   borderLeftWidth: 1,
   borderLeftColor: colors.border,
 }))
@@ -209,7 +209,7 @@ const $emptyContainer = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: colors.cardBackground,
+  backgroundColor: colors.background,
   borderLeftWidth: 1,
   borderLeftColor: colors.border,
 }))

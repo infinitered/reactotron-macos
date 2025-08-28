@@ -4,14 +4,16 @@
  *
  * @format
  */
-import { StatusBar, View, type ViewStyle } from "react-native"
+import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
-import { AppHeader } from "./components/AppHeader"
 import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar"
+import { Sidebar } from "./components/Sidebar/Sidebar"
+import { useSidebar } from "./state/useSidebar"
+import { AppHeader } from "./components/AppHeader"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -19,12 +21,41 @@ if (__DEV__) {
   require("./devtools/ReactotronConfig.ts")
 }
 
-const menuConfig = {
-  remove: ["File", "Edit", "Format"],
-}
-
 function App(): React.JSX.Element {
   const { colors } = useTheme()
+  const { toggleSidebar } = useSidebar()
+
+  const menuConfig = useMemo(
+    () => ({
+      remove: ["File", "Edit", "Format"],
+      items: {
+        View: [
+          {
+            label: "Toggle Sidebar",
+            shortcut: "cmd+b",
+            action: toggleSidebar,
+          },
+          ...(__DEV__
+            ? [
+                {
+                  label: "Toggle Dev Menu",
+                  shortcut: "cmd+shift+d",
+                  action: () => NativeModules.DevMenu.show(),
+                },
+              ]
+            : []),
+        ],
+        Window: [
+          {
+            label: "Reload",
+            shortcut: "cmd+shift+r",
+            action: () => DevSettings.reload(),
+          },
+        ],
+      },
+    }),
+    [toggleSidebar],
+  )
 
   useMenuItem(menuConfig)
 
@@ -45,9 +76,12 @@ function App(): React.JSX.Element {
     <View style={$container()}>
       <Titlebar />
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <AppHeader />
-      <View style={$contentContainer}>
-        <TimelineScreen />
+      <View style={$mainContent}>
+        <Sidebar />
+        <View style={$contentContainer}>
+          <AppHeader />
+          <TimelineScreen />
+        </View>
       </View>
     </View>
   )
@@ -57,6 +91,11 @@ const $container = themed<ViewStyle>(({ colors }) => ({
   flex: 1,
   backgroundColor: colors.background,
 }))
+
+const $mainContent: ViewStyle = {
+  flex: 1,
+  flexDirection: "row",
+}
 
 const $contentContainer: ViewStyle = {
   flex: 1,
