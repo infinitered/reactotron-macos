@@ -15,7 +15,8 @@ build/
 web-build/
 
 ## Editors
-.vscode
+.vscode/*
+!.vscode/settings.json
 .cursor
 buildServer.json # for sweetpad
 
