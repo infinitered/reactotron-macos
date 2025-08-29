@@ -4,7 +4,7 @@ import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
-import { TimelineToolbar, TimelineFilters } from "../components/TimelineToolbar"
+import { TimelineFilters } from "../components/TimelineToolbar"
 import { LegendList } from "@legendapp/list"
 import { View, ViewStyle } from "react-native-macos"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
@@ -13,7 +13,7 @@ import { themed, useThemeName } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
 import { useMemo, useState } from "react"
 import { filterAndSortTimelineItems } from "../utils/timelineFilters"
-import { Titlebar } from "app/components/Titlebar"
+import { useTimeline } from "../utils/useTimeline"
 
 /**
  * Renders the correct component for each timeline item.
@@ -46,7 +46,8 @@ const TimelineItemRenderer = ({
 }
 
 export function TimelineScreen() {
-  const [timelineItems] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  // TODO: Use a global state for the filters, set by the user in the TimelineToolbar
+  const timelineItems = useTimeline({ types: ["log", "api.request", "api.response"] })
   const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
     persist: true,
   })
@@ -71,14 +72,6 @@ export function TimelineScreen() {
     <View style={[$flex, $row]}>
       <View style={{ width: timelineWidth }}>
         <View style={{ flex: 1 }}>
-          <View style={$timelineToolbarContainer()}>
-            <TimelineToolbar
-              filters={filters}
-              onFiltersChange={setFilters}
-              itemCount={timelineItems.length}
-              filteredCount={filteredAndSortedItems.length}
-            />
-          </View>
           <LegendList<TimelineItem>
             data={filteredAndSortedItems}
             extraData={selectedItem?.id}
@@ -106,15 +99,15 @@ export function TimelineScreen() {
   )
 }
 
-const $timelineToolbarContainer = themed<ViewStyle>(({ spacing }) => ({
-  padding: spacing.xs,
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  zIndex: 1000,
-}))
+// const $timelineToolbarContainer = themed<ViewStyle>(({ spacing }) => ({
+//   padding: spacing.xs,
+//   position: "absolute",
+//   top: 0,
+//   left: 0,
+//   right: 0,
+//   zIndex: 1000,
+// }))
 
-const $contentContainer = themed<ViewStyle>(({ spacing }) => ({
-  paddingRight: spacing.xs,
-}))
+// const $contentContainer = themed<ViewStyle>(({ spacing }) => ({
+//   paddingRight: spacing.xs,
+// }))
