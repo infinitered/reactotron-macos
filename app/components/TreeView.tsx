@@ -1,6 +1,6 @@
-import { Text, type ViewStyle, type TextStyle, Pressable } from "react-native"
+import { Text, type ViewStyle, type TextStyle, Pressable, View } from "react-native"
 import { themed } from "../theme/theme"
-import { useState } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { traverse } from "../utils/traverse"
 import IRKeyboard from "../native/IRKeyboard/NativeIRKeyboard"
 import { typography } from "../theme/typography"
@@ -8,6 +8,8 @@ import { spacing } from "../theme/spacing"
 
 // max level to avoid infinite recursion
 const MAX_LEVEL = 10
+// Only render this many children at once for performance
+const CHILDREN_BATCH_SIZE = 50
 
 const TreeViewSymbol = Symbol("TreeView")
 
@@ -20,6 +22,8 @@ type TreeViewProps = {
 
 export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewProps) {
   const [_a, rerender] = useState([])
+  const [visibleChildrenCount, setVisibleChildrenCount] = useState(CHILDREN_BATCH_SIZE)
+  const [startIndex, setStartIndex] = useState(0)
 
   // Determine the label for this node
   const label = path.length > 0 ? path[path.length - 1] : "root"
@@ -27,7 +31,7 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
   const isExpandable = data && typeof data === "object" && Object.keys(data).length > 0
   const isExpanded = (isExpandable && data[TreeViewSymbol]) ?? false
 
-  const handlePress = () => {
+  const handlePress = useCallback(() => {
     if (isExpandable) {
       data[TreeViewSymbol] = !data[TreeViewSymbol]
       if (IRKeyboard.shift()) {
@@ -103,17 +107,59 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
         {String(data)}
       </Text>
     )
-  }
+  }, [data])
 
-  // Get children for rendering
-  const getChildren = () => {
+  // Get children for rendering - memoized to prevent recalculation
+  const children = useMemo(() => {
     if (Array.isArray(data)) {
       return data.map((item, index) => ({ key: `${index}`, label: `[${index}]`, value: item }))
     } else if (data && typeof data === "object") {
       return Object.entries(data).map(([key, value]) => ({ key, label: key, value }))
     }
     return []
-  }
+  }, [data])
+
+  // Show children from startIndex with batch size
+  const visibleChildren = children.slice(startIndex, startIndex + visibleChildrenCount)
+
+  const jumpToBatch = useCallback(
+    (startIndex: number) => {
+      setVisibleChildrenCount(CHILDREN_BATCH_SIZE)
+      // Set a virtual offset to show the selected batch
+      setStartIndex(startIndex)
+    },
+    [CHILDREN_BATCH_SIZE],
+  )
+
+  // Generate batch ranges for navigation
+  const batchRanges = useMemo(() => {
+    if (children.length <= CHILDREN_BATCH_SIZE) return []
+
+    const ranges = []
+    for (let i = 0; i < children.length; i += CHILDREN_BATCH_SIZE) {
+      const endIndex = Math.min(i + CHILDREN_BATCH_SIZE - 1, children.length - 1)
+      ranges.push({
+        startIndex: i,
+        endIndex,
+        label: `${i + 1}-${endIndex + 1}`,
+        isCurrent: i < visibleChildrenCount && endIndex < visibleChildrenCount,
+      })
+    }
+    return ranges
+  }, [children.length, visibleChildrenCount])
+
+  const renderChild = useCallback(
+    ({ key, label: childLabel, value }: { key: string; label: string; value: any }) => (
+      <TreeView
+        key={key}
+        data={value}
+        path={[...path, childLabel]}
+        level={level + 1}
+        onNodePress={onNodePress}
+      />
+    ),
+    [path, level, onNodePress],
+  )
 
   return (
     <>
@@ -124,19 +170,32 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
         {renderValue()}
       </Pressable>
 
-      {/* If has children, loop TreeView */}
-      {isExpandable &&
-        isExpanded &&
-        level < MAX_LEVEL &&
-        getChildren().map(({ key, label: childLabel, value }) => (
-          <TreeView
-            key={key}
-            data={value}
-            path={[...path, childLabel]}
-            level={level + 1}
-            onNodePress={onNodePress}
-          />
-        ))}
+      {/* If has children, render with virtualization */}
+      {isExpandable && isExpanded && level < MAX_LEVEL && (
+        <>
+          {/* Children */}
+          {visibleChildren.map(renderChild)}
+
+          {/* Batch Navigation */}
+          {batchRanges.length > 1 && (
+            <View style={$batchNavigation(level + 1)}>
+              <View style={$batchList}>
+                {batchRanges.map((batch) => (
+                  <Pressable
+                    key={batch.startIndex}
+                    style={[$batchButton, batch.isCurrent && $currentBatchButton]}
+                    onPress={() => jumpToBatch(batch.startIndex)}
+                  >
+                    <Text style={[$batchButtonText, batch.isCurrent && $currentBatchButtonText]}>
+                      ▶▶ {batch.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+        </>
+      )}
       {isExpandable && isExpanded && level >= MAX_LEVEL && (
         <Text pointerEvents="none" style={$defaultValue()}>
           {JSON.stringify(data, null, 2)}
@@ -213,19 +272,35 @@ const $defaultValue = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
 }))
 
-const $loadMoreButton = (level: number): ViewStyle => ({
-  flexDirection: "row",
-  alignItems: "center",
+const $batchNavigation = (level: number): ViewStyle => ({
   paddingVertical: spacing.xxxs,
   paddingHorizontal: spacing.xxs,
   marginLeft: level * spacing.md,
-  backgroundColor: "rgba(0,0,0,0.05)",
-  borderRadius: 4,
   marginTop: spacing.xxs,
 })
 
-const $loadMoreText = {
+const $batchList: ViewStyle = {
+  flexDirection: "column",
+  gap: spacing.xxs,
+}
+
+const $batchButton = {
+  borderRadius: 4,
+  paddingVertical: spacing.xxxs,
+}
+
+const $batchButtonText = {
   ...$value,
   color: "#666",
-  fontStyle: "italic" as const,
+}
+
+const $currentBatchButton = {
+  backgroundColor: "rgba(0,0,0,0.1)",
+  borderColor: "#666",
+  borderWidth: 1,
+}
+
+const $currentBatchButtonText: TextStyle = {
+  color: "#666",
+  fontWeight: "bold" as const,
 }
