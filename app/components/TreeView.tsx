@@ -4,6 +4,7 @@ import { useState } from "react"
 import { traverse } from "../utils/traverse"
 import IRKeyboard from "../native/IRKeyboard/NativeIRKeyboard"
 import { typography } from "../theme/typography"
+import { spacing } from "../theme/spacing"
 
 // max level to avoid infinite recursion
 const MAX_LEVEL = 10
@@ -37,31 +38,35 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
         })
       }
       rerender([])
+      // Reset visible children count when expanding
+      if (data[TreeViewSymbol]) {
+        setVisibleChildrenCount(CHILDREN_BATCH_SIZE)
+      }
     }
 
     onNodePress?.({ path, value: data, key: label })
-  }
+  }, [isExpandable, data, onNodePress, path, label])
 
-  const renderValue = () => {
+  const renderValue = useCallback(() => {
     if (data === undefined) return <Text style={$undefinedValue()}>undefined</Text>
 
     const type = typeof data
 
     if (type === "string") {
       return (
-        <Text pointerEvents="none" style={$stringValue()}>
+        <Text pointerEvents="none" style={$stringValue}>
           &quot;{data}&quot;
         </Text>
       )
     } else if (type === "number") {
       return (
-        <Text pointerEvents="none" style={$numberValue()}>
+        <Text pointerEvents="none" style={$numberValue}>
           {data}
         </Text>
       )
     } else if (type === "boolean") {
       return (
-        <Text pointerEvents="none" style={$booleanValue()}>
+        <Text pointerEvents="none" style={$booleanValue}>
           {data.toString()}
         </Text>
       )
@@ -72,10 +77,10 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
         </Text>
       )
     } else if (Array.isArray(data)) {
-      if (data.length === 0) return <Text style={$arrayValue()}>[empty]</Text>
+      if (data.length === 0) return <Text style={$arrayValue}>[empty]</Text>
 
       if (data.length > 2) {
-        return <Text style={$arrayValue()}>[] {data.length} items</Text>
+        return <Text style={$arrayValue}>[] {data.length} items</Text>
       }
 
       const previewText = data
@@ -87,10 +92,10 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
         })
         .join(", ")
 
-      return <Text style={$arrayValue()}>[{previewText}]</Text>
+      return <Text style={$arrayValue}>[{previewText}]</Text>
     } else if (type === "object") {
       const keys = Object.keys(data)
-      return <Text pointerEvents="none" style={$objectValue()}>{`{${keys.length} keys}`}</Text>
+      return <Text pointerEvents="none" style={$objectValue}>{`{${keys.length} keys}`}</Text>
     }
 
     return (
@@ -144,17 +149,22 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
 const $nodeRow = (level: number): ViewStyle => ({
   flexDirection: "row",
   alignItems: "center",
-  paddingVertical: 2,
-  paddingHorizontal: 4,
-  marginLeft: level * 16 + 4,
+  paddingVertical: spacing.xxxs,
+  paddingHorizontal: spacing.xxs,
+  marginLeft: level * spacing.md,
 })
 
 const $expandIcon = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
-  fontSize: 10,
-  marginRight: 4,
+  fontSize: typography.small,
+  marginRight: spacing.xxs,
   width: 12,
 }))
+
+const $value = {
+  fontFamily: typography.primary.normal,
+  fontSize: typography.caption,
+}
 
 const $nodeLabel = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
@@ -163,50 +173,59 @@ const $nodeLabel = themed<TextStyle>(({ colors, typography }) => ({
   marginRight: 8,
 }))
 
-const $stringValue = themed<TextStyle>((_theme) => ({
+const $stringValue = {
+  ...$value,
   color: "#4CAF50",
-  fontFamily: typography.code.normal,
-  fontSize: 12,
-}))
+}
 
-const $numberValue = themed<TextStyle>((_theme) => ({
+const $numberValue = {
+  ...$value,
   color: "#2196F3",
-  fontFamily: typography.code.normal,
-  fontSize: 12,
-}))
+}
 
-const $booleanValue = themed<TextStyle>((_theme) => ({
+const $booleanValue = {
+  ...$value,
   color: "#FF9800",
-  fontFamily: typography.code.normal,
-  fontSize: 12,
-}))
+}
 
 const $nullValue = themed<TextStyle>(({ colors }) => ({
+  ...$value,
   color: colors.neutralVery,
-  fontFamily: "Courier",
-  fontSize: 12,
 }))
 
 const $undefinedValue = themed<TextStyle>(({ colors }) => ({
+  ...$value,
   color: colors.neutralVery,
-  fontFamily: typography.code.normal,
-  fontSize: 12,
 }))
 
-const $arrayValue = themed<TextStyle>((_theme) => ({
-  color: "#9C27B0",
-  fontFamily: typography.code.normal,
-  fontSize: 12,
-}))
+const $arrayValue = {
+  ...$value,
+  color: "#bb5ccc",
+}
 
-const $objectValue = themed<TextStyle>((_theme) => ({
+const $objectValue = {
+  ...$value,
   color: "#607D8B",
-  fontFamily: typography.code.normal,
-  fontSize: 12,
-}))
+}
 
 const $defaultValue = themed<TextStyle>(({ colors }) => ({
+  ...$value,
   color: colors.mainText,
-  fontFamily: typography.code.normal,
-  fontSize: 12,
 }))
+
+const $loadMoreButton = (level: number): ViewStyle => ({
+  flexDirection: "row",
+  alignItems: "center",
+  paddingVertical: spacing.xxxs,
+  paddingHorizontal: spacing.xxs,
+  marginLeft: level * spacing.md,
+  backgroundColor: "rgba(0,0,0,0.05)",
+  borderRadius: 4,
+  marginTop: spacing.xxs,
+})
+
+const $loadMoreText = {
+  ...$value,
+  color: "#666",
+  fontStyle: "italic" as const,
+}
