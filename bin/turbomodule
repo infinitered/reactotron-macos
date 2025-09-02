@@ -1,0 +1,223 @@
+#!/bin/bash
+
+# Color constants
+RED='\033[0;31m'
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+BLU='\033[0;34m'
+MAG='\033[0;35m'
+CYA='\033[0;36m'
+DGR='\033[1;30m'
+BLD='\033[1m'
+X='\033[0m' # No Color
+
+# Print help screen
+show_help() {
+  echo -e "${BLD}${CYA}Reactotron TurboModule Generator${X}"
+  echo ""
+  echo -e "${BLD}Usage:${X}"
+  echo "  ./bin/turbomodule <command> [module_name]"
+  echo ""
+  echo -e "${BLD}Commands:${X}"
+  echo -e "  ${GRN}add${X}      Create a new TurboModule"
+  echo -e "  ${RED}remove${X}   Remove an existing TurboModule (alias: rm)"
+  echo -e "  ${MAG}apply${X}    Build TurboModules from comments in package.json turbomodules"
+  echo -e "  ${BLU}help${X}     Show this help screen"
+  echo ""
+  echo -e "${BLD}Examples:${X}"
+  echo "  ./bin/turbomodule add IRMyNewThing"
+  echo "  ./bin/turbomodule remove IRMyNewThing"
+  echo "  ./bin/turbomodule apply"
+  echo ""
+  echo -e "${BLD}What it does:${X}"
+  echo "  • Creates .mm files in ./app/native/"
+  echo "  • Creates TypeScript spec in ./app/native/"
+  echo "  • Auto-links files into Xcode project on pod install"
+  echo "  • Includes sync method, async method, and events"
+  echo "  • apply: Generates native files from @turbomodule comments"
+  echo ""
+}
+
+# Print colored output
+print_success() { echo -e "${GRN}✓${X} $1"; }
+print_error() { echo -e "${RED}✗${X} $1"; }
+print_warning() { echo -e "${YLW}⚠${X} $1"; }
+print_info() { echo -e "${BLU}ℹ${X} $1"; }
+print_step() { echo -e "${MAG}→${X} $1"; }
+
+# Check if git tree is clean
+check_git_status() {
+  if ! git diff-index --quiet HEAD --; then
+    print_warning "Git tree is not clean. You have uncommitted changes."
+    echo ""
+    echo -e "${YLW}Current changes:${X}"
+    git status --porcelain
+    echo ""
+    read -p "Do you want to continue? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      print_error "Aborted."
+      exit 1
+    fi
+  fi
+}
+
+
+# Validate module name
+validate_module_name() {
+  local name="$1"
+  if [[ -z "$name" ]]; then
+    print_error "Module name is required"
+    exit 1
+  fi
+  
+  if [[ ! "$name" =~ ^[A-Z][A-Za-z0-9]*$ ]]; then
+    print_error "Module name must start with uppercase letter and contain only letters/numbers"
+    exit 1
+  fi
+}
+
+# Generate file from template
+generate_from_template() {
+  local template_content="ERROR"
+  local module_name="$1"
+  local template_path="$2"
+  local output_path="$3"
+  local template_name="$4"
+  
+  template_content=$(cat "$template_path")
+  local replaced_content=${template_content//$template_name/$module_name}
+  echo "$replaced_content" > "$output_path"
+  print_success "Created $output_path"
+}
+
+# Link files using pod install
+link_files() {
+  print_step "Installing pods and linking files to Xcode project..."
+  npm run pod
+}
+
+# Add new TurboModule
+add_module() {
+  local module_name="$1"
+  
+  print_info "Creating TurboModule: $module_name"
+  
+  # Check git status
+  check_git_status
+  
+  # Validate module name
+  validate_module_name "$module_name"
+
+  # Check if the folder already exists
+  if [[ -d "app/native/${module_name}" ]]; then
+    print_error "Module $module_name already exists"
+    exit 1
+  fi
+  
+  # Check if files already exist
+  if [[ -f "app/native/${module_name}/${module_name}.mm" ]] || [[ -f "app/native/${module_name}/Native${module_name}.ts" ]]; then
+    print_error "Module $module_name already exists"
+    exit 1
+  fi
+  
+  # Generate files
+  print_step "Generating files..."
+  generate_from_template "$module_name" "./bin/templates/MyTemplate.mm" "app/native/${module_name}/${module_name}.mm" "MyTemplate"
+  generate_from_template "$module_name" "./bin/templates/NativeMyTemplate.ts" "app/native/${module_name}/Native${module_name}.ts" "MyTemplate"
+  
+  # Link files
+  link_files
+  
+  print_success "TurboModule $module_name created successfully!"
+  print_info "Files created:"
+  echo "  • app/native/${module_name}/${module_name}.mm"
+  echo "  • app/native/${module_name}/Native${module_name}.ts"
+  echo ""
+  echo "  Now go edit the .mm file and add your methods."
+  echo "  If you need help, read ./docs/Making-a-TurboModule.md"
+  echo ""
+}
+
+# Remove TurboModule
+remove_module() {
+  local module_name="$1"
+  
+  print_info "Removing TurboModule: $module_name"
+  
+  # Check git status
+  check_git_status
+  
+  # Validate module name
+  validate_module_name "$module_name"
+
+  # Remove folder
+  rm -rf "app/native/${module_name}"
+  print_success "Removed TurboModule: app/native/${module_name}"
+  
+  # Link files to update Xcode project
+  link_files
+  
+  print_success "TurboModule $module_name removed successfully!"
+}
+
+
+
+# Apply turbomodules from package.json
+apply_turbomodules() {
+  print_info "Applying turbomodules from package.json"
+  
+  # Check git status
+  check_git_status
+  
+  # Call Node.js script
+  node ./bin/generateTurboModule.js apply
+  
+  # Link files
+  # link_files
+  echo -e "${GRN}Done!${X}${DKGR} Now run ${GRN}npm run pod${X}${DKGR} to link the new native files."
+}
+
+# Main script logic
+main() {
+  local command="$1"
+  local module_name="$2"
+  
+  case "$command" in
+    "help"|"--help"|"-h")
+      show_help
+      ;;
+    "add")
+      if [[ -z "$module_name" ]]; then
+        print_error "Module name is required for 'add' command"
+        echo "Usage: ./bin/turbomodule add <module_name>"
+        exit 1
+      fi
+      add_module "$module_name"
+      ;;
+    "remove"|"rm")
+      if [[ -z "$module_name" ]]; then
+        print_error "Module name is required for 'remove' command"
+        echo "Usage: ./bin/turbomodule remove <module_name>"
+        exit 1
+      fi
+      remove_module "$module_name"
+      ;;
+    "apply")
+      apply_turbomodules
+      ;;
+    "")
+      show_help
+      ;;
+    *)
+      print_error "Unknown command: $command"
+      echo ""
+      show_help
+      exit 1
+      ;;
+  esac
+}
+
+# Run main function with all arguments
+main "$@"
+

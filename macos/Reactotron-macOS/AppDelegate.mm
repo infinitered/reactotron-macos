@@ -2,6 +2,8 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTDevloadingViewSetEnabled.h>
+#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
+#import "WindowSetup.h"
 
 @implementation AppDelegate
 
@@ -12,13 +14,17 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
   
-  // NSLog(@"%@",[[[NSFontManager sharedFontManager] availableFontFamilies] description]);
-  
   // Sometimes the "loading bar" gets stuck on and you have to kill the app to fix it;
   // by turning it off here, we avoid that issue
   RCTDevLoadingViewSetEnabled(false);
 
-  return [super applicationDidFinishLaunching:notification];
+  // Enable Fabric views
+  self.dependencyProvider = [RCTAppDependencyProvider new];
+
+  [super applicationDidFinishLaunching:notification];
+  
+  // Configure window chrome before RN mounts
+  IRConfigureWindow(self.window);
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

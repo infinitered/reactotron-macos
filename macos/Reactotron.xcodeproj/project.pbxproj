@@ -8,16 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		1BCAFE1EAF4275451E5A2CA2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */; };
+		1BCF4C7A5E00CBE218AF24F4 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		261E8857E7343B5DDCDD5AC5 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5142014C2437B4B30078DB4F /* AppDelegate.mm */; };
 		514201522437B4B40078DB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 514201512437B4B40078DB4F /* Assets.xcassets */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
 		580FDC959613C3DDF5C47E31 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */; };
+		831983FBC55C0EF9C65DB4A6 /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F3799E74F7D2A242D38CF99 /* ProcessUtils.c */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
-		E9B2F1652DA9CEB800E60FB3 /* IRFontList.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9B2F1642DA9CEB800E60FB3 /* IRFontList.mm */; };
+		EBA23295D3FDE3328174ADF1 /* BuildFile in Headers */ = {isa = PBXBuildFile; };
+		FF4C4719434907CDFF48ECE7 /* ProcessUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B174B7FD8393A730D51E178 /* ProcessUtils.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4F3799E74F7D2A242D38CF99 /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
 		5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		514201492437B4B30078DB4F /* Reactotron.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reactotron.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5142014B2437B4B30078DB4F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -27,11 +32,10 @@
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201572437B4B40078DB4F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* Reactotron.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reactotron.entitlements; sourceTree = "<group>"; };
+		8B174B7FD8393A730D51E178 /* ProcessUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../../app/native/ProcessUtils/ProcessUtils.h; sourceTree = "<group>"; };
 		CBA768848D07B4EDA42574FD /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		CF52DE317C310410AD0A2A0C /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
-		E9B2F1632DA9CEB800E60FB3 /* IRFontList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IRFontList.h; path = ../app/native/IRFontList.h; sourceTree = SOURCE_ROOT; };
-		E9B2F1642DA9CEB800E60FB3 /* IRFontList.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IRFontList.mm; path = ../app/native/IRFontList.mm; sourceTree = SOURCE_ROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F84D6E4D0800659BD68D7BF3 /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -76,6 +80,7 @@
 				514201562437B4B40078DB4F /* Info.plist */,
 				514201572437B4B40078DB4F /* main.m */,
 				514201592437B4B40078DB4F /* Reactotron.entitlements */,
+				9E90342DBE1B396F592DF34B /* Colocated */,
 			);
 			path = "Reactotron-macOS";
 			sourceTree = "<group>";
@@ -90,8 +95,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				E9B2F1632DA9CEB800E60FB3 /* IRFontList.h */,
-				E9B2F1642DA9CEB800E60FB3 /* IRFontList.mm */,
 				E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */,
 				5142014A2437B4B30078DB4F /* Reactotron-macOS */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -113,7 +116,28 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		9E90342DBE1B396F592DF34B /* Colocated */ = {
+			isa = PBXGroup;
+			children = (
+				4F3799E74F7D2A242D38CF99 /* ProcessUtils.c */,
+				8B174B7FD8393A730D51E178 /* ProcessUtils.h */,
+			);
+			name = Colocated;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		614A44CF57166CA8B6AD60B6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EBA23295D3FDE3328174ADF1 /* BuildFile in Headers */,
+				FF4C4719434907CDFF48ECE7 /* ProcessUtils.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		514201482437B4B30078DB4F /* Reactotron-macOS */ = {
@@ -127,6 +151,7 @@
 				381D8A6E24576A4E00465D17 /* Bundle React Native code and images */,
 				5831C38FB438951FD60B6077 /* [CP] Copy Pods Resources */,
 				57B76DE35CF200CE7D7D9438 /* [CP] Embed Pods Frameworks */,
+				614A44CF57166CA8B6AD60B6 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -147,6 +172,7 @@
 				TargetAttributes = {
 					514201482437B4B30078DB4F = {
 						CreatedOnToolsVersion = 11.4;
+						DevelopmentTeam = L7YNDPLSEB;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -276,8 +302,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				514201582437B4B40078DB4F /* main.m in Sources */,
-				E9B2F1652DA9CEB800E60FB3 /* IRFontList.mm in Sources */,
 				5142014D2437B4B30078DB4F /* AppDelegate.mm in Sources */,
+				1BCF4C7A5E00CBE218AF24F4 /* BuildFile in Sources */,
+				261E8857E7343B5DDCDD5AC5 /* BuildFile in Sources */,
+				831983FBC55C0EF9C65DB4A6 /* ProcessUtils.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,17 +329,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = L7YNDPLSEB;
 				INFOPLIST_FILE = "Reactotron-macos/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.infinitered.reactotron;
 				PRODUCT_NAME = Reactotron;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -325,16 +356,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = L7YNDPLSEB;
 				INFOPLIST_FILE = "Reactotron-macos/Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.infinitered.reactotron;
 				PRODUCT_NAME = Reactotron;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;

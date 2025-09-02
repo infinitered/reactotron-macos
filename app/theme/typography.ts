@@ -1,20 +1,3 @@
-import { Platform } from "react-native"
-import {
-  SpaceGrotesk_300Light as spaceGroteskLight,
-  SpaceGrotesk_400Regular as spaceGroteskRegular,
-  SpaceGrotesk_500Medium as spaceGroteskMedium,
-  SpaceGrotesk_600SemiBold as spaceGroteskSemiBold,
-  SpaceGrotesk_700Bold as spaceGroteskBold,
-} from "@expo-google-fonts/space-grotesk"
-
-export const customFontsToLoad = {
-  spaceGroteskLight,
-  spaceGroteskRegular,
-  spaceGroteskMedium,
-  spaceGroteskSemiBold,
-  spaceGroteskBold,
-}
-
 const fonts = {
   spaceGrotesk: {
     // Cross-platform Google font.
@@ -48,7 +31,19 @@ const fonts = {
   },
 }
 
-export const typography = {
+export type Typography = {
+  fonts: typeof fonts
+  primary: typeof fonts.spaceGrotesk
+  secondary: typeof fonts.helveticaNeue
+  code: typeof fonts.courier
+  heading: number
+  subheading: number
+  body: number
+  caption: number
+  small: number
+}
+
+export const typography: Typography = {
   /**
    * The fonts are available to use, but prefer using the semantic name.
    */
@@ -60,9 +55,17 @@ export const typography = {
   /**
    * An alternate font used for perhaps titles and stuff.
    */
-  secondary: Platform.select({ ios: fonts.helveticaNeue, android: fonts.sansSerif }),
+  secondary: fonts.helveticaNeue,
   /**
    * Lets get fancy with a monospace font!
    */
-  code: Platform.select({ ios: fonts.courier, android: fonts.monospace }),
+  code: fonts.courier,
+  /**
+   * Font sizes
+   */
+  heading: 24,
+  subheading: 18,
+  body: 16,
+  caption: 12,
+  small: 10,
 }

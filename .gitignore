@@ -15,7 +15,10 @@ build/
 web-build/
 
 ## Editors
-.vscode
+.vscode/*
+!.vscode/settings.json
+.cursor
+buildServer.json # for sweetpad
 
 ## Secrets
 *.keystore
@@ -45,3 +48,4 @@ DerivedData
 *.xcuserstate
 ios/.xcode.env.local
 
+macos/.xcode.env.local

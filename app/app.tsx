@@ -4,119 +4,101 @@
  *
  * @format
  */
-
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  useColorScheme,
-  View,
-  ViewStyle,
-  TextStyle,
-  Platform,
-} from "react-native"
-
-import { Colors } from "react-native/Libraries/NewAppScreen"
-
-import { Header } from "./components/Header"
-import { HeaderTab } from "./components/HeaderTab"
-import { HeaderTitle } from "./components/HeaderTitle"
-
-// import IRFontList from "../specs/NativeIRFontList"
-// import { useEffect, useState } from "react"
+import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
+import { connectToServer } from "./state/connectToServer"
+import { useTheme, themed } from "./theme/theme"
+import { useEffect, useMemo } from "react"
+import { TimelineScreen } from "./screens/TimelineScreen"
+import { useMenuItem } from "./utils/useMenuItem"
+import { Titlebar } from "./components/Titlebar"
+import { Sidebar } from "./components/Sidebar/Sidebar"
+import { useSidebar } from "./state/useSidebar"
+import { AppHeader } from "./components/AppHeader"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
   // Load Reactotron client in development only.
-  // Note that you must be using metro's `inlineRequires` for this to work.
-  // If you turn it off in metro.config.js, you'll have to manually import it.
   require("./devtools/ReactotronConfig.ts")
 }
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === "dark"
+  const { colors } = useTheme()
+  const { toggleSidebar } = useSidebar()
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  }
+  const menuConfig = useMemo(
+    () => ({
+      remove: ["File", "Edit", "Format"],
+      items: {
+        View: [
+          {
+            label: "Toggle Sidebar",
+            shortcut: "cmd+b",
+            action: toggleSidebar,
+          },
+          ...(__DEV__
+            ? [
+                {
+                  label: "Toggle Dev Menu",
+                  shortcut: "cmd+shift+d",
+                  action: () => NativeModules.DevMenu.show(),
+                },
+              ]
+            : []),
+        ],
+        Window: [
+          {
+            label: "Reload",
+            shortcut: "cmd+shift+r",
+            action: () => DevSettings.reload(),
+          },
+        ],
+      },
+    }),
+    [toggleSidebar],
+  )
 
-  // const [fonts, setFonts] = useState<string[]>([])
+  useMenuItem(menuConfig)
 
-  // useEffect(() => {
-  //   //  console.log("NatveIRFontList", IRFontList)
-  //   IRFontList.getFontList().then((fonts: string[]) => {
-  //     setFonts(fonts)
-  //   })
-  // }, [])
+  setTimeout(() => {
+    fetch("https://www.google.com")
+      .then((res) => res.text())
+      .then((text) => {
+        console.tron.log("text", text)
+      })
+  }, 1000)
+
+  // Connect to the server when the app mounts.
+  // This will update global state with the server's state
+  // and handle all websocket events.
+  useEffect(() => connectToServer(), [])
 
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? "light-content" : "dark-content"}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <Header>
-        <HeaderTab
-          text="Example1"
-          icon="example"
-          onClick={() => {}}
-          isActive={true}
-          key="example-1"
-        />
-        <HeaderTab
-          text="Example2"
-          icon="example"
-          onClick={() => {}}
-          isActive={true}
-          key="example-2"
-        />
-        <HeaderTitle title="Title" />
-      </Header>
-      <ScrollView style={backgroundStyle}>
-        <Text style={{ textAlign: "center", fontSize: 32 }}>Default</Text>
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: 32,
-            fontFamily: Platform.select({
-              windows: "Assets/SpaceGrotesk.ttf#Space Grotesk",
-              default: "Space Grotesk",
-            }),
-          }}
-        >
-          Space Grotesk
-        </Text>
-        <Text style={{ textAlign: "center", fontSize: 32, fontFamily: "Baskerville" }}>
-          Baskerville (system)
-        </Text>
-        {/*
-          {fonts.map((font) => (
-            <Text style={{ textAlign: "center", fontSize: 32, fontFamily: font }}>{font}</Text>
-          ))}
-        */}
-      </ScrollView>
+    <View style={$container()}>
+      <Titlebar />
+      <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
+      <View style={$mainContent}>
+        <Sidebar />
+        <View style={$contentContainer}>
+          <AppHeader />
+          <TimelineScreen />
+        </View>
+      </View>
     </View>
   )
 }
 
-// const $highlight: TextStyle = {
-//   fontWeight: "700",
-// }
+const $container = themed<ViewStyle>(({ colors }) => ({
+  flex: 1,
+  backgroundColor: colors.background,
+}))
 
-const $sectionContainer: ViewStyle = {
-  marginTop: 32,
-  paddingHorizontal: 24,
+const $mainContent: ViewStyle = {
+  flex: 1,
+  flexDirection: "row",
 }
 
-const $sectionDescription: TextStyle = {
-  fontSize: 18,
-  fontWeight: "400",
-  marginTop: 8,
-}
-
-const $sectionTitle: TextStyle = {
-  fontSize: 24,
-  fontWeight: "600",
+const $contentContainer: ViewStyle = {
+  flex: 1,
 }
 
 export default App

@@ -1,4 +1,5 @@
 import { View, ViewStyle, TextStyle, Text } from "react-native"
+import { themed } from "../theme/theme"
 
 export interface HeaderTitleProps {
   title: string
@@ -15,19 +16,19 @@ export interface HeaderTitleProps {
 export function HeaderTitle(props: HeaderTitleProps) {
   const { title } = props
 
-  return <View style={$middleContainer}>{!!title && <Text style={$title}>{title}</Text>}</View>
+  return <View style={$inner()}>{!!title && <Text style={$title()}>{title}</Text>}</View>
 }
 
-const $middleContainer: ViewStyle = {
+const $inner = themed<ViewStyle>(() => ({
   alignItems: "center",
   flex: 1,
   justifyContent: "center",
   paddingHorizontal: 10,
-}
+}))
 
-const $title: TextStyle = {
-  color: "#333333",
-  fontSize: 16,
+const $title = themed<TextStyle>(({ typography, colors }) => ({
+  color: colors.mainText,
+  fontSize: typography.body,
   fontWeight: "500",
   textAlign: "center",
-}
+}))
