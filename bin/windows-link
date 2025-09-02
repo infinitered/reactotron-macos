@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Windows Native Module Linker
+# Equivalent to pod-install but for React Native Windows
+
+# Set common environment variables for Windows
+export REACT_NATIVE_PATH=./node_modules/react-native-windows
+export RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH
+export RCT_NEW_ARCH_ENABLED=1
+
+if [ "$1" = "clean" ]; then
+  # Clean generated Windows files
+  echo "Cleaning Windows native module files..."
+  node ./bin/generate_windows_native_files.js clean
+fi  
+
+# Generate/update Windows native module files
+echo "Generating Windows native module files..."
+node ./bin/generate_windows_native_files.js
+
+# Run React Native Windows autolinking
+echo "Running React Native Windows autolinking..."
+npx @react-native-community/cli autolink-windows
+
+echo "✓ Windows native modules linked!"
+echo "  Build the Windows project to use the updated modules"

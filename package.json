@@ -4,10 +4,13 @@
   "private": true,
   "scripts": {
     "all": "npm run pod && npm run macos",
+    "all-windows": "npm run windows-link && npm run windows",
     "macos": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos",
     "macos-release": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release",
     "pod": "./bin/pod-install",
     "pod-clean": "./bin/pod-install clean",
+    "windows-link": "./bin/windows-link",
+    "windows-link-clean": "./bin/windows-link clean",
     "lint": "eslint .",
     "windows": "npx @react-native-community/cli run-windows",
     "test:windows": "jest --config jest.config.windows.js",
