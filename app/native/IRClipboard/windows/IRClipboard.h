@@ -12,6 +12,6 @@ namespace winrt::reactotron::implementation
         std::string getString() noexcept;
 
         REACT_METHOD(setString)
-        void setString(std::string const& text) noexcept;
+        void setString(std::string text) noexcept;
     };
 }

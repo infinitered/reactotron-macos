@@ -9,7 +9,7 @@ namespace winrt::reactotron::implementation
         IRActionMenuManager() noexcept;
 
         REACT_METHOD(showActionMenu)
-        void showActionMenu(Microsoft::ReactNative::JSValue const& items) noexcept;
+        void showActionMenu(Microsoft::ReactNative::JSValue items) noexcept;
 
         REACT_EVENT(onActionMenuItemPressed)
         std::function<void(Microsoft::ReactNative::JSValue)> onActionMenuItemPressed;

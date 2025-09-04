@@ -15,7 +15,7 @@ namespace winrt::reactotron::implementation
         // TurboModule initialization
     }
 
-    void IRActionMenuManager::showActionMenu(Microsoft::ReactNative::JSValue const& items) noexcept
+    void IRActionMenuManager::showActionMenu(Microsoft::ReactNative::JSValue items) noexcept
     {
         // TODO: Implement action menu functionality for Windows
         // This should show a context menu at the current mouse position

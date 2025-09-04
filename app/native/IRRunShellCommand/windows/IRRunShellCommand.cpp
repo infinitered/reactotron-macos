@@ -28,24 +28,24 @@ namespace winrt::reactotron::implementation
         return _getpid();
     }
 
-    void IRRunShellCommand::runAsync(std::string const& command, Microsoft::ReactNative::ReactPromise<std::string> const& promise) noexcept
+    void IRRunShellCommand::runAsync(std::string command, Microsoft::ReactNative::ReactPromise<std::string> const &promise) noexcept
     {
         // TODO: Run Windows command asynchronously
         promise.Resolve("");
     }
 
-    std::string IRRunShellCommand::runSync(std::string const& command) noexcept
+    std::string IRRunShellCommand::runSync(std::string command) noexcept
     {
         // TODO: Run Windows command synchronously
         return "";
     }
 
-    void IRRunShellCommand::runCommandOnShutdown(std::string const& command) noexcept
+    void IRRunShellCommand::runCommandOnShutdown(std::string command) noexcept
     {
         // TODO: Register Windows command to run on application shutdown
     }
 
-    void IRRunShellCommand::runTaskWithCommand(std::string const& command, Microsoft::ReactNative::JSValue const& args, std::string const& taskId) noexcept
+    void IRRunShellCommand::runTaskWithCommand(std::string command, Microsoft::ReactNative::JSValue args, std::string taskId) noexcept
     {
         // TODO: Run Windows command as a task with output streaming
         // Emit onShellCommandOutput events for stdout/stderr
@@ -59,7 +59,7 @@ namespace winrt::reactotron::implementation
         return Microsoft::ReactNative::JSValue(std::move(tasks));
     }
 
-    bool IRRunShellCommand::killTaskWithId(std::string const& taskId) noexcept
+    bool IRRunShellCommand::killTaskWithId(std::string taskId) noexcept
     {
         // TODO: Kill Windows task by ID
         return false;

@@ -22,9 +22,9 @@ namespace winrt::reactotron::implementation
         return "";
     }
 
-    void IRClipboard::setString(std::string const& text) noexcept
+    void IRClipboard::setString(std::string text) noexcept
     {
-        // TODO: Implement clipboard set functionality for Windows  
+        // TODO: Implement clipboard set functionality for Windows
         // Use SetClipboardData with CF_TEXT format
     }
 }
