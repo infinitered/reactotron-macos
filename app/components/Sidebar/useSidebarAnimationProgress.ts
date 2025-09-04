@@ -1,7 +1,7 @@
 import { useSidebar } from "../../state/useSidebar"
 import { useReducedMotion } from "../../utils/useReducedMotion"
 import { useEffect, useRef, useState } from "react"
-import { Animated, Easing } from "react-native-macos"
+import { Animated, Easing } from "react-native"
 
 export const useSidebarAnimationProgress = () => {
   const { isOpen } = useSidebar()
