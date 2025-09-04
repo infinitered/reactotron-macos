@@ -9,6 +9,6 @@ namespace winrt::reactotron::implementation
         IRExperimental() noexcept;
 
         REACT_SYNC_METHOD(invokeObjC)
-        std::string invokeObjC(std::string const& input) noexcept;
+        std::string invokeObjC(std::string input) noexcept;
     };
 }
