@@ -49,3 +49,5 @@ DerivedData
 ios/.xcode.env.local
 
 macos/.xcode.env.local
+
+msbuild.binlog
