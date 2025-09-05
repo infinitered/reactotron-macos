@@ -97,14 +97,14 @@
     <ClInclude Include="reactotron.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="AutolinkedNativeModules.g.h" />
+    <ClInclude Include="IRNativeModules.g.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude  Include="..\..\app\**\windows\*.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="reactotron.cpp" />
     <ClCompile Include="AutolinkedNativeModules.g.cpp" />
-    <ClCompile Include="..\..\app\**\windows\*.cpp" />
+    <ClCompile Include="..\..\app\**\*.windows.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
