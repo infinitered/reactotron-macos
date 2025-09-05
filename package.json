@@ -138,6 +138,10 @@
     },
     "windows": {
       "namespace": "reactotronCodegen",
+      "generators": [
+        "modulesWindows",
+        "componentsWindows"
+      ],
       "outputDirectory": "windows/reactotron/codegen",
       "separateDataTypes": true
     }
