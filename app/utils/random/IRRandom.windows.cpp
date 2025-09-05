@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRRandom.h"
+#include "IRRandom.windows.h"
 
 namespace winrt::reactotron::implementation
 {

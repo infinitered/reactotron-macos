@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRMenuItemManager.h"
+#include "IRMenuItemManager.windows.h"
 
 namespace winrt::reactotron::implementation
 {
@@ -25,13 +25,13 @@ namespace winrt::reactotron::implementation
 
     Microsoft::ReactNative::JSValue IRMenuItemManager::getMenuStructure() noexcept
     {
-        // TODO: Get Windows application menu structure  
+        // TODO: Get Windows application menu structure
         Microsoft::ReactNative::JSValueArray structure;
         // Stub implementation
         return Microsoft::ReactNative::JSValue(std::move(structure));
     }
 
-    void IRMenuItemManager::createMenu(std::string menuName, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept
+    void IRMenuItemManager::createMenu(std::string menuName, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
     {
         // TODO: Create a new Windows menu
         Microsoft::ReactNative::JSValueObject result;
@@ -41,7 +41,7 @@ namespace winrt::reactotron::implementation
         promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
     }
 
-    void IRMenuItemManager::addMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const& title, std::string const& keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept
+    void IRMenuItemManager::addMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const &title, std::string const &keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
     {
         // TODO: Add menu item at specified path in Windows
         Microsoft::ReactNative::JSValueObject result;
@@ -50,7 +50,7 @@ namespace winrt::reactotron::implementation
         promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
     }
 
-    void IRMenuItemManager::insertMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const& title, int atIndex, std::string const& keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept
+    void IRMenuItemManager::insertMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const &title, int atIndex, std::string const &keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
     {
         // TODO: Insert menu item at specified index and path in Windows
         Microsoft::ReactNative::JSValueObject result;
@@ -59,7 +59,7 @@ namespace winrt::reactotron::implementation
         promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
     }
 
-    void IRMenuItemManager::removeMenuItemAtPath(Microsoft::ReactNative::JSValue path, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept
+    void IRMenuItemManager::removeMenuItemAtPath(Microsoft::ReactNative::JSValue path, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
     {
         // TODO: Remove menu item at specified path in Windows
         Microsoft::ReactNative::JSValueObject result;
@@ -68,7 +68,7 @@ namespace winrt::reactotron::implementation
         promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
     }
 
-    void IRMenuItemManager::setMenuItemEnabledAtPath(Microsoft::ReactNative::JSValue path, bool enabled, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept
+    void IRMenuItemManager::setMenuItemEnabledAtPath(Microsoft::ReactNative::JSValue path, bool enabled, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
     {
         // TODO: Enable/disable menu item at specified path in Windows
         Microsoft::ReactNative::JSValueObject result;

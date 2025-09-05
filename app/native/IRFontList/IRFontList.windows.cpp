@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRFontList.h"
+#include "IRFontList.windows.h"
 
 namespace winrt::reactotron::implementation
 {
@@ -15,7 +15,7 @@ namespace winrt::reactotron::implementation
         // TurboModule initialization
     }
 
-    void IRFontList::getFontList(Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept
+    void IRFontList::getFontList(Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
     {
         // TODO: Implement font list retrieval for Windows
         // Enumerate system fonts using EnumFontFamiliesEx or similar
@@ -24,7 +24,7 @@ namespace winrt::reactotron::implementation
         fontList.push_back("Segoe UI");
         fontList.push_back("Consolas");
         fontList.push_back("Arial");
-        
+
         promise.Resolve(Microsoft::ReactNative::JSValue(std::move(fontList)));
     }
 
@@ -34,9 +34,9 @@ namespace winrt::reactotron::implementation
         Microsoft::ReactNative::JSValueArray fontList;
         // Add stub fonts for now
         fontList.push_back("Segoe UI");
-        fontList.push_back("Consolas");  
+        fontList.push_back("Consolas");
         fontList.push_back("Arial");
-        
+
         return Microsoft::ReactNative::JSValue(std::move(fontList));
     }
 }

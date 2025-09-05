@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRActionMenuManager.h"
+#include "IRActionMenuManager.windows.h"
 
 namespace winrt::reactotron::implementation
 {

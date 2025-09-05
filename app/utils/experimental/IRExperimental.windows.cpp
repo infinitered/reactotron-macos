@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRExperimental.h"
+#include "IRExperimental.windows.h"
 
 namespace winrt::reactotron::implementation
 {

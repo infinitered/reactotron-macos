@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "IRKeyboard.h"
+#include "IRKeyboard.windows.h"
 #include <windows.h>
 
 using namespace winrt::reactotron::implementation;

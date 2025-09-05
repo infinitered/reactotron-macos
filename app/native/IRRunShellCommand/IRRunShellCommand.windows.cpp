@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRRunShellCommand.h"
+#include "IRRunShellCommand.windows.h"
 #include <process.h>
 
 namespace winrt::reactotron::implementation

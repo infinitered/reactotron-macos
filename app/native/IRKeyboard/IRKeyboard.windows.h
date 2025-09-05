@@ -1,7 +1,7 @@
 #pragma once
 #include "NativeModules.h"
-#include "..\..\..\..\windows\reactotron\codegen\NativeIRKeyboardDataTypes.g.h"
-#include "..\..\..\..\windows\reactotron\codegen\NativeIRKeyboardSpec.g.h"
+#include "..\..\..\windows\reactotron\codegen\NativeIRKeyboardDataTypes.g.h"
+#include "..\..\..\windows\reactotron\codegen\NativeIRKeyboardSpec.g.h"
 
 namespace winrt::reactotron::implementation
 {

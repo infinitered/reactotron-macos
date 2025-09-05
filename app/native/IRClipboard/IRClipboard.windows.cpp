@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRClipboard.h"
+#include "IRClipboard.windows.h"
 
 namespace winrt::reactotron::implementation
 {

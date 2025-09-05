@@ -6,7 +6,7 @@
 //
 
 #include "pch.h"
-#include "IRSystemInfo.h"
+#include "IRSystemInfo.windows.h"
 
 namespace winrt::reactotron::implementation
 {
