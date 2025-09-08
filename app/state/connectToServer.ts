@@ -82,7 +82,11 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     if (data.type === "command") {
       if (data.cmd.type === "clear") setTimelineItems([])
 
-      if (data.cmd.type === "log" || data.cmd.type === "api.response") {
+      if (
+        data.cmd.type === "log" ||
+        data.cmd.type === "api.response" ||
+        data.cmd.type === "display"
+      ) {
         // Add a unique ID to the timeline item
         data.cmd.id = `${data.cmd.clientId}-${data.cmd.messageId}`
 
