@@ -27,7 +27,6 @@ type TreeViewContextType = {
 
 const TreeViewContext = createContext<TreeViewContextType | null>(null)
 
-// Helper functions for recursive expansion/collapse
 function expandAllChildren(data: any, currentPath: string[], context: TreeViewContextType) {
   if (Array.isArray(data)) {
     data.forEach((item, index) => {
@@ -68,7 +67,6 @@ function collapseAllChildren(data: any, currentPath: string[], context: TreeView
   }
 }
 
-// Provider component for managing tree expansion state
 function TreeViewProvider({ children }: { children: React.ReactNode }) {
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
 
@@ -129,15 +127,13 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
   const [localIsExpanded, setLocalIsExpanded] = useState(false)
   const context = useContext(TreeViewContext)
 
-  // Determine the label for this node
   const label = path.length > 0 ? path[path.length - 1] : "root"
 
-  // Memoize expensive object operations
   const isExpandable = useMemo(() => {
     return data && typeof data === "object" && Object.keys(data).length > 0
   }, [data])
 
-  // Count expandable children to limit shift+click functionality
+  // Count expandable children to limit shift+click functionality - prevents a crash when there's too many children
   const expandableChildrenCount = useMemo(() => {
     if (!isExpandable) return 0
 
@@ -161,42 +157,34 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
   // Use context for expansion state if available, otherwise fall back to local state
   const isExpanded = context ? context.isExpanded(path) : localIsExpanded
 
-  const handlePress = useCallback(
-    (event?: any) => {
-      if (isExpandable) {
-        const newExpanded = !isExpanded
+  const handlePress = useCallback(() => {
+    if (isExpandable) {
+      const newExpanded = !isExpanded
 
-        // Check for shift key in multiple ways
-        const isShiftPressed = IRKeyboard.shift() || event?.nativeEvent?.shiftKey || event?.shiftKey
+      const isShiftPressed = IRKeyboard.shift()
 
-        // Only allow shift+click if there are fewer than 50 expandable children
-        const canShiftClick = expandableChildrenCount < 50
+      // Only allow shift+click if there are fewer than 50 expandable children
+      const canShiftClick = expandableChildrenCount < 50
 
-        if (context) {
-          context.setExpanded(path, newExpanded)
+      if (context) {
+        context.setExpanded(path, newExpanded)
 
-          if (isShiftPressed && canShiftClick) {
-            // Shift+click: expand/collapse all children recursively
-            if (newExpanded) {
-              context.expandAll(path)
-              // Also expand all nested children
-              expandAllChildren(data, path, context)
-            } else {
-              context.collapseAll(path)
-              // Also collapse all nested children
-              collapseAllChildren(data, path, context)
-            }
+        if (isShiftPressed && canShiftClick) {
+          if (newExpanded) {
+            context.expandAll(path)
+            expandAllChildren(data, path, context)
+          } else {
+            context.collapseAll(path)
+            collapseAllChildren(data, path, context)
           }
-        } else {
-          // Fallback to local state if no context
-          setLocalIsExpanded(newExpanded)
         }
+      } else {
+        setLocalIsExpanded(newExpanded)
       }
+    }
 
-      onNodePress?.({ path, value: data, key: label })
-    },
-    [isExpandable, isExpanded, onNodePress, path, label, context, data, expandableChildrenCount],
-  )
+    onNodePress?.({ path, value: data, key: label })
+  }, [isExpandable, isExpanded, onNodePress, path, label, context, data, expandableChildrenCount])
 
   const renderValue = useCallback(() => {
     if (data === undefined) return <Text style={$undefinedValue()}>undefined</Text>
@@ -236,7 +224,6 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
 
       return <Text style={$arrayValue}>[{arrayPreviewText}]</Text>
     } else if (type === "object") {
-      // Use the already calculated isExpandable to get key count
       const keyCount = isExpandable ? Object.keys(data).length : 0
       return <Text pointerEvents="none" style={$objectValue}>{`{${keyCount} keys}`}</Text>
     }
@@ -248,7 +235,6 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
     )
   }, [data])
 
-  // Get children for rendering - memoized to prevent recalculation
   const children = useMemo(() => {
     if (Array.isArray(data)) {
       return data.map((item, index) => ({ key: `${index}`, label: `[${index}]`, value: item }))
@@ -284,7 +270,7 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
     })
   }, [])
 
-  // Generate batch ranges for navigation - memoized more efficiently
+  // Generate batch ranges for navigation
   const batchRanges = useMemo(() => {
     if (children.length <= CHILDREN_BATCH_SIZE) return []
 
@@ -330,25 +316,20 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
 
   return (
     <>
-      {/* Show this root node value */}
       <Pressable style={$nodeRow(level)} onPress={handlePress}>
         {isExpandable ? <Text style={$expandIcon()}>{isExpanded ? "▼" : "▶"}</Text> : null}
         <Text style={$nodeLabel()}>{label}</Text>
         {renderValue()}
       </Pressable>
 
-      {/* If has children, render with virtualization */}
       {isExpandable && isExpanded && level < MAX_LEVEL ? (
         <>
-          {/* If no batching needed, render all children directly */}
           {children.length <= CHILDREN_BATCH_SIZE ? (
             children.map(renderChild)
           ) : (
             <>
-              {/* Render each batch with its content */}
               {batchRanges.map((batch) => (
                 <View key={batch.startIndex}>
-                  {/* Batch Button */}
                   <Pressable
                     style={[
                       $batchButton,
@@ -362,7 +343,6 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
                     </Text>
                   </Pressable>
 
-                  {/* Batch Content */}
                   {batch.isExpanded && (
                     <View style={$batchContent(level + 1)}>
                       {memoizedBatchChildren.get(batch.startIndex)?.map(renderChild)}
@@ -482,7 +462,6 @@ const $batchContent = (level: number): ViewStyle => ({
   marginLeft: level * spacing.md,
 })
 
-// Wrapper component that provides context automatically
 export function TreeViewWithProvider(props: TreeViewProps) {
   return (
     <TreeViewProvider>
@@ -491,5 +470,4 @@ export function TreeViewWithProvider(props: TreeViewProps) {
   )
 }
 
-// Export the provider and the main component
 export { TreeViewProvider }
