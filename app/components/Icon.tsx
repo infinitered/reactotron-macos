@@ -1,6 +1,6 @@
 import { Image, ImageStyle, StyleProp, View, ViewProps, ViewStyle } from "react-native"
 
-import { useTheme, useThemeName } from "../theme/theme"
+import { useTheme } from "../theme/theme"
 
 export type IconTypes = keyof typeof iconRegistry
 

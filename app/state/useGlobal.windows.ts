@@ -1,10 +1,9 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
 
-type UseGlobalOptions = {}
+type UseGlobalOptions = Record<string, unknown>
 
 const globals: Record<string, unknown> = {}
 const components_to_rerender: Record<string, Dispatch<SetStateAction<never[]>>[]> = {}
-
 
 type SetValueFn<T> = (prev: T) => T
 type SetValue<T> = T | SetValueFn<T>
@@ -52,7 +51,7 @@ export function useGlobal<T = unknown>(
 export function withGlobal<T>(
   id: string,
   initialValue: T,
-  options: UseGlobalOptions = {},
+  _: UseGlobalOptions = {},
 ): [T, (value: SetValue<T> | null) => void] {
   // Initialize this global if it doesn't exist.
   if (globals[id] === undefined) globals[id] = initialValue
