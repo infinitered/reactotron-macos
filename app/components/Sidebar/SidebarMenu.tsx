@@ -1,6 +1,5 @@
-import React from "react"
 import { Animated, View, ViewStyle, Pressable, TextStyle } from "react-native"
-import { themed, useTheme, useThemeName, withTheme } from "../../theme/theme"
+import { themed, useTheme, useThemeName } from "../../theme/theme"
 import { useGlobal } from "../../state/useGlobal"
 import { Icon } from "../Icon"
 
@@ -48,6 +47,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
               $menuItem(),
               active && $menuItemActive(),
               pressed && $menuItemPressed,
+              $menuItemLabel(),
             ]}
             onPress={() => setActiveItem(item.id)}
             accessibilityRole="button"
@@ -55,7 +55,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
             accessibilityLabel={item.label}
           >
             {/* Fixed-width icon column (centers icon when collapsed) */}
-            <View style={{ width: iconColumnWidth, alignItems: "center" }}>
+            <View style={[{ width: iconColumnWidth }, $iconColumn]}>
               <Icon
                 icon={item.icon}
                 size={18}
@@ -72,7 +72,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
                 style={[
                   $menuItemText(),
                   active && $menuItemTextActive(),
-                  { opacity: labelOpacity, marginLeft: 8 },
+                  { opacity: labelOpacity },
                 ]}
                 numberOfLines={1}
                 ellipsizeMode="clip"
@@ -115,4 +115,12 @@ const $menuItemText = themed<TextStyle>((theme) => ({
 
 const $menuItemTextActive = themed<TextStyle>((theme) => ({
   color: theme.colors.mainTextInverted,
+}))
+
+const $iconColumn: ViewStyle = {
+  alignItems: "center",
+}
+
+const $menuItemLabel = themed<TextStyle>(({ spacing }) => ({
+  marginLeft: spacing.xs,
 }))

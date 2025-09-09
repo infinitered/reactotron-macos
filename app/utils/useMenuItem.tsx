@@ -288,7 +288,7 @@ export function useMenuItem(config?: MenuItemConfig) {
   }, [config, addEntries, removeMenuItems, getItemDifference])
 
   useEffect(() => {
-    if (Platform.OS === "windows") return;
+    if (Platform.OS === "windows") return
     const subscription = NativeIRMenuItemManager.onMenuItemPressed(handleMenuItemPressed)
     discoverMenus()
     return () => {

@@ -3,9 +3,7 @@ import IRTabComponentView from "../native/IRTabComponentView/NativeIRTabNativeCo
 import { themed } from "../theme/theme"
 import { $flex } from "../theme/basics"
 
-
 export function Tabs() {
-
   return (
     <IRTabComponentView
       style={$flex}
@@ -27,7 +25,7 @@ export function Tabs() {
   )
 }
 
-const $panel = themed<ViewStyle>(({ }) => ({
+const $panel = themed<ViewStyle>(({}) => ({
   flexDirection: "row",
   alignItems: "center",
   justifyContent: "center",
