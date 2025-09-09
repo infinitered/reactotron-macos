@@ -12,7 +12,8 @@
     "ci": "npm run lint",
     "start": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 ./node_modules/react-native-macos/scripts/packager.sh start",
     "test": "jest",
-    "postinstall": "ln -sf $(pwd)/node_modules/react-native-macos $(pwd)/node_modules/react-native && patch-package"
+    "postinstall": "ln -sf $(pwd)/node_modules/react-native-macos $(pwd)/node_modules/react-native && patch-package",
+    "node-process": "node -e \"require('./standalone-server').startReactotronServer({ port: 9292 })\""
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.3.0",
