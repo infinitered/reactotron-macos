@@ -122,7 +122,7 @@ function TreeViewProvider({ children }: { children: React.ReactNode }) {
   return <TreeViewContext.Provider value={contextValue}>{children}</TreeViewContext.Provider>
 }
 
-export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewProps) {
+function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewProps) {
   const [expandedBatches, setExpandedBatches] = useState<Set<number>>(new Set([0]))
   const [localIsExpanded, setLocalIsExpanded] = useState(false)
   const context = useContext(TreeViewContext)
@@ -462,7 +462,7 @@ const $batchContent = (level: number): ViewStyle => ({
   marginLeft: level * spacing.md,
 })
 
-export function TreeViewWithProvider(props: TreeViewProps) {
+function TreeViewWithProvider(props: TreeViewProps) {
   return (
     <TreeViewProvider>
       <TreeView {...props} />
@@ -470,4 +470,4 @@ export function TreeViewWithProvider(props: TreeViewProps) {
   )
 }
 
-export { TreeViewProvider }
+export { TreeViewProvider, TreeViewWithProvider, TreeView }
