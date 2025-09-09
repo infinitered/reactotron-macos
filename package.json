@@ -27,6 +27,9 @@
     "react-native-windows": "^0.78.5",
     "react-native-mmkv": "^3.3.0"
   },
+  "overrides": {
+    "react-native": "npm:react-native-macos@0.78.3"
+  },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
