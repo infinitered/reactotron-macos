@@ -1,4 +1,4 @@
-import { MenuListEntry } from "app/utils/useActionMenu"
+import { MenuListEntry } from "../utils/useActionMenu"
 import { TimelineItemLog } from "../types"
 import { TimelineItem } from "./TimelineItem"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
