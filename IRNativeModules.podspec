@@ -17,8 +17,10 @@ Pod::Spec.new do |s|
     "macos/build/generated/colocated/**/*.{h,m,mm,c,cpp,swift}"
   ]
 
-  # Exclude problematic files if needed
-  # s.exclude_files = []
+  # Exclude Windows-specific sources from macOS build
+  s.exclude_files = [
+    "app/**/*.windows.{h,cpp}"
+  ]
 
   s.dependency 'React-Core'
   s.dependency 'ReactCodegen'

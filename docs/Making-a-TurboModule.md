@@ -1,4 +1,4 @@
-# Making a TurboModule in React Native macOS
+# Making a TurboModule in React Native macOS & Windows
 
 ## Embedded (easy, simple)
 
@@ -105,3 +105,101 @@ _(Untested, from memory)_
 7. Now access your new module in your app with: `import NativeIRMyThing from "specs/NativeIRMyThing"`
 8. And use it (async) like this: `NativeIRMyThing.getMyThing().then((myResponse) => { console.log(myResponse) })`
 9. Done!
+
+---
+
+# Making a TurboModule in React Native Windows
+
+Windows supports the **Manual approach** (equivalent to macOS) with the same unified workflow, but currently requires explicit file creation.
+
+## What's Available on Windows:
+- ✅ **Manual TurboModule creation** with automatic detection
+- ✅ **Fabric Component support** 
+- ✅ **Unified linking command** (`npm run windows-link`)
+- ✅ **Same developer workflow** as macOS Manual approach
+
+## What's macOS-Only (for now):
+- ❌ **Embedded TurboModules** (Objective-C in TypeScript comments)
+- ❌ **CLI Generated** (`./bin/turbomodule add` equivalent)  
+- ❌ **Header auto-generation** (Windows requires explicit `.h` files)
+
+## Manual Windows TurboModules
+
+This approach mirrors the **macOS Manual method** but with Windows-specific files.
+
+1. **Create your TypeScript spec** anywhere in your `./app/` folder structure. Copy an existing `NativeIRSomething.ts` file and customize it.
+
+2. **Create Windows implementation files**:
+   ```
+   app/native/IRMyThing/
+   ├── NativeIRMyThing.ts          # TypeScript spec (shared between platforms)
+   ├── IRMyThing.mm               # macOS implementation  
+   ├── IRMyThing.windows.h        # Windows header (explicit)
+   └── IRMyThing.windows.cpp      # Windows implementation
+   ```
+
+3. **Write your Windows header** (`IRMyThing.windows.h`):
+   ```cpp
+   #pragma once
+   #include "NativeModules.h"
+
+   namespace winrt::reactotron::implementation {
+       REACT_MODULE(IRMyThing)
+       struct IRMyThing {
+           IRMyThing() noexcept = default;
+
+           REACT_SYNC_METHOD(myMethod)
+           std::string myMethod() noexcept;
+       };
+   }
+   ```
+
+4. **Write your Windows implementation** (`IRMyThing.windows.cpp`):
+   ```cpp
+   #include "pch.h"
+   #include "IRMyThing.h"
+
+   namespace winrt::reactotron::implementation {
+       std::string IRMyThing::myMethod() noexcept {
+           return "Hello from Windows!";
+       }
+   }
+   ```
+
+5. **Run the Windows linking command**:
+   ```bash
+   npm run windows-link
+   ```
+   This automatically:
+   - Detects your `.windows.{h,cpp}` files
+   - Generates consolidated headers for the build system
+   - Runs Windows codegen
+   - Links everything automatically
+
+6. **Use in your app** (same as macOS):
+   ```ts
+   import IRMyThing from "./native/IRMyThing/NativeIRMyThing"
+   
+   const result = IRMyThing.myMethod()
+   console.log({ result }) // "Hello from Windows!"
+   ```
+
+## Fabric Components Work Too!
+
+The Windows system automatically detects and handles both:
+- **🔧 TurboModules**: Use `REACT_MODULE` attributes → auto-registered  
+- **🎨 Fabric Components**: Use `ComponentView` inheritance → auto-registered
+
+## Commands Summary
+
+```bash
+# macOS
+npm run pod           # Link native modules
+npm run pod-clean     # Clean & regenerate
+
+# Windows  
+npm run windows-link       # Link native modules
+npm run windows-link-clean # Clean & regenerate
+```
+
+The **TypeScript spec files are shared** between platforms - only the native implementations differ!

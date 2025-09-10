@@ -24,7 +24,9 @@ And, best of all, Reactotron is completely open source and free to use!
 
 ## Getting Started
 
-Currently, you can only run Reactotron macOS by cloning the repo and running it locally.
+Currently, you can only run Reactotron by cloning the repo and running it locally.
+
+### macOS Development
 
 ```sh
 git clone https://github.com/infinitered/reactotron-macos.git
@@ -36,6 +38,36 @@ npm run macos
 # for release builds
 npm run macos-release
 ```
+
+### Windows Development  
+
+#### System Requirements
+
+First, install the system requirements for React Native Windows: https://microsoft.github.io/react-native-windows/docs/rnw-dependencies
+
+**Alternative**: If you experience issues with the official `rnw-dependencies.ps1` script, consider using Josh Yoes' improved setup process: https://github.com/joshuayoes/ReactNativeWindowsSandbox
+
+#### Running the App
+
+```sh
+git clone https://github.com/infinitered/reactotron-macos.git
+cd reactotron-macos
+npm install
+npm run windows-link
+npm run start
+npm run windows
+# for release builds
+npm run windows-release
+```
+
+### Cross-Platform Native Development
+
+Both platforms use unified commands for native module development:
+
+- **macOS**: `npm run pod` - Links native modules using CocoaPods
+- **Windows**: `npm run windows-link` - Links native modules using MSBuild
+
+See [Making a TurboModule](./docs/Making-a-TurboModule.md) for detailed native development instructions.
 
 ## Enabling Reactotron in your app
 

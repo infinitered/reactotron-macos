@@ -15,7 +15,9 @@ export interface MenuNode {
   title: string
   enabled: boolean
   path: string[]
-  children?: MenuNode[]
+  // TODO: This creates an infinite loop when building for windows
+  // children?: MenuNode[]
+  children?: any
 }
 
 // Native -> JS: Top-level entry from getMenuStructure()

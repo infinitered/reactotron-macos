@@ -1,5 +1,5 @@
 import { themed } from "../theme/theme"
-import { View, ViewStyle } from "react-native-macos"
+import { View, ViewStyle } from "react-native"
 
 /**
  * A simple separator component that is used to separate items in a list.
