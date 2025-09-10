@@ -1,4 +1,4 @@
-export type FilterType = "all" | "log" | "api.request" | "api.response"
+export type FilterType = "all" | "log" | "display" | "api.request" | "api.response"
 // export type LogLevel = "all" | "debug" | "warn" | "error"
 // export type SortBy = "time-newest" | "time-oldest" | "type" | "level"
 

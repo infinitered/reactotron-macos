@@ -112,29 +112,28 @@ export function TreeView({ data, path = [], level = 0, onNodePress }: TreeViewPr
     <>
       {/* Show this root node value */}
       <Pressable style={$nodeRow(level)} onPress={handlePress}>
-        {isExpandable && <Text style={$expandIcon()}>{isExpanded ? "▼" : "▶"}</Text>}
+        {isExpandable ? <Text style={$expandIcon()}>{isExpanded ? "▼" : "▶"}</Text> : null}
         <Text style={$nodeLabel()}>{label}</Text>
         {renderValue()}
       </Pressable>
 
       {/* If has children, loop TreeView */}
-      {isExpandable &&
-        isExpanded &&
-        level < MAX_LEVEL &&
-        getChildren().map(({ key, label: childLabel, value }) => (
-          <TreeView
-            key={key}
-            data={value}
-            path={[...path, childLabel]}
-            level={level + 1}
-            onNodePress={onNodePress}
-          />
-        ))}
-      {isExpandable && isExpanded && level >= MAX_LEVEL && (
+      {isExpandable && isExpanded && level < MAX_LEVEL
+        ? getChildren().map(({ key, label: childLabel, value }) => (
+            <TreeView
+              key={key}
+              data={value}
+              path={[...path, childLabel]}
+              level={level + 1}
+              onNodePress={onNodePress}
+            />
+          ))
+        : null}
+      {isExpandable && isExpanded && level >= MAX_LEVEL ? (
         <Text pointerEvents="none" style={$defaultValue()}>
           {JSON.stringify(data, null, 2)}
         </Text>
-      )}
+      ) : null}
     </>
   )
 }

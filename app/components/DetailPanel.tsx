@@ -1,4 +1,14 @@
-import { View, Text, ScrollView, type ViewStyle, type TextStyle } from "react-native"
+import {
+  View,
+  Text,
+  ScrollView,
+  type ViewStyle,
+  type TextStyle,
+  Image,
+  type ImageStyle,
+  Pressable,
+  Linking,
+} from "react-native"
 import { themed } from "../theme/theme"
 import { TimelineItem } from "../types"
 import { TreeView } from "./TreeView"
@@ -31,15 +41,38 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
     )
   }
 
+  const getHeaderTitle = () => {
+    switch (selectedItem.type) {
+      case "log":
+        return "Log Details"
+      case "display":
+        return "Display Details"
+      default:
+        return "Network Details"
+    }
+  }
+
+  const renderDetailContent = () => {
+    switch (selectedItem.type) {
+      case "log":
+        return <LogDetailContent item={selectedItem} />
+      case "display":
+        return <DisplayDetailContent item={selectedItem} />
+      case "api.request":
+      case "api.response":
+        return <NetworkDetailContent item={selectedItem} />
+      default:
+        return null
+    }
+  }
+
   return (
     <View style={$container()}>
       <View style={$header()}>
         <View style={$flex}>
           <View style={$headerTitleRow}>
             <View style={$selectedIndicator()} />
-            <Text style={$headerTitle()}>
-              {selectedItem.type === "log" ? "Log Details" : "Network Details"}
-            </Text>
+            <Text style={$headerTitle()}>{getHeaderTitle()}</Text>
           </View>
           <View style={$headerInfo()}>
             <Text style={$headerInfoText()}>{formatTime(new Date(selectedItem.date))}</Text>
@@ -69,12 +102,75 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         contentContainerStyle={$scrollContent()}
       >
         {/* Render appropriate content based on timeline item type */}
-        {selectedItem.type === "log" ? (
-          <LogDetailContent item={selectedItem} />
-        ) : (
-          <NetworkDetailContent item={selectedItem} />
-        )}
+        {renderDetailContent()}
       </ScrollView>
+    </View>
+  )
+}
+
+function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display" } }) {
+  const { payload } = item
+  const { name, image, preview, ...rest } = payload
+
+  const renderImage = () => {
+    if (image) {
+      let imgComponent = null
+      if (typeof image === "string") {
+        imgComponent = <Image source={{ uri: image }} style={$image()} />
+      } else {
+        imgComponent = <Image source={image} style={$image()} />
+      }
+      return (
+        <DetailSection title="Image">
+          <Pressable
+            onPress={() => {
+              Linking.openURL(typeof image === "string" ? image : image.uri)
+            }}
+          >
+            {imgComponent}
+          </Pressable>
+        </DetailSection>
+      )
+    }
+  }
+
+  return (
+    <View style={$detailContent()}>
+      {name ? (
+        <DetailSection title="Name">
+          {typeof name === "string" ? (
+            <Text style={$valueText()}>{name}</Text>
+          ) : (
+            <TreeView data={name} />
+          )}
+        </DetailSection>
+      ) : null}
+      {preview ? (
+        <DetailSection title="Preview">
+          {typeof preview === "string" ? (
+            <Text style={$valueText()}>{preview}</Text>
+          ) : (
+            <TreeView data={preview} />
+          )}
+        </DetailSection>
+      ) : null}
+      {renderImage()}
+      <DetailSection title="Full Payload">
+        <TreeView data={rest} />
+      </DetailSection>
+      <DetailSection title="Metadata">
+        <TreeView
+          data={{
+            id: item.id,
+            clientId: item.clientId,
+            connectionId: item.connectionId,
+            messageId: item.messageId,
+            important: item.important,
+            date: item.date,
+            deltaTime: item.deltaTime,
+          }}
+        />
+      </DetailSection>
     </View>
   )
 }
@@ -339,4 +435,10 @@ const $errorText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.danger,
   fontSize: typography.body,
   fontFamily: typography.code.normal,
+}))
+
+const $image = themed<ImageStyle>(() => ({
+  width: 200,
+  height: 200,
+  resizeMode: "contain",
 }))
