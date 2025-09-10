@@ -5,7 +5,6 @@ import { useGlobal } from "../state/useGlobal"
 export function useTimeline(filters: TimelineFilters): TimelineItem[] {
   const [items] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
   const [search] = useGlobal("search", "")
-  console.tron.log("Search received:", `"${search}"`)
 
   let filteredItems = items.filter((item) => {
     // if there are any filters selected, only show items that match the filters
