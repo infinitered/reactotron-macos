@@ -41,6 +41,14 @@ npm run macos-release
 
 ### Windows Development  
 
+#### System Requirements
+
+First, install the system requirements for React Native Windows: https://microsoft.github.io/react-native-windows/docs/rnw-dependencies
+
+**Alternative**: If you experience issues with the official `rnw-dependencies.ps1` script, consider using Josh Yoes' improved setup process: https://github.com/joshuayoes/ReactNativeWindowsSandbox
+
+#### Running the App
+
 ```sh
 git clone https://github.com/infinitered/reactotron-macos.git
 cd reactotron-macos
