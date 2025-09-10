@@ -14,6 +14,7 @@ import { $flex, $row } from "../theme/basics"
 import { useTimeline } from "../utils/useTimeline"
 import { MenuItemId } from "app/components/Sidebar/SidebarMenu"
 import { useEffect } from "react"
+import { FilterType } from "app/components/TimelineToolbar"
 
 /**
  * Renders the correct component for each timeline item.
@@ -48,12 +49,23 @@ const TimelineItemRenderer = ({
   return null
 }
 
+function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
+  switch (activeItem) {
+    case "logs":
+      return ["log", "display"]
+    case "network":
+      return ["api.request", "api.response"]
+    default:
+      return ["log", "display", "api.request", "api.response"]
+  }
+}
+
 export function TimelineScreen() {
   const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
   })
   const timelineItems = useTimeline({
-    types: activeItem === "logs" ? ["log", "display"] : ["api.request", "api.response"],
+    types: getTimelineTypes(activeItem),
   })
   const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
     persist: true,
