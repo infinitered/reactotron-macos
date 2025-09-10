@@ -11,7 +11,7 @@ import {
 } from "react-native"
 import { themed } from "../theme/theme"
 import { TimelineItem } from "../types"
-import { TreeView } from "./TreeView"
+import { TreeViewWithProvider } from "./TreeView"
 import ActionButton from "./ActionButton"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import { $flex } from "../theme/basics"
@@ -141,7 +141,7 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
           {typeof name === "string" ? (
             <Text style={$valueText()}>{name}</Text>
           ) : (
-            <TreeView data={name} />
+            <TreeViewWithProvider data={name} />
           )}
         </DetailSection>
       ) : null}
@@ -150,16 +150,16 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
           {typeof preview === "string" ? (
             <Text style={$valueText()}>{preview}</Text>
           ) : (
-            <TreeView data={preview} />
+            <TreeViewWithProvider data={preview} />
           )}
         </DetailSection>
       ) : null}
       {renderImage()}
       <DetailSection title="Full Payload">
-        <TreeView data={rest} />
+        <TreeViewWithProvider data={rest} />
       </DetailSection>
       <DetailSection title="Metadata">
-        <TreeView
+        <TreeViewWithProvider
           data={{
             id: item.id,
             clientId: item.clientId,
@@ -191,23 +191,23 @@ function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
         {typeof payload.message === "string" ? (
           <Text style={$valueText()}>{payload.message}</Text>
         ) : (
-          <TreeView data={payload.message} />
+          <TreeViewWithProvider data={payload.message} />
         )}
       </DetailSection>
 
       {/* Show stack trace only for error level logs that have stack data */}
       {payload.level === "error" && "stack" in payload && (
         <DetailSection title="Stack Trace">
-          <TreeView data={payload.stack} />
+          <TreeViewWithProvider data={payload.stack} />
         </DetailSection>
       )}
 
       <DetailSection title="Full Payload">
-        <TreeView data={payload} />
+        <TreeViewWithProvider data={payload} />
       </DetailSection>
 
       <DetailSection title="Metadata">
-        <TreeView
+        <TreeViewWithProvider
           data={{
             id: item.id,
             clientId: item.clientId,
@@ -239,7 +239,7 @@ function NetworkDetailContent({
       {payload.request && (
         <>
           <DetailSection title="Request">
-            <TreeView data={payload.request} />
+            <TreeViewWithProvider data={payload.request} />
           </DetailSection>
         </>
       )}
@@ -248,7 +248,7 @@ function NetworkDetailContent({
       {payload.response && (
         <>
           <DetailSection title="Response">
-            <TreeView data={payload.response} />
+            <TreeViewWithProvider data={payload.response} />
           </DetailSection>
         </>
       )}
@@ -261,11 +261,11 @@ function NetworkDetailContent({
       )}
 
       <DetailSection title="Full Payload">
-        <TreeView data={payload} />
+        <TreeViewWithProvider data={payload} />
       </DetailSection>
 
       <DetailSection title="Metadata">
-        <TreeView
+        <TreeViewWithProvider
           data={{
             id: item.id,
             clientId: item.clientId,

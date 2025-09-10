@@ -72,7 +72,7 @@ export function TimelineScreen() {
               onSelectItem={handleSelectItem}
             />
           )}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => `${item.id}-idx-${index}`}
           estimatedItemSize={60}
           recycleItems
           showsHorizontalScrollIndicator={false}
