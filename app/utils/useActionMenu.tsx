@@ -115,7 +115,7 @@ export function useActionMenu(config: ActionMenuConfig) {
       const maybePromise = action()
       // catch errors from async actions
       if (maybePromise && typeof (maybePromise as Promise<void>).then === "function") {
-        ; (maybePromise as Promise<void>).catch((err) => {
+        ;(maybePromise as Promise<void>).catch((err) => {
           if (__DEV__) console.error("Action menu action rejected:", err)
         })
       }
@@ -126,7 +126,7 @@ export function useActionMenu(config: ActionMenuConfig) {
 
   // Subscribe once; handler stays stable.
   useEffect(() => {
-    if (Platform.OS === "windows") return;
+    if (Platform.OS === "windows") return
     const sub = NativeIRActionMenuManager.onActionMenuItemPressed(onPress)
     return () => sub.remove()
   }, [onPress])
