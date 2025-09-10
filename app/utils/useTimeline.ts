@@ -4,11 +4,48 @@ import { useGlobal } from "../state/useGlobal"
 
 export function useTimeline(filters: TimelineFilters): TimelineItem[] {
   const [items] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  const [search] = useGlobal("search", "")
+  console.tron.log("Search received:", `"${search}"`)
 
-  const filteredItems = items.filter((item) => {
+  let filteredItems = items.filter((item) => {
     // if there are any filters selected, only show items that match the filters
     return filters.types.includes(item.type)
   })
+
+  if (search) {
+    const searchText = search.toLowerCase()
+
+    // Helper function to recursively search through all values in an object
+    const searchInObject = (obj: any, searchTerm: string, path: string = ""): boolean => {
+      if (obj === null || obj === undefined) {
+        return false
+      }
+
+      if (typeof obj === "string") {
+        return obj.trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
+      }
+
+      if (typeof obj === "number" || typeof obj === "boolean") {
+        return obj.toString().trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
+      }
+
+      if (Array.isArray(obj)) {
+        return obj.some((item, index) => searchInObject(item, searchTerm, `${path}[${index}]`))
+      }
+
+      if (typeof obj === "object") {
+        return Object.entries(obj).some(([key, value]) =>
+          searchInObject(value, searchTerm, path ? `${path}.${key}` : key),
+        )
+      }
+
+      return false
+    }
+
+    filteredItems = filteredItems.filter((item) => {
+      return searchInObject(item, searchText.trim())
+    })
+  }
 
   filteredItems.sort((a, b) => {
     return new Date(b.date).getTime() - new Date(a.date).getTime()

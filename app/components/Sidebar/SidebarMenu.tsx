@@ -10,7 +10,7 @@ const MENU_ITEMS = [
   { id: "plugins", label: "Plugins", icon: "plug" },
 ] as const
 
-type MenuItemId = (typeof MENU_ITEMS)[number]["id"]
+export type MenuItemId = (typeof MENU_ITEMS)[number]["id"]
 
 interface SidebarMenuProps {
   progress: Animated.Value
@@ -34,7 +34,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
    * - centers the icon when collapsed without animating padding
    * - becomes the left column when expanded (outer padding forms the gutter)
    */
-  const iconColumnWidth = collapsedWidth - theme.spacing.sm * 2
+  const iconColumnWidth = collapsedWidth - theme.spacing.sm * 2.8
 
   return (
     <View style={$menu}>
@@ -111,6 +111,7 @@ const $menuItemText = themed<TextStyle>((theme) => ({
   fontSize: theme.typography.caption,
   color: theme.colors.mainText,
   fontWeight: "700",
+  marginLeft: theme.spacing.xs,
 }))
 
 const $menuItemTextActive = themed<TextStyle>((theme) => ({
