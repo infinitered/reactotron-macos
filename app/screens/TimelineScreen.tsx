@@ -2,10 +2,11 @@ import { useGlobal } from "../state/useGlobal"
 import { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
+import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
-import { View, ViewStyle } from "react-native-macos"
+import { View, ViewStyle } from "react-native"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
@@ -35,6 +36,9 @@ const TimelineItemRenderer = ({
   if (item.type === "log") {
     return <TimelineLogItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
+  if (item.type === "display") {
+    return <TimelineDisplayItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+  }
   if (item.type === "api.response") {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
@@ -44,7 +48,7 @@ const TimelineItemRenderer = ({
 
 export function TimelineScreen() {
   // TODO: Use a global state for the filters, set by the user in the TimelineToolbar
-  const timelineItems = useTimeline({ types: ["log", "api.request", "api.response"] })
+  const timelineItems = useTimeline({ types: ["log", "display", "api.request", "api.response"] })
   const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
     persist: true,
   })

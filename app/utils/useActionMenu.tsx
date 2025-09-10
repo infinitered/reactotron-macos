@@ -3,6 +3,7 @@ import NativeIRActionMenuManager, {
   SEPARATOR,
   type ActionMenuItemPressedEvent,
 } from "../native/IRActionMenuManager/NativeIRActionMenuManager"
+import { Platform } from "react-native"
 
 export { SEPARATOR }
 
@@ -125,6 +126,7 @@ export function useActionMenu(config: ActionMenuConfig) {
 
   // Subscribe once; handler stays stable.
   useEffect(() => {
+    if (Platform.OS === "windows") return
     const sub = NativeIRActionMenuManager.onActionMenuItemPressed(onPress)
     return () => sub.remove()
   }, [onPress])

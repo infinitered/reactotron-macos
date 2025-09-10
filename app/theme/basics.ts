@@ -1,4 +1,4 @@
-import { type ViewStyle } from "react-native-macos"
+import { type ViewStyle } from "react-native"
 
 export const $flex: ViewStyle = {
   flex: 1,

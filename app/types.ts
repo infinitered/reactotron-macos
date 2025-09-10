@@ -58,6 +58,13 @@ export type LogPayload =
     }
   | ErrorLogPayload
 
+export interface DisplayPayload {
+  name: string
+  value: any
+  preview: string
+  image: string | { uri: string }
+}
+
 export interface NetworkRequest {
   url: string
   method: string
@@ -101,4 +108,9 @@ export type TimelineItemNetwork = TimelineItemBase & {
   payload: NetworkPayload
 }
 
-export type TimelineItem = TimelineItemLog | TimelineItemNetwork
+export type TimelineItemDisplay = TimelineItemBase & {
+  type: "display"
+  payload: DisplayPayload
+}
+
+export type TimelineItem = TimelineItemLog | TimelineItemNetwork | TimelineItemDisplay

@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react"
 import IRRunShellCommand from "../native/IRRunShellCommand/NativeIRRunShellCommand"
 import IRSystemInfo, { SystemInfo } from "../native/IRSystemInfo/NativeIRSystemInfo"
 import IRKeyboard, { KeyboardEvent } from "../native/IRKeyboard/NativeIRKeyboard"
-import type { EventSubscription } from "react-native"
+import { Platform, type EventSubscription } from "react-native"
 
 /**
  * Get the current memory usage of the app in MB via a shell command.
@@ -47,6 +47,7 @@ export function useKeyboardEvents(onKeyboardEvent: (event: KeyboardEvent) => voi
   const keyboardSubscription = useRef<EventSubscription | null>(null)
 
   useEffect(() => {
+    if (Platform.OS === "windows") return
     _keyboardSubscribers++
     if (_keyboardSubscribers === 1) IRKeyboard.startListening()
     keyboardSubscription.current = IRKeyboard.onKeyboardEvent(onKeyboardEvent)
