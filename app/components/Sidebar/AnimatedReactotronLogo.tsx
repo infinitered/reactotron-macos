@@ -1,5 +1,5 @@
-import { themed, useThemeName, withTheme } from "../../theme/theme"
-import { Animated, ImageStyle, View, ViewStyle } from "react-native-macos"
+import { themed, useThemeName } from "../../theme/theme"
+import { Animated, ImageStyle, View, ViewStyle } from "react-native"
 
 type AnimatedReactotronLogoProps = {
   progress: Animated.Value // 0 = collapsed, 1 = expanded (animated in the sidebar)

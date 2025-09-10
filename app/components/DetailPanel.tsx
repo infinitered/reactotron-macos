@@ -15,6 +15,7 @@ import { TreeView } from "./TreeView"
 import ActionButton from "./ActionButton"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import { $flex } from "../theme/basics"
+import { formatTime } from "../utils/formatTime"
 
 type DetailPanelProps = {
   selectedItem: TimelineItem | null
@@ -74,7 +75,7 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
             <Text style={$headerTitle()}>{getHeaderTitle()}</Text>
           </View>
           <View style={$headerInfo()}>
-            <Text style={$headerInfoText()}>{new Date(selectedItem.date).toLocaleString()}</Text>
+            <Text style={$headerInfoText()}>{formatTime(new Date(selectedItem.date))}</Text>
             {!!selectedItem.deltaTime && (
               <Text style={$headerInfoText()}>+{selectedItem.deltaTime}ms</Text>
             )}

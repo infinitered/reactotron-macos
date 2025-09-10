@@ -2,6 +2,7 @@ import { Text, View, type ViewStyle, type TextStyle } from "react-native"
 import { themed } from "../theme/theme"
 import PressableWithRightClick from "./PressableWithRightClick"
 import { MenuListEntry } from "../utils/useActionMenu"
+import { formatTime } from "../utils/formatTime"
 
 /**
  * A single item in the timeline.
@@ -82,15 +83,6 @@ export function TimelineItem({
         </View>
       </PressableWithRightClick>
     </View>
-  )
-}
-
-function formatTime(date: Date | number) {
-  const dateObj = date instanceof Date ? date : new Date(date)
-  return (
-    dateObj.toLocaleTimeString([], { hour12: false }) +
-    "." +
-    String(dateObj.getMilliseconds()).padStart(3, "0")
   )
 }
 
