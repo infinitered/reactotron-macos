@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Windows Native Module Linker
+# Equivalent to pod-install but for Windows platform
+
+# Set common environment variables (matching the macOS script style)
+export REACT_NATIVE_PATH=./node_modules/react-native-windows
+export RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH
+export RCT_NEW_ARCH_ENABLED=1
+
+if [ "$1" = "clean" ]; then
+  # Clean mode - remove generated files
+  echo "Cleaning Windows generated files..."
+  node ./bin/generate_windows_native_files.js --clean
+  echo "Cleaning Windows codegen files..."
+  rm -rf windows/reactotron/codegen/
+else
+  # Generate native module files
+  node ./bin/generate_windows_native_files.js
+  
+  # Run React Native Windows codegen
+  echo "Running React Native Windows codegen..."
+  npx react-native codegen-windows
+fi
+
+echo "Windows linking complete!"

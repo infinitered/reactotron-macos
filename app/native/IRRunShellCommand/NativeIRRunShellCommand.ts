@@ -19,7 +19,7 @@ export interface Spec extends TurboModule {
   runAsync(command: string): Promise<string>
   runSync(command: string): string
   runCommandOnShutdown(command: string): void
-  runTaskWithCommand(command: string, args: ReadonlyArray<string>, taskId: string): void
+  runTaskWithCommand(command: string, args: string[], taskId: string): void
   getRunningTaskIds(): ReadonlyArray<string>
   killTaskWithId(taskId: string): boolean
   killAllTasks(): void

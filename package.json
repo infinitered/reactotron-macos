@@ -4,11 +4,16 @@
   "private": true,
   "scripts": {
     "all": "npm run pod && npm run macos",
+    "all-windows": "npm run windows-link && npm run windows",
     "macos": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos",
     "macos-release": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 node ./node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release",
     "pod": "./bin/pod-install",
     "pod-clean": "./bin/pod-install clean",
+    "windows-link": "./bin/windows-link",
+    "windows-link-clean": "./bin/windows-link clean",
     "lint": "eslint .",
+    "windows": "npx @react-native-community/cli run-windows",
+    "test:windows": "jest --config jest.config.windows.js",
     "ci": "npm run lint",
     "start": "REACT_NATIVE_PATH=./node_modules/react-native-macos RCT_SCRIPT_RN_DIR=$REACT_NATIVE_PATH RCT_NEW_ARCH_ENABLED=1 ./node_modules/react-native-macos/scripts/packager.sh start",
     "test": "jest",
@@ -18,8 +23,12 @@
     "@expo-google-fonts/space-grotesk": "^0.3.0",
     "@legendapp/list": "^1.1.4",
     "react": "19.0.0",
-    "react-native-macos": "^0.78.3",
+    "react-native-macos": "^0.78.2",
+    "react-native-windows": "^0.78.5",
     "react-native-mmkv": "^3.3.0"
+  },
+  "overrides": {
+    "react-native": "npm:react-native-macos@0.78.3"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -42,12 +51,10 @@
     "patch-package": "^8.0.0",
     "prettier": "2.8.8",
     "reactotron-core-client": "^2.9.7",
+    "@rnx-kit/jest-preset": "^0.1.17",
     "reactotron-core-server": "^3.2.0",
     "reactotron-react-native": "^5.1.14",
     "typescript": "5.0.4"
-  },
-  "overrides": {
-    "react-native": "npm:react-native-macos@0.78.3"
   },
   "engines": {
     "node": ">=18"
@@ -131,6 +138,15 @@
       "componentProvider": {
         "IRTabComponentView": "IRTabComponentView"
       }
+    },
+    "windows": {
+      "namespace": "reactotronCodegen",
+      "generators": [
+        "modulesWindows",
+        "componentsWindows"
+      ],
+      "outputDirectory": "windows/reactotron/codegen",
+      "separateDataTypes": true
     }
   },
   "generateTurboModules": {
@@ -138,5 +154,12 @@
       "app/utils/random/getUUID.ts"
     ],
     "destinationPath": "macos/build/generated/colocated"
+  },
+  "react-native-windows": {
+    "init-windows": {
+      "name": "reactotron",
+      "namespace": "reactotron",
+      "template": "cpp-app"
+    }
   }
 }
