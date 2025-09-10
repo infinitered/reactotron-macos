@@ -141,7 +141,7 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
           {typeof name === "string" ? (
             <Text style={$valueText()}>{name}</Text>
           ) : (
-            <TreeView data={name} />
+            <TreeViewWithProvider data={name} />
           )}
         </DetailSection>
       ) : null}
@@ -150,16 +150,16 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
           {typeof preview === "string" ? (
             <Text style={$valueText()}>{preview}</Text>
           ) : (
-            <TreeView data={preview} />
+            <TreeViewWithProvider data={preview} />
           )}
         </DetailSection>
       ) : null}
       {renderImage()}
       <DetailSection title="Full Payload">
-        <TreeView data={rest} />
+        <TreeViewWithProvider data={rest} />
       </DetailSection>
       <DetailSection title="Metadata">
-        <TreeView
+        <TreeViewWithProvider
           data={{
             id: item.id,
             clientId: item.clientId,
