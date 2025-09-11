@@ -47,7 +47,6 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
               $menuItem(),
               active && $menuItemActive(),
               pressed && $menuItemPressed,
-              $menuItemLabel(),
             ]}
             onPress={() => setActiveItem(item.id)}
             accessibilityRole="button"
@@ -55,7 +54,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
             accessibilityLabel={item.label}
           >
             {/* Fixed-width icon column (centers icon when collapsed) */}
-            <View style={[{ width: iconColumnWidth }, $iconColumn]}>
+            <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
               <Icon
                 icon={item.icon}
                 size={18}
@@ -118,10 +117,6 @@ const $menuItemTextActive = themed<TextStyle>((theme) => ({
   color: theme.colors.mainTextInverted,
 }))
 
-const $iconColumn: ViewStyle = {
-  alignItems: "center",
-}
-
-const $menuItemLabel = themed<TextStyle>(({ spacing }) => ({
+const $iconColumn = themed<ViewStyle>(({ spacing }) => ({
   marginLeft: spacing.xs,
 }))
