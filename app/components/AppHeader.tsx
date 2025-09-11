@@ -109,13 +109,13 @@ const $statusText = themed<TextStyle>(({ colors }) => ({
   fontWeight: "600",
 }))
 
-const $searchInput = themed<TextStyle>(({ colors }) => ({
+const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
   width: 140,
-  fontSize: 16,
+  fontSize: typography.body,
   backgroundColor: colors.background,
   borderWidth: 1,
   borderRadius: 4,
-  padding: 4,
+  padding: spacing.xxs,
   zIndex: 1,
 }))
 
