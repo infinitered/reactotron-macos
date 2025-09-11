@@ -1,56 +1,57 @@
 import { TimelineItem } from "../types"
 import { TimelineFilters } from "../components/TimelineToolbar"
 import { useGlobal } from "../state/useGlobal"
+import { useMemo } from "react"
+import { normalize } from "./normalize"
+import { safeTime } from "./safeTime"
 
 export function useTimeline(filters: TimelineFilters): TimelineItem[] {
   const [items] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
   const [search] = useGlobal("search", "")
 
-  let filteredItems = items.filter((item) => {
-    // if there are any filters selected, only show items that match the filters
-    return filters.types.includes(item.type)
-  })
+  return useMemo(() => {
+    // 1) Types filter: if none selected, show everything
+    const byType =
+      (filters.types?.length ?? 0) === 0
+        ? items.slice() // clone so we can sort safely later
+        : items.filter((item) => filters.types.includes(item.type))
 
-  if (search) {
-    const searchText = search.toLowerCase()
+    // 2) Search (normalize once)
+    const q = normalize(search)
+    const visited = new WeakSet<object>()
+    const matches = (val: unknown): boolean => {
+      if (val === null || val === undefined) return false
 
-    // Helper function to recursively search through all values in an object
-    const searchInObject = (obj: any, searchTerm: string, path: string = ""): boolean => {
-      if (obj === null || obj === undefined) {
+      if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
+        return normalize(val).includes(q)
+      }
+      if (val instanceof Date) {
+        return normalize(val.toISOString()).includes(q)
+      }
+      if (Array.isArray(val)) {
+        for (const v of val) if (matches(v)) return true
         return false
       }
-
-      if (typeof obj === "string") {
-        return obj.trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
-      }
-
-      if (typeof obj === "number" || typeof obj === "boolean") {
-        return obj.toString().trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
-      }
-
-      if (Array.isArray(obj)) {
-        return obj.some((item, index) => searchInObject(item, searchTerm, `${path}[${index}]`))
-      }
-
-      if (typeof obj === "object") {
-        return Object.entries(obj).some(([key, value]) =>
-          searchInObject(value, searchTerm, path ? `${path}.${key}` : key),
-        )
+      if (typeof val === "object") {
+        const obj = val as Record<string, unknown>
+        if (visited.has(obj)) return false
+        visited.add(obj)
+        for (const k in obj) {
+          if (matches(obj[k])) return true
+        }
+        return false
       }
 
       return false
     }
 
-    filteredItems = filteredItems.filter((item) => {
-      return searchInObject(item, searchText.trim())
-    })
-  }
+    const bySearch = q ? byType.filter((item) => matches(item)) : byType
 
-  filteredItems.sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime()
-  })
+    // 3) Sort newest first, safely handling bad dates
+    bySearch.sort((a, b) => safeTime(b.date) - safeTime(a.date))
 
-  return filteredItems
+    return bySearch
+  }, [items, JSON.stringify(filters.types ?? []), search])
 
   // TODO: User controlled sorting and level filtering
 
