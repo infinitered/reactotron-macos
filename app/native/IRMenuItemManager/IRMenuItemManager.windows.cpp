@@ -8,72 +8,26 @@
 #include "pch.h"
 #include "IRMenuItemManager.windows.h"
 
+using winrt::reactotron::implementation::IRMenuItemManager;
+
 namespace winrt::reactotron::implementation
 {
-    IRMenuItemManager::IRMenuItemManager() noexcept
+    void IRMenuItemManager::createMenu(std::string menuName,
+                                       ::React::ReactPromise<CreateRet> &&result) noexcept
     {
-        // TurboModule initialization
+        // THE PROBLEM: onMenuItemPressed is nullptr/undefined at runtime
+        if (onMenuItemPressed)
+        {
+            PressEvent evt{};
+            evt.menuPath = {"Test", "Event"};
+            onMenuItemPressed(evt);
+        }
+
+        CreateRet ret{};
+        ret.success = true;
+        ret.existed = false;
+        ret.menuName = menuName;
+        result.Resolve(std::move(ret));
     }
 
-    Microsoft::ReactNative::JSValue IRMenuItemManager::getAvailableMenus() noexcept
-    {
-        // TODO: Get available Windows application menus
-        Microsoft::ReactNative::JSValueArray menus;
-        // Stub implementation
-        return Microsoft::ReactNative::JSValue(std::move(menus));
-    }
-
-    Microsoft::ReactNative::JSValue IRMenuItemManager::getMenuStructure() noexcept
-    {
-        // TODO: Get Windows application menu structure
-        Microsoft::ReactNative::JSValueArray structure;
-        // Stub implementation
-        return Microsoft::ReactNative::JSValue(std::move(structure));
-    }
-
-    void IRMenuItemManager::createMenu(std::string menuName, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
-    {
-        // TODO: Create a new Windows menu
-        Microsoft::ReactNative::JSValueObject result;
-        result["success"] = false;
-        result["existed"] = false;
-        result["menuName"] = menuName;
-        promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
-    }
-
-    void IRMenuItemManager::addMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const &title, std::string const &keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
-    {
-        // TODO: Add menu item at specified path in Windows
-        Microsoft::ReactNative::JSValueObject result;
-        result["success"] = false;
-        result["error"] = "Not implemented";
-        promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
-    }
-
-    void IRMenuItemManager::insertMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const &title, int atIndex, std::string const &keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
-    {
-        // TODO: Insert menu item at specified index and path in Windows
-        Microsoft::ReactNative::JSValueObject result;
-        result["success"] = false;
-        result["error"] = "Not implemented";
-        promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
-    }
-
-    void IRMenuItemManager::removeMenuItemAtPath(Microsoft::ReactNative::JSValue path, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
-    {
-        // TODO: Remove menu item at specified path in Windows
-        Microsoft::ReactNative::JSValueObject result;
-        result["success"] = false;
-        result["error"] = "Not implemented";
-        promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
-    }
-
-    void IRMenuItemManager::setMenuItemEnabledAtPath(Microsoft::ReactNative::JSValue path, bool enabled, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const &promise) noexcept
-    {
-        // TODO: Enable/disable menu item at specified path in Windows
-        Microsoft::ReactNative::JSValueObject result;
-        result["success"] = false;
-        result["error"] = "Not implemented";
-        promise.Resolve(Microsoft::ReactNative::JSValue(std::move(result)));
-    }
-}
+} // namespace winrt::reactotron::implementation

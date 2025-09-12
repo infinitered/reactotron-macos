@@ -1,35 +1,28 @@
 #pragma once
-#include "NativeModules.h"
+
+#include <NativeModules.h>
+#include <winrt/Microsoft.ReactNative.h>
+
+// Generated (DataTypes before Spec)
+#include "..\..\..\windows\reactotron\codegen\NativeIRMenuItemManagerDataTypes.g.h"
+#include "..\..\..\windows\reactotron\codegen\NativeIRMenuItemManagerSpec.g.h"
 
 namespace winrt::reactotron::implementation
 {
     REACT_MODULE(IRMenuItemManager)
-    struct IRMenuItemManager
+    struct IRMenuItemManager : reactotronCodegen::IRMenuItemManagerSpec
     {
-        IRMenuItemManager() noexcept;
+        // Only the essential types needed for the event
+        using PressEvent = reactotronCodegen::IRMenuItemManagerSpec_MenuItemPressedEvent;
+        using CreateRet = reactotronCodegen::IRMenuItemManagerSpec_createMenu_returnType;
 
-        REACT_SYNC_METHOD(getAvailableMenus)
-        Microsoft::ReactNative::JSValue getAvailableMenus() noexcept;
-
-        REACT_SYNC_METHOD(getMenuStructure)
-        Microsoft::ReactNative::JSValue getMenuStructure() noexcept;
-
+        // One simple method to test event emission
         REACT_METHOD(createMenu)
-        void createMenu(std::string menuName, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept;
+        void createMenu(std::string menuName, ::React::ReactPromise<CreateRet> &&result) noexcept;
 
-        REACT_METHOD(addMenuItemAtPath)
-        void addMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const& title, std::string const& keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept;
-
-        REACT_METHOD(insertMenuItemAtPath)
-        void insertMenuItemAtPath(Microsoft::ReactNative::JSValue parentPath, std::string const& title, int atIndex, std::string const& keyEquivalent, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept;
-
-        REACT_METHOD(removeMenuItemAtPath)
-        void removeMenuItemAtPath(Microsoft::ReactNative::JSValue path, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept;
-
-        REACT_METHOD(setMenuItemEnabledAtPath)
-        void setMenuItemEnabledAtPath(Microsoft::ReactNative::JSValue path, bool enabled, Microsoft::ReactNative::ReactPromise<Microsoft::ReactNative::JSValue> const& promise) noexcept;
-
+        // --- THE ISSUE: This event is undefined in JavaScript ---
         REACT_EVENT(onMenuItemPressed)
-        std::function<void(Microsoft::ReactNative::JSValue)> onMenuItemPressed;
+        std::function<void(PressEvent)> onMenuItemPressed;
     };
-}
+
+} // namespace winrt::reactotron::implementation
