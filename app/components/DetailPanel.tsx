@@ -13,6 +13,7 @@ import { themed } from "../theme/theme"
 import { TimelineItem } from "../types"
 import { TreeViewWithProvider } from "./TreeView"
 import ActionButton from "./ActionButton"
+import { Tooltip } from "./Tooltip/Tooltip"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import { $flex } from "../theme/basics"
 import { formatTime } from "../utils/formatTime"
@@ -82,10 +83,14 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
           </View>
         </View>
         <View style={$headerActions()}>
-          <ActionButton
-            icon={({ size }) => <Text style={{ fontSize: size }}>📋</Text>}
-            onClick={() => IRClipboard.setString(JSON.stringify(selectedItem.payload))}
-          />
+          <Tooltip label="Copy payload">
+            <Pressable
+              style={$copyButton()}
+              onPress={() => IRClipboard.setString(JSON.stringify(selectedItem.payload))}
+            >
+              <Text style={$copyButtonText()}>📋</Text>
+            </Pressable>
+          </Tooltip>
           {onClose && (
             <ActionButton
               icon={({ size }) => <Text style={{ fontSize: size }}>✕</Text>}
@@ -442,3 +447,19 @@ const $image = themed<ImageStyle>(() => ({
   height: 200,
   resizeMode: "contain",
 }))
+
+const $copyButton = themed<ViewStyle>(({ spacing }) => ({
+  marginHorizontal: spacing.sm,
+  padding: spacing.sm,
+  justifyContent: "center",
+  alignItems: "center",
+  cursor: "pointer",
+  borderRadius: spacing.xs,
+  backgroundColor: "transparent",
+}))
+
+const $copyButtonText = themed<TextStyle>(() => ({
+  fontSize: 20,
+}))
+
+//
