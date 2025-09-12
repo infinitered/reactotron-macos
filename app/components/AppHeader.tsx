@@ -20,6 +20,7 @@ export function AppHeader() {
   const [isConnected] = useGlobal("isConnected", false)
   const [error] = useGlobal("error", null)
   const [clientIds] = useGlobal("clientIds", [])
+  const [search, setSearch] = useGlobal("search", "")
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
   return (
@@ -31,9 +32,14 @@ export function AppHeader() {
       </View>
       <HeaderTitle title={`Reactotron ${reactotronAppId}`} />
       <View style={$statusRow()}>
-        <View>
-          <TextInput value={"SEARCHING"} placeholder="Search" style={$searchInput} />
-          <Text>Search</Text>
+        <View style={$searchContainer()}>
+          <TextInput
+            value={search}
+            placeholder="Search"
+            style={$searchInput()}
+            placeholderTextColor={theme === "dark" ? "white" : "black"}
+            onChangeText={setSearch}
+          />
         </View>
         <View style={$statusItem()}>
           <View style={[$dot(), error ? $dotRed() : isConnected ? $dotGreen() : $dotGray()]} />
@@ -103,4 +109,16 @@ const $statusText = themed<TextStyle>(({ colors }) => ({
   fontWeight: "600",
 }))
 
-const $searchInput: ViewStyle = { width: 100 }
+const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  width: 140,
+  fontSize: typography.body,
+  backgroundColor: colors.background,
+  borderWidth: 1,
+  borderRadius: 4,
+  padding: spacing.xxs,
+  zIndex: 1,
+}))
+
+const $searchContainer = themed<ViewStyle>(({ spacing }) => ({
+  marginRight: spacing.md,
+}))
