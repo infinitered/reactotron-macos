@@ -22,7 +22,7 @@ export function Portal({ name, children }: { name: string; children: ReactNode }
     // Register this portal's content in the global registry
     portals.set(name, children)
     emit() // Notify PortalHost to re-render with new content
-    
+
     return () => {
       // Clean up when portal unmounts
       portals.delete(name)
