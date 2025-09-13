@@ -1,0 +1,127 @@
+diff --git a/node_modules/react-native-macos/Libraries/Pressability/Pressability.js b/node_modules/react-native-macos/Libraries/Pressability/Pressability.js
+index 66ec73d..58e0e30 100644
+--- a/node_modules/react-native-macos/Libraries/Pressability/Pressability.js
++++ b/node_modules/react-native-macos/Libraries/Pressability/Pressability.js
+@@ -703,7 +703,7 @@ export default class Pressability {
+                     );
+                     if (delayHoverOut > 0) {
+                       event.persist();
+-                      this._hoverInDelayTimeout = setTimeout(() => {
++                      this._hoverOutDelayTimeout = setTimeout(() => {
+                         onHoverOut(event);
+                       }, delayHoverOut);
+                     } else {
+diff --git a/node_modules/react-native-macos/Libraries/ReactNative/ReactNativeFeatureFlags.js b/node_modules/react-native-macos/Libraries/ReactNative/ReactNativeFeatureFlags.js
+index 61f37d2..b34125f 100644
+--- a/node_modules/react-native-macos/Libraries/ReactNative/ReactNativeFeatureFlags.js
++++ b/node_modules/react-native-macos/Libraries/ReactNative/ReactNativeFeatureFlags.js
+@@ -25,7 +25,7 @@ export type FeatureFlags = {|
+ 
+ const ReactNativeFeatureFlags: FeatureFlags = {
+   shouldEmitW3CPointerEvents: () => false,
+-  shouldPressibilityUseW3CPointerEventsForHover: () => false,
++  shouldPressibilityUseW3CPointerEventsForHover: () => true,
+ };
+ 
+ module.exports = ReactNativeFeatureFlags;
+diff --git a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/View/RCTViewComponentView.mm b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/View/RCTViewComponentView.mm
+index 55fac1e..de192c1 100644
+--- a/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/View/RCTViewComponentView.mm
++++ b/node_modules/react-native-macos/React/Fabric/Mounting/ComponentViews/View/RCTViewComponentView.mm
+@@ -25,6 +25,8 @@
+ #import <react/renderer/components/view/ViewProps.h>
+ #import <react/renderer/components/view/accessibilityPropsConversions.h>
+ #import <react/renderer/graphics/BlendMode.h>
++// [macOS] pointer events payload
++#import <react/renderer/components/view/PointerEvent.h>
+ 
+ #ifdef RCT_DYNAMIC_FRAMEWORKS
+ #import <React/RCTComponentViewFactory.h>
+@@ -49,6 +51,9 @@ @implementation RCTViewComponentView {
+   NSSet<NSString *> *_Nullable _propKeysManagedByAnimated_DO_NOT_USE_THIS_IS_BROKEN;
+   RCTPlatformView *_containerView; // [macOS]
+   BOOL _useCustomContainerView;
++#if TARGET_OS_OSX // [macOS]
++  NSTrackingArea *_hoverTrackingArea;
++#endif // macOS]
+ }
+ 
+ #ifdef RCT_DYNAMIC_FRAMEWORKS
+@@ -98,6 +103,77 @@ - (void)setContentView:(RCTPlatformView *)contentView // [macOS]
+   }
+ }
+ 
++#if TARGET_OS_OSX // [macOS]
++- (void)updateTrackingAreas
++{
++  if (_hoverTrackingArea) {
++    [self removeTrackingArea:_hoverTrackingArea];
++  }
++  _hoverTrackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds
++                                                    options:NSTrackingActiveAlways | NSTrackingMouseEnteredAndExited
++                                                      owner:self
++                                                   userInfo:nil];
++  [self addTrackingArea:_hoverTrackingArea];
++  [super updateTrackingAreas];
++}
++
++- (void)mouseEntered:(NSEvent *)event
++{
++  if (_eventEmitter) {
++    facebook::react::PointerEvent pe = {};
++    pe.pointerId = 0;
++    pe.pointerType = "mouse";
++    pe.pressure = 0;
++    pe.clientPoint = {0, 0};
++    pe.screenPoint = {0, 0};
++    pe.offsetPoint = {0, 0};
++    pe.width = 1;
++    pe.height = 1;
++    pe.tiltX = 0;
++    pe.tiltY = 0;
++    pe.detail = 0;
++    pe.buttons = 0;
++    pe.tangentialPressure = 0;
++    pe.twist = 0;
++    pe.ctrlKey = false;
++    pe.shiftKey = false;
++    pe.altKey = false;
++    pe.metaKey = false;
++    pe.isPrimary = true;
++    pe.button = -1;
++    _eventEmitter->onPointerEnter(std::move(pe));
++  }
++}
++
++- (void)mouseExited:(NSEvent *)event
++{
++  if (_eventEmitter) {
++    facebook::react::PointerEvent pe = {};
++    pe.pointerId = 0;
++    pe.pointerType = "mouse";
++    pe.pressure = 0;
++    pe.clientPoint = {0, 0};
++    pe.screenPoint = {0, 0};
++    pe.offsetPoint = {0, 0};
++    pe.width = 1;
++    pe.height = 1;
++    pe.tiltX = 0;
++    pe.tiltY = 0;
++    pe.detail = 0;
++    pe.buttons = 0;
++    pe.tangentialPressure = 0;
++    pe.twist = 0;
++    pe.ctrlKey = false;
++    pe.shiftKey = false;
++    pe.altKey = false;
++    pe.metaKey = false;
++    pe.isPrimary = true;
++    pe.button = -1;
++    _eventEmitter->onPointerLeave(std::move(pe));
++  }
++}
++#endif // macOS]
++
+ - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+ {
+   if (UIEdgeInsetsEqualToEdgeInsets(self.hitTestEdgeInsets, UIEdgeInsetsZero)) {
