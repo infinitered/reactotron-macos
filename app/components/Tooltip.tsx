@@ -1,7 +1,7 @@
 import { useState, cloneElement, isValidElement, useRef, type ReactNode } from "react"
 import { View, type ViewStyle, type TextStyle, Text } from "react-native"
-import { themed } from "../../theme/theme"
-import { Portal } from "../Portal/Portal"
+import { themed } from "../theme/theme"
+import { Portal } from "./Portal"
 
 type TooltipProps = {
   /**

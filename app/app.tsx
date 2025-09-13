@@ -15,7 +15,7 @@ import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
 import { AppHeader } from "./components/AppHeader"
 //
-import { PortalHost } from "./components/Portal/Portal"
+import { PortalHost } from "./components/Portal"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
