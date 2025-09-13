@@ -7,7 +7,7 @@
 import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar"
