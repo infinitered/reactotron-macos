@@ -14,7 +14,6 @@ import { Titlebar } from "./components/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
 import { AppHeader } from "./components/AppHeader"
-//
 import { PortalHost } from "./components/Portal"
 
 if (__DEV__) {
