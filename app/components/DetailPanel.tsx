@@ -461,5 +461,3 @@ const $copyButton = themed<ViewStyle>(({ spacing }) => ({
 const $copyButtonText = themed<TextStyle>(() => ({
   fontSize: 20,
 }))
-
-//
