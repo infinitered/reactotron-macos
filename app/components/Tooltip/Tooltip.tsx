@@ -9,9 +9,14 @@ type TooltipProps = {
    */
   label: string
   /**
-   * The trigger element that will show the tooltip on long press
+   * The trigger element that will show the tooltip on hover
    */
   children: ReactNode
+  /**
+   * Delay in milliseconds before showing the tooltip
+   * @default 500
+   */
+  delay?: number
 }
 
 /**
@@ -19,12 +24,12 @@ type TooltipProps = {
  * The tooltip appears positioned below the trigger and is automatically centered.
  * Uses the Portal system to render outside the normal component tree for proper layering.
  */
-export function Tooltip({ label, children }: TooltipProps) {
+export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
   const [show, setShow] = useState(false)
+  const [positioned, setPositioned] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [tooltipWidth, setTooltipWidth] = useState(0)
   const triggerRef = useRef<View>(null)
-  const tooltipRef = useRef<View>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   if (!isValidElement(children)) {
     return <>{children}</>
@@ -32,34 +37,53 @@ export function Tooltip({ label, children }: TooltipProps) {
 
   const child: any = children
 
-  // Measures the trigger position and shows the tooltip centered below it
+  // Shows the tooltip for measurement after delay
   const showTooltip = () => {
-    if (triggerRef.current) {
-      triggerRef.current.measureInWindow((x, y, width, height) => {
-        setPosition({
-          x: x + width / 2 - tooltipWidth / 2, // Center tooltip under trigger
-          y: y + height + 2, // Position below with small gap
-        })
-        setShow(true)
-      })
+    timeoutRef.current = setTimeout(() => {
+      setShow(true)
+      setPositioned(false)
+    }, delay)
+  }
+
+  // Cancels any pending tooltip show
+  const cancelTooltip = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
   }
 
-  // Captures the tooltip's actual width for proper centering
+  // Hides the tooltip immediately
+  const hideTooltip = () => {
+    cancelTooltip()
+    setShow(false)
+    setPositioned(false)
+  }
+
+  // Updates tooltip position when the tooltip is laid out
   const onTooltipLayout = (event: any) => {
     const { width } = event.nativeEvent.layout
-    setTooltipWidth(width)
+    // Calculate proper centered position
+    if (triggerRef.current) {
+      triggerRef.current.measureInWindow((x, y, triggerWidth, height) => {
+        setPosition({
+          x: x + triggerWidth / 2 - width / 2, // Center tooltip under trigger
+          y: y + height + 2, // Position below with small gap
+        })
+        setPositioned(true) // Now show the tooltip
+      })
+    }
   }
 
   const enhancedChild = cloneElement(child, {
     ref: triggerRef,
     onHoverIn: (e: any) => {
-      if (show) {
-        setShow(false)
-      } else {
-        showTooltip()
-      }
+      showTooltip()
       child.props?.onHoverIn?.(e)
+    },
+    onHoverOut: (e: any) => {
+      hideTooltip()
+      child.props?.onHoverOut?.(e)
     },
     onPress: (e: any) => {
       child.props?.onPress?.(e)
@@ -72,15 +96,8 @@ export function Tooltip({ label, children }: TooltipProps) {
       {show && (
         <Portal name={`tooltip-${Math.random()}`}>
           <View
-            ref={tooltipRef}
             onLayout={onTooltipLayout}
-            style={[
-              $tooltipBubble(),
-              {
-                left: position.x,
-                top: position.y,
-              },
-            ]}
+            style={[$tooltipBubble(), $tooltipPosition(position, positioned)]}
             pointerEvents="none"
           >
             <Text style={$tooltipText()}>{label}</Text>
@@ -102,6 +119,12 @@ const $tooltipBubble = themed<ViewStyle>(({ colors, spacing }) => ({
   alignItems: "center",
   justifyContent: "center",
 }))
+
+const $tooltipPosition = (position: { x: number; y: number }, positioned: boolean) => ({
+  left: position.x,
+  top: position.y,
+  opacity: positioned ? 1 : 0,
+})
 
 const $tooltipText = themed<TextStyle>(({ colors }) => ({
   color: colors.mainText,
