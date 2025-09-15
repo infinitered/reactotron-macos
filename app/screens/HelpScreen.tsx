@@ -47,10 +47,10 @@ export function HelpScreen() {
 
 function KeystrokeItem({ title, keystrokes }: { title: string; keystrokes: string[] }) {
   return (
-    <View style={$keystrokeContainer()}>
+    <View style={$keystrokeRowContainer()}>
       <View style={$keystrokeKeysContainer()}>
         {keystrokes.map((keystroke, index) => (
-          <View key={`${title}-${keystroke}`}>
+          <View key={`${title}-${keystroke}`} style={$keystrokeContainer()}>
             <View style={$keystrokeKey()}>
               <Text style={$keystroke()}>{keystroke}</Text>
             </View>
@@ -147,10 +147,8 @@ const $keystroke = themed<TextStyle>(({ colors, spacing }) => ({
 
 const $keystrokeContainer = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
-  justifyContent: "space-between",
   alignItems: "center",
-  gap: spacing.md,
-  width: 400,
+  gap: spacing.xs,
 }))
 
 const $keystrokeKeysContainer = themed<ViewStyle>(({ spacing }) => ({
@@ -164,4 +162,12 @@ const $keystrokeSectionTitle = themed<TextStyle>(({ colors, spacing }) => ({
   fontWeight: "bold",
   color: colors.neutral,
   marginTop: spacing.xl,
+}))
+
+const $keystrokeRowContainer = themed<ViewStyle>(({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: spacing.md,
+  width: 400,
 }))
