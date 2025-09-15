@@ -96,7 +96,7 @@ function App(): React.JSX.Element {
         ],
       },
     }),
-    [toggleSidebar, setTimelineItems],
+    [toggleSidebar],
   )
 
   useMenuItem(menuConfig)
