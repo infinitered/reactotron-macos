@@ -14,6 +14,10 @@ import { Titlebar } from "./components/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
 import { AppHeader } from "./components/AppHeader"
+import { useGlobal, withGlobal } from "./state/useGlobal"
+import { MenuItemId } from "./components/Sidebar/SidebarMenu"
+import { HelpScreen } from "./screens/HelpScreen"
+import { TimelineItem } from "./types"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -24,6 +28,12 @@ if (__DEV__) {
 function App(): React.JSX.Element {
   const { colors } = useTheme()
   const { toggleSidebar } = useSidebar()
+  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
+    persist: true,
+  })
+  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
+    persist: true,
+  })
 
   const menuConfig = useMemo(
     () => ({
@@ -34,6 +44,31 @@ function App(): React.JSX.Element {
             label: "Toggle Sidebar",
             shortcut: "cmd+b",
             action: toggleSidebar,
+          },
+          {
+            label: "Logs Tab",
+            shortcut: "cmd+1",
+            action: () => setActiveItem("logs"),
+          },
+          {
+            label: "Network Tab",
+            shortcut: "cmd+2",
+            action: () => setActiveItem("network"),
+          },
+          {
+            label: "Performance Tab",
+            shortcut: "cmd+3",
+            action: () => setActiveItem("performance"),
+          },
+          {
+            label: "Plugins Tab",
+            shortcut: "cmd+4",
+            action: () => setActiveItem("plugins"),
+          },
+          {
+            label: "Help Tab",
+            shortcut: "cmd+5",
+            action: () => setActiveItem("help"),
           },
           ...(__DEV__
             ? [
@@ -52,9 +87,16 @@ function App(): React.JSX.Element {
             action: () => DevSettings.reload(),
           },
         ],
+        Tools: [
+          {
+            label: "Clear Timeline Items",
+            shortcut: "cmd+k",
+            action: () => setTimelineItems([]),
+          },
+        ],
       },
     }),
-    [toggleSidebar],
+    [toggleSidebar, setTimelineItems],
   )
 
   useMenuItem(menuConfig)
@@ -80,7 +122,7 @@ function App(): React.JSX.Element {
         <Sidebar />
         <View style={$contentContainer}>
           <AppHeader />
-          <TimelineScreen />
+          {activeItem === "help" ? <HelpScreen /> : <TimelineScreen />}
         </View>
       </View>
     </View>
