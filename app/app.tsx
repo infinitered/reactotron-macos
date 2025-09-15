@@ -102,10 +102,4 @@ const $contentContainer: ViewStyle = {
   flex: 1,
 }
 
-//
-
 export default App
-
-//
-
-//
