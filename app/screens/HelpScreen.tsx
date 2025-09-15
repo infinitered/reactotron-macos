@@ -50,12 +50,12 @@ function KeystrokeItem({ title, keystrokes }: { title: string; keystrokes: strin
     <View style={$keystrokeContainer()}>
       <View style={$keystrokeKeysContainer()}>
         {keystrokes.map((keystroke, index) => (
-          <>
-            <View key={`${title}-${keystroke}`} style={$keystrokeKey()}>
+          <View key={`${title}-${keystroke}`}>
+            <View style={$keystrokeKey()}>
               <Text style={$keystroke()}>{keystroke}</Text>
             </View>
             {index !== keystrokes.length - 1 && <Text style={$keystroke()}>+</Text>}
-          </>
+          </View>
         ))}
       </View>
       <Text style={$keystroke()}>{title}</Text>
