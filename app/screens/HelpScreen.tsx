@@ -1,5 +1,5 @@
 import { View, Text, ViewStyle, TextStyle, Pressable, Linking, ScrollView } from "react-native"
-import { themed, useTheme } from "../theme/theme"
+import { themed, useThemeName } from "../theme/theme"
 import { Icon, IconTypes } from "../components/Icon"
 
 export function HelpScreen() {
@@ -64,10 +64,11 @@ function KeystrokeItem({ title, keystrokes }: { title: string; keystrokes: strin
 }
 
 function ConnectItem({ icon, title, url }: { icon: IconTypes; title: string; url: string }) {
-  const theme = useTheme()
+  const [themeName] = useThemeName()
   return (
     <Pressable style={$connectItem()} onPress={() => Linking.openURL(url)}>
-      <Icon icon={icon} size={24} color={theme.colors.mainText} />
+      {/* TODO: Hack to make the icon change color when theme changes */}
+      <Icon icon={icon} size={24} key={`${themeName}-icon`} />
       <Text style={$connectItemTitle()}>{title}</Text>
     </Pressable>
   )
