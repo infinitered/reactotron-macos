@@ -19,6 +19,8 @@ import { themed } from "../theme/theme"
 import { Portal } from "./Portal"
 import { getUUID } from "../utils/random/getUUID"
 
+type TooltipState = "hidden" | "showing" | "positioned"
+
 type TooltipProps = {
   /**
    * The text to display in the tooltip
@@ -41,8 +43,7 @@ type TooltipProps = {
  * Uses the Portal system to render outside the normal component tree for proper layering.
  */
 export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
-  const [show, setShow] = useState(false)
-  const [positioned, setPositioned] = useState(false)
+  const [tooltipState, setTooltipState] = useState<TooltipState>("hidden")
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const triggerRef = useRef<View>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -63,11 +64,10 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
 
   // Shows the tooltip for measurement after delay
   const showTooltip = () => {
-    if (timeoutRef.current || show) return
+    if (timeoutRef.current || tooltipState !== "hidden") return
     timeoutRef.current = setTimeout(() => {
       timeoutRef.current = null
-      setShow(true)
-      setPositioned(false)
+      setTooltipState("showing")
     }, delay)
   }
 
@@ -81,8 +81,7 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
   // Hides the tooltip immediately
   const hideTooltip = () => {
     cancelTooltip()
-    setShow(false)
-    setPositioned(false)
+    setTooltipState("hidden")
   }
 
   // Updates tooltip position when the tooltip is laid out
@@ -95,7 +94,7 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
         x: x + triggerWidth / 2 - width / 2, // Center tooltip under trigger
         y: y + height + 2, // Position below with small gap
       })
-      setPositioned(true) // Now show the tooltip
+      setTooltipState("positioned") // Now show the tooltip
     })
   }
 
@@ -118,11 +117,11 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
   return (
     <>
       {enhancedChild}
-      {show && (
+      {tooltipState !== "hidden" && (
         <Portal name={portalNameRef.current}>
           <View
             onLayout={onTooltipLayout}
-            style={[$tooltipBubble(), $tooltipPosition(position, positioned)]}
+            style={[$tooltipBubble(), $tooltipPosition(position, tooltipState === "positioned")]}
             pointerEvents="none"
           >
             <Text style={$tooltipText()}>{label}</Text>
