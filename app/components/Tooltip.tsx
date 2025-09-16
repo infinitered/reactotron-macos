@@ -1,7 +1,10 @@
 import { useState, cloneElement, isValidElement, useRef, type ReactNode } from "react"
-import { View, type ViewStyle, type TextStyle, Text } from "react-native"
+import { View, type ViewStyle, type TextStyle, Text, MouseEvent } from "react-native"
 import { themed } from "../theme/theme"
 import { Portal } from "./Portal"
+import { getUUID } from "../utils/random/getUUID"
+
+// Unique per-instance portal name
 
 type TooltipProps = {
   /**
@@ -30,6 +33,7 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const triggerRef = useRef<View>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const portalNameRef = useRef<string>(`tooltip-${getUUID()}`)
 
   if (!isValidElement(children)) {
     return <>{children}</>
@@ -77,11 +81,11 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
 
   const enhancedChild = cloneElement(child, {
     ref: triggerRef,
-    onHoverIn: (e: any) => {
+    onHoverIn: (e: MouseEvent) => {
       showTooltip()
       child.props?.onHoverIn?.(e)
     },
-    onHoverOut: (e: any) => {
+    onHoverOut: (e: MouseEvent) => {
       hideTooltip()
       child.props?.onHoverOut?.(e)
     },
@@ -94,7 +98,7 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
     <>
       {enhancedChild}
       {show && (
-        <Portal name={`tooltip-${Math.random()}`}>
+        <Portal name={portalNameRef.current}>
           <View
             onLayout={onTooltipLayout}
             style={[$tooltipBubble(), $tooltipPosition(position, positioned)]}
