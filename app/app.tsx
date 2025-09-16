@@ -18,6 +18,7 @@ import { useGlobal, withGlobal } from "./state/useGlobal"
 import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
 import { TimelineItem } from "./types"
+import { PortalHost } from "./components/Portal"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -125,6 +126,7 @@ function App(): React.JSX.Element {
           {activeItem === "help" ? <HelpScreen /> : <TimelineScreen />}
         </View>
       </View>
+      <PortalHost />
     </View>
   )
 }
