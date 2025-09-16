@@ -8,6 +8,7 @@ const MENU_ITEMS = [
   { id: "network", label: "Network", icon: "chevronsLeftRightEllipsis" },
   { id: "performance", label: "Performance", icon: "circleGauge" },
   { id: "plugins", label: "Plugins", icon: "plug" },
+  { id: "help", label: "Help", icon: "questionMark" },
 ] as const
 
 export type MenuItemId = (typeof MENU_ITEMS)[number]["id"]
