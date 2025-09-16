@@ -1,10 +1,23 @@
-import { useState, cloneElement, isValidElement, useRef, type ReactNode } from "react"
-import { View, type ViewStyle, type TextStyle, Text, MouseEvent } from "react-native"
+import {
+  useState,
+  cloneElement,
+  isValidElement,
+  useRef,
+  type ComponentPropsWithRef,
+  type ReactElement,
+} from "react"
+import {
+  View,
+  Text,
+  Pressable,
+  type ViewStyle,
+  type TextStyle,
+  type LayoutChangeEvent,
+  type PressableProps,
+} from "react-native"
 import { themed } from "../theme/theme"
 import { Portal } from "./Portal"
 import { getUUID } from "../utils/random/getUUID"
-
-// Unique per-instance portal name
 
 type TooltipProps = {
   /**
@@ -14,7 +27,7 @@ type TooltipProps = {
   /**
    * The trigger element that will show the tooltip on hover
    */
-  children: ReactNode
+  children: ReactElement<PressableProps>
   /**
    * Delay in milliseconds before showing the tooltip
    * @default 500
@@ -39,11 +52,20 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
     return <>{children}</>
   }
 
-  const child: any = children
+  const child = children
+
+  if (__DEV__) {
+    const isPressable = child?.type === Pressable
+    if (!isPressable) {
+      console.warn("Tooltip: child should be a Pressable to support onHoverIn/onHoverOut handlers.")
+    }
+  }
 
   // Shows the tooltip for measurement after delay
   const showTooltip = () => {
+    if (timeoutRef.current || show) return
     timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = null
       setShow(true)
       setPositioned(false)
     }, delay)
@@ -51,10 +73,9 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
 
   // Cancels any pending tooltip show
   const cancelTooltip = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
+    if (!timeoutRef.current) return
+    clearTimeout(timeoutRef.current)
+    timeoutRef.current = null
   }
 
   // Hides the tooltip immediately
@@ -65,31 +86,31 @@ export function Tooltip({ label, children, delay = 500 }: TooltipProps) {
   }
 
   // Updates tooltip position when the tooltip is laid out
-  const onTooltipLayout = (event: any) => {
+  const onTooltipLayout = (event: LayoutChangeEvent) => {
+    if (!triggerRef.current) return
     const { width } = event.nativeEvent.layout
     // Calculate proper centered position
-    if (triggerRef.current) {
-      triggerRef.current.measureInWindow((x, y, triggerWidth, height) => {
-        setPosition({
-          x: x + triggerWidth / 2 - width / 2, // Center tooltip under trigger
-          y: y + height + 2, // Position below with small gap
-        })
-        setPositioned(true) // Now show the tooltip
+    triggerRef.current.measureInWindow((x, y, triggerWidth, height) => {
+      setPosition({
+        x: x + triggerWidth / 2 - width / 2, // Center tooltip under trigger
+        y: y + height + 2, // Position below with small gap
       })
-    }
+      setPositioned(true) // Now show the tooltip
+    })
   }
 
-  const enhancedChild = cloneElement(child, {
+  const enhancedChild = cloneElement<ComponentPropsWithRef<typeof Pressable>>(child, {
+    ...child.props,
     ref: triggerRef,
-    onHoverIn: (e: MouseEvent) => {
+    onHoverIn: (e) => {
       showTooltip()
       child.props?.onHoverIn?.(e)
     },
-    onHoverOut: (e: MouseEvent) => {
+    onHoverOut: (e) => {
       hideTooltip()
       child.props?.onHoverOut?.(e)
     },
-    onPress: (e: any) => {
+    onPress: (e) => {
       child.props?.onPress?.(e)
     },
   })
