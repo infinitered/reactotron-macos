@@ -140,7 +140,7 @@ const $keystrokeKey = themed<ViewStyle>(({ spacing, colors }) => ({
   alignItems: "center",
 }))
 
-const $keystroke = themed<TextStyle>(({ colors, spacing }) => ({
+const $keystroke = themed<TextStyle>(({ colors }) => ({
   fontSize: 16,
   fontWeight: "bold",
   color: colors.mainText,
