@@ -1,20 +1,57 @@
 import { TimelineItem } from "../types"
 import { TimelineFilters } from "../components/TimelineToolbar"
 import { useGlobal } from "../state/useGlobal"
+import { useMemo } from "react"
+import { normalize } from "./normalize"
+import { safeTime } from "./safeTime"
 
 export function useTimeline(filters: TimelineFilters): TimelineItem[] {
   const [items] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  const [search] = useGlobal("search", "")
 
-  const filteredItems = items.filter((item) => {
-    // if there are any filters selected, only show items that match the filters
-    return filters.types.includes(item.type)
-  })
+  return useMemo(() => {
+    // 1) Types filter: if none selected, show everything
+    const byType =
+      (filters.types?.length ?? 0) === 0
+        ? items.slice() // clone so we can sort safely later
+        : items.filter((item) => filters.types.includes(item.type))
 
-  filteredItems.sort((a, b) => {
-    return new Date(b.date).getTime() - new Date(a.date).getTime()
-  })
+    // 2) Search (normalize once)
+    const q = normalize(search)
+    const visited = new WeakSet<object>()
+    const matches = (val: unknown): boolean => {
+      if (val === null || val === undefined) return false
 
-  return filteredItems
+      if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
+        return normalize(val).includes(q)
+      }
+      if (val instanceof Date) {
+        return normalize(val.toISOString()).includes(q)
+      }
+      if (Array.isArray(val)) {
+        for (const v of val) if (matches(v)) return true
+        return false
+      }
+      if (typeof val === "object") {
+        const obj = val as Record<string, unknown>
+        if (visited.has(obj)) return false
+        visited.add(obj)
+        for (const k in obj) {
+          if (matches(obj[k])) return true
+        }
+        return false
+      }
+
+      return false
+    }
+
+    const bySearch = q ? byType.filter((item) => matches(item)) : byType
+
+    // 3) Sort newest first, safely handling bad dates
+    bySearch.sort((a, b) => safeTime(b.date) - safeTime(a.date))
+
+    return bySearch
+  }, [items, JSON.stringify(filters.types ?? []), search])
 
   // TODO: User controlled sorting and level filtering
 

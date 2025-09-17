@@ -12,6 +12,9 @@ import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
 import { $flex, $row } from "../theme/basics"
 import { useTimeline } from "../utils/useTimeline"
+import { MenuItemId } from "app/components/Sidebar/SidebarMenu"
+import { useEffect } from "react"
+import { FilterType } from "app/components/TimelineToolbar"
 
 /**
  * Renders the correct component for each timeline item.
@@ -46,13 +49,31 @@ const TimelineItemRenderer = ({
   return null
 }
 
+function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
+  switch (activeItem) {
+    case "logs":
+      return ["log", "display"]
+    case "network":
+      return ["api.request", "api.response"]
+    default:
+      return ["log", "display", "api.request", "api.response"]
+  }
+}
+
 export function TimelineScreen() {
-  // TODO: Use a global state for the filters, set by the user in the TimelineToolbar
-  const timelineItems = useTimeline({ types: ["log", "display", "api.request", "api.response"] })
+  const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
+    persist: true,
+  })
+  const timelineItems = useTimeline({
+    types: getTimelineTypes(activeItem),
+  })
   const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
     persist: true,
   })
   const { selectedItem, setSelectedItemId } = useSelectedTimelineItems()
+  useEffect(() => {
+    setSelectedItemId(null)
+  }, [activeItem])
 
   const handleSelectItem = (item: TimelineItem) => {
     // Toggle selection: if clicking the same item, deselect it

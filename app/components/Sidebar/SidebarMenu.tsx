@@ -8,9 +8,10 @@ const MENU_ITEMS = [
   { id: "network", label: "Network", icon: "chevronsLeftRightEllipsis" },
   { id: "performance", label: "Performance", icon: "circleGauge" },
   { id: "plugins", label: "Plugins", icon: "plug" },
+  { id: "help", label: "Help", icon: "questionMark" },
 ] as const
 
-type MenuItemId = (typeof MENU_ITEMS)[number]["id"]
+export type MenuItemId = (typeof MENU_ITEMS)[number]["id"]
 
 interface SidebarMenuProps {
   progress: Animated.Value
@@ -34,7 +35,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
    * - centers the icon when collapsed without animating padding
    * - becomes the left column when expanded (outer padding forms the gutter)
    */
-  const iconColumnWidth = collapsedWidth - theme.spacing.sm * 2
+  const iconColumnWidth = collapsedWidth - theme.spacing.sm * 2.8
 
   return (
     <View style={$menu}>
@@ -47,7 +48,6 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
               $menuItem(),
               active && $menuItemActive(),
               pressed && $menuItemPressed,
-              $menuItemLabel(),
             ]}
             onPress={() => setActiveItem(item.id)}
             accessibilityRole="button"
@@ -55,7 +55,7 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
             accessibilityLabel={item.label}
           >
             {/* Fixed-width icon column (centers icon when collapsed) */}
-            <View style={[{ width: iconColumnWidth }, $iconColumn]}>
+            <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
               <Icon
                 icon={item.icon}
                 size={18}
@@ -111,16 +111,13 @@ const $menuItemText = themed<TextStyle>((theme) => ({
   fontSize: theme.typography.caption,
   color: theme.colors.mainText,
   fontWeight: "700",
+  marginLeft: theme.spacing.xs,
 }))
 
 const $menuItemTextActive = themed<TextStyle>((theme) => ({
   color: theme.colors.mainTextInverted,
 }))
 
-const $iconColumn: ViewStyle = {
-  alignItems: "center",
-}
-
-const $menuItemLabel = themed<TextStyle>(({ spacing }) => ({
+const $iconColumn = themed<ViewStyle>(({ spacing }) => ({
   marginLeft: spacing.xs,
 }))
