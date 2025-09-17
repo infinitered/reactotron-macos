@@ -24,7 +24,11 @@ export function StateScreen() {
         </View>
       </View>
       <View style={$stateContainer()}>
-        <TreeViewWithProvider data={stateValues} />
+        {Object.keys(stateValues).length > 0 ? (
+          <TreeViewWithProvider data={stateValues} />
+        ) : (
+          <Text>State is empty</Text>
+        )}
       </View>
     </ScrollView>
   )
