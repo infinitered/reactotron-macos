@@ -33,6 +33,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
+  const [_stateValues, setStateValues] = withGlobal<Record<string, any>>("stateValues", {})
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -79,7 +80,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       setClientIds(data.clients.map((client: any) => client.clientId))
     }
 
-    if (data.type === "command") {
+    if (data.type === "command" && data.cmd) {
       if (data.cmd.type === "clear") setTimelineItems([])
 
       if (
@@ -99,6 +100,18 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         })
       } else {
         console.tron.log("unknown command", data.cmd)
+      }
+      if (data.cmd.type.includes("state.keys")) {
+        const {
+          payload: { keys },
+        } = data.cmd
+        setStateValues(keys)
+      }
+      if (data.cmd.type.includes("state.values")) {
+        const {
+          payload: { value },
+        } = data.cmd
+        setStateValues(value)
       }
     }
 
@@ -127,4 +140,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 export function sendToClient(message: string | object, payload?: object, clientId?: string) {
   if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
   _sendToClient(message, payload, clientId)
+}
+
+export function sendToCore(message: string | object, payload?: object) {
+  if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
+  _sendToClient("reactotron.sendToCore", { message, ...payload })
 }

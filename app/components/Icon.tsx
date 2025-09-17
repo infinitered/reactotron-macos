@@ -66,15 +66,16 @@ export function Icon(props: IconProps) {
 }
 
 export const iconRegistry = {
+  chevronsLeftRightEllipsis: require("../../assets/icons/chevronsLeftRightEllipsis.png"),
+  circleGauge: require("../../assets/icons/circleGauge.png"),
+  clipboard: require("../../assets/icons/clipboard.png"),
+  gitHub: require("../../assets/icons/gitHub.png"),
+  messageSquare: require("../../assets/icons/messageSquare.png"),
   panelLeftClose: require("../../assets/icons/panelLeftClose.png"),
   panelLeftOpen: require("../../assets/icons/panelLeftOpen.png"),
   plug: require("../../assets/icons/plug.png"),
-  scrollText: require("../../assets/icons/scrollText.png"),
-  chevronsLeftRightEllipsis: require("../../assets/icons/chevronsLeftRightEllipsis.png"),
-  circleGauge: require("../../assets/icons/circleGauge.png"),
   questionMark: require("../../assets/icons/questionMark.png"),
-  gitHub: require("../../assets/icons/gitHub.png"),
-  messageSquare: require("../../assets/icons/messageSquare.png"),
+  scrollText: require("../../assets/icons/scrollText.png"),
   squirrel: require("../../assets/icons/squirrel.png"),
   xLogo: require("../../assets/icons/xLogo.png"),
 }

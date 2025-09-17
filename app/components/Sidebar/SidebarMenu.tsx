@@ -6,6 +6,7 @@ import { Icon } from "../Icon"
 const MENU_ITEMS = [
   { id: "logs", label: "Logs", icon: "scrollText" },
   { id: "network", label: "Network", icon: "chevronsLeftRightEllipsis" },
+  { id: "state", label: "State", icon: "clipboard" },
   { id: "performance", label: "Performance", icon: "circleGauge" },
   { id: "plugins", label: "Plugins", icon: "plug" },
   { id: "help", label: "Help", icon: "questionMark" },
