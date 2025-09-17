@@ -10,22 +10,22 @@ const path = require("path")
 // Color constants for output (matching Ruby script exactly)
 const colors = process.env.NO_COLOR
   ? {
-      R: "",
-      RB: "",
-      G: "",
-      GB: "",
-      BB: "",
-      Y: "",
-      YB: "",
-      D: "",
-      DD: "",
-      DB: "",
-      DDB: "",
-      S: "",
-      X: "\x1b[0m",
-    }
+    R: "",
+    RB: "",
+    G: "",
+    GB: "",
+    BB: "",
+    Y: "",
+    YB: "",
+    D: "",
+    DD: "",
+    DB: "",
+    DDB: "",
+    S: "",
+    X: "\x1b[0m",
+  }
   : process.env.PREFERS_CONTRAST === "more"
-  ? {
+    ? {
       R: "\x1b[91m",
       RB: "\x1b[91m",
       G: "\x1b[92m",
@@ -40,7 +40,7 @@ const colors = process.env.NO_COLOR
       S: "\x1b[9m",
       X: "\x1b[0m",
     }
-  : {
+    : {
       R: "\x1b[31m",
       RB: "\x1b[31;1m",
       G: "\x1b[32m",
@@ -179,7 +179,7 @@ function findWindowsNativeFiles(appPath, projectRoot) {
       // Detect module type by examining the header file
       const headerContent = fs.readFileSync(module.files.h, "utf8")
 
-      if (headerContent.includes("REACT_MODULE")) {
+      if (headerContent.includes("REACT_MODULE") || headerContent.includes("REACT_TURBO_MODULE")) {
         module.type = "turbo"
       } else if (
         headerContent.includes("RegisterIRTabNativeComponent") ||
@@ -199,8 +199,7 @@ function findWindowsNativeFiles(appPath, projectRoot) {
       )
     } else {
       console.log(
-        `${colors.YB} ⚠ Warning   ${colors.X}${colors.D}${name} missing ${
-          module.files.h ? ".cpp" : ".h"
+        `${colors.YB} ⚠ Warning   ${colors.X}${colors.D}${name} missing ${module.files.h ? ".cpp" : ".h"
         } file${colors.X}`,
       )
     }
@@ -228,16 +227,14 @@ function generateConsolidatedFiles(modules, windowsDir, projectRoot) {
     fs.writeFileSync(headerPath, headerContent)
     const relativePath = path.relative(projectRoot, headerPath)
     console.log(
-      `${colors.BB} ➕ Generated ${colors.X} ${colors.BB}IRNativeModules.g.h${colors.X} ${
-        colors.DD
+      `${colors.BB} ➕ Generated ${colors.X} ${colors.BB}IRNativeModules.g.h${colors.X} ${colors.DD
       }${path.dirname(relativePath)}${colors.X}`,
     )
     changesMade = true
   } else {
     const relativePath = path.relative(projectRoot, headerPath)
     console.log(
-      `${colors.DB} ✔️ Exists     ${colors.X}${colors.DB}IRNativeModules.g.h${colors.X} ${
-        colors.DD
+      `${colors.DB} ✔️ Exists     ${colors.X}${colors.DB}IRNativeModules.g.h${colors.X} ${colors.DD
       }${path.dirname(relativePath)}${colors.X}`,
     )
   }
@@ -250,16 +247,14 @@ function generateConsolidatedFiles(modules, windowsDir, projectRoot) {
       fs.writeFileSync(cppPath, cppContent)
       const relativePath = path.relative(projectRoot, cppPath)
       console.log(
-        `${colors.BB} ➕ Generated ${colors.X} ${colors.BB}IRNativeModules.g.cpp${colors.X} ${
-          colors.DD
+        `${colors.BB} ➕ Generated ${colors.X} ${colors.BB}IRNativeModules.g.cpp${colors.X} ${colors.DD
         }${path.dirname(relativePath)}${colors.X}`,
       )
       changesMade = true
     } else {
       const relativePath = path.relative(projectRoot, cppPath)
       console.log(
-        `${colors.DB} ✔️ Exists     ${colors.X}${colors.DB}IRNativeModules.g.cpp${colors.X} ${
-          colors.DD
+        `${colors.DB} ✔️ Exists     ${colors.X}${colors.DB}IRNativeModules.g.cpp${colors.X} ${colors.DD
         }${path.dirname(relativePath)}${colors.X}`,
       )
     }
@@ -307,11 +302,10 @@ function generateHeaderTemplate(modules, windowsDir) {
 //
 // TurboModules (${turboModules.length}) will be auto-registered by AddAttributedModules()
 // Fabric Components (${fabricComponents.length}) require manual registration calls
-${
-  unknownModules.length > 0
-    ? `// Unknown modules (${unknownModules.length}) - please check their implementation`
-    : ""
-}
+${unknownModules.length > 0
+      ? `// Unknown modules (${unknownModules.length}) - please check their implementation`
+      : ""
+    }
 
 ${allIncludes}
 
