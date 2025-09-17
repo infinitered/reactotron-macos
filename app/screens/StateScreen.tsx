@@ -14,6 +14,7 @@ export function StateScreen() {
         <View style={$buttonsContainer()}>
           <Pressable
             style={$button()}
+            // TODO: Need to update this to pass in the client id to the server
             onPress={() => sendToCore("state.values.request", { path: "" })}
           >
             <Text>Request Full State</Text>
