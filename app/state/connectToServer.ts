@@ -144,5 +144,5 @@ export function sendToClient(message: string | object, payload?: object, clientI
 
 export function sendToCore(message: string | object, payload?: object) {
   if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
-  _sendToClient("reactotron.sendToCore", { message, ...payload })
+  _sendToClient("reactotron.sendToCore", { type: message, ...payload })
 }

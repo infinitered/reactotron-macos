@@ -32,19 +32,17 @@ function forwardMessage(message, server) {
 function interceptMessage(incoming, socket, server) {
   const message = JSON.parse(incoming.toString())
   if (message.type === "reactotron.sendToCore") {
+    console.log("reactotron sendtocore message", message)
     const { payload } = message
-    const { message: msg, ...actualPayload } = payload
+    const { type, ...actualPayload } = payload
     const client = connectedClients[0]
     if (client) {
-      server.wss.clients.forEach((client) => {
-        if (client.clientId) {
-          client.send(
+      server.wss.clients.forEach((wssClient) => {
+        if (wssClient.clientId) {
+          wssClient.send(
             JSON.stringify({
-              type: msg,
-              payload: {
-                type: msg,
-                payload: actualPayload,
-              },
+              type,
+              payload: actualPayload,
             }),
           )
         }
