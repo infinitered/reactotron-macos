@@ -6,6 +6,7 @@ import { TreeViewWithProvider } from "../components/TreeView"
 
 export function StateScreen() {
   const [stateValues, setStateValues] = useGlobal<Record<string, any>>("stateValues", {})
+  const [activeTab] = useGlobal("activeClientId", "")
 
   return (
     <ScrollView contentContainerStyle={$container()}>
@@ -15,7 +16,7 @@ export function StateScreen() {
           <Pressable
             style={$button()}
             // TODO: Need to update this to pass in the client id to the server
-            onPress={() => sendToCore("state.values.request", { path: "" })}
+            onPress={() => sendToCore("state.values.request", { path: "", clientId: activeTab })}
           >
             <Text>Request Full State</Text>
           </Pressable>
