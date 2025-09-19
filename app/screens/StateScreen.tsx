@@ -198,11 +198,11 @@ const $stateItemContainer = themed<ViewStyle>(({ spacing }) => ({
   marginTop: spacing.xl,
 }))
 
-const $treeViewInnerContainer = themed<ViewStyle>(({ spacing }) => ({
+const $treeViewInnerContainer = themed<ViewStyle>(() => ({
   flex: 1,
 }))
 
-const $treeViewContainer = themed<ViewStyle>(({ spacing }) => ({
+const $treeViewContainer = themed<ViewStyle>(() => ({
   flexDirection: "row",
   justifyContent: "space-between",
 }))
