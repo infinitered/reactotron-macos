@@ -31,6 +31,21 @@ function forwardMessage(message, server) {
 
 function interceptMessage(incoming, socket, server) {
   const message = JSON.parse(incoming.toString())
+  if (message.type === "reactotron.sendToCore") {
+    const { payload } = message
+    const { type, ...actualPayload } = payload
+    server.wss.clients.forEach((wssClient) => {
+      if (wssClient.clientId === payload.clientId) {
+        wssClient.send(
+          JSON.stringify({
+            type,
+            payload: actualPayload,
+          }),
+        )
+      }
+    })
+    return
+  }
   if (connectedReactotrons.includes(socket)) forwardMessage(message, server)
   if (message.type === "reactotron.subscribe") addReactotronApp(socket)
 }
@@ -116,7 +131,7 @@ function startReactotronServer(opts = {}) {
   // server.send("state.values.request", { path: "user.givenName" })
 
   // // request some keys from state
-  // server.send("state.keys.request", { path: "user" })
+  // server.send("state.keys.request", { path: "" })
 
   // // subscribe to some state paths so when then change, we get notified
   // server.send("state.values.subscribe", { paths: ["user.givenName", "user"] })

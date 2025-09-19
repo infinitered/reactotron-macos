@@ -114,3 +114,8 @@ export type TimelineItemDisplay = TimelineItemBase & {
 }
 
 export type TimelineItem = TimelineItemLog | TimelineItemNetwork | TimelineItemDisplay
+
+export type StateSubscription = {
+  path: string
+  value: any
+}

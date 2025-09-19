@@ -19,6 +19,7 @@ import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
 import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
+import { StateScreen } from "./screens/StateScreen"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -115,6 +116,17 @@ function App(): React.JSX.Element {
   // and handle all websocket events.
   useEffect(() => connectToServer(), [])
 
+  const renderActiveItem = () => {
+    switch (activeItem) {
+      case "help":
+        return <HelpScreen />
+      case "state":
+        return <StateScreen />
+      default:
+        return <TimelineScreen />
+    }
+  }
+
   return (
     <View style={$container()}>
       <Titlebar />
@@ -123,7 +135,7 @@ function App(): React.JSX.Element {
         <Sidebar />
         <View style={$contentContainer}>
           <AppHeader />
-          {activeItem === "help" ? <HelpScreen /> : <TimelineScreen />}
+          {renderActiveItem()}
         </View>
       </View>
       <PortalHost />

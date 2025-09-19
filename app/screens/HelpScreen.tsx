@@ -1,13 +1,14 @@
 import { View, Text, ViewStyle, TextStyle, Pressable, Linking, ScrollView } from "react-native"
 import { themed, useThemeName } from "../theme/theme"
 import { Icon, IconTypes } from "../components/Icon"
+import { Divider } from "../components/Divider"
 
 export function HelpScreen() {
   return (
     <ScrollView style={$container()}>
       <View style={$connectContainer()}>
         <Text style={$title()}>{"Let's Connect!"}</Text>
-        <View style={$divider()} />
+        <Divider extraStyles={$divider()} />
         <View style={$connectRow()}>
           <ConnectItem
             icon="gitHub"
@@ -27,7 +28,7 @@ export function HelpScreen() {
           <ConnectItem icon="xLogo" title="@reactotron" url="https://x.com/reactotron" />
         </View>
         <Text style={$title()}>Keystrokes</Text>
-        <View style={$divider()} />
+        <Divider extraStyles={$divider()} />
         <View style={$keystrokesContainer()}>
           <Text style={$keystrokeSectionTitle()}>Navigation</Text>
           <KeystrokeItem title="Toggle Sidebar" keystrokes={["⌘", "b"]} />
@@ -89,10 +90,7 @@ const $title = themed<TextStyle>(({ colors, typography, spacing }) => ({
   marginTop: spacing.xl,
 }))
 
-const $divider = themed<ViewStyle>(({ colors, spacing }) => ({
-  height: 1,
-  backgroundColor: colors.border,
-  width: "100%",
+const $divider = themed<ViewStyle>(({ spacing }) => ({
   marginTop: spacing.md,
 }))
 
@@ -140,7 +138,7 @@ const $keystrokeKey = themed<ViewStyle>(({ spacing, colors }) => ({
   alignItems: "center",
 }))
 
-const $keystroke = themed<TextStyle>(({ colors, spacing }) => ({
+const $keystroke = themed<TextStyle>(({ colors }) => ({
   fontSize: 16,
   fontWeight: "bold",
   color: colors.mainText,

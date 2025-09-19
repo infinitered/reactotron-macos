@@ -1,5 +1,5 @@
 import { getUUID } from "../utils/random/getUUID"
-import { TimelineItem } from "../types"
+import { StateSubscription, TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
 
 type UnsubscribeFn = () => void
@@ -33,6 +33,10 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
+  const [_stateSubscriptions, setStateSubscriptions] = withGlobal<StateSubscription[]>(
+    "stateSubscriptions",
+    [],
+  )
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -79,7 +83,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       setClientIds(data.clients.map((client: any) => client.clientId))
     }
 
-    if (data.type === "command") {
+    if (data.type === "command" && data.cmd) {
       if (data.cmd.type === "clear") setTimelineItems([])
 
       if (
@@ -99,6 +103,24 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         })
       } else {
         console.tron.log("unknown command", data.cmd)
+      }
+      if (data.cmd.type === "state.values.change") {
+        console.log("state.values.change", data.cmd)
+        data.cmd.payload.changes.forEach((change: StateSubscription) => {
+          setStateSubscriptions((prev) => {
+            const existingSubscriptionIndex = prev.findIndex((sub) => sub.path === change.path)
+            if (existingSubscriptionIndex !== -1) {
+              prev[existingSubscriptionIndex] = {
+                ...prev[existingSubscriptionIndex],
+                value: change.value,
+              }
+            } else {
+              prev.push(change)
+            }
+            return prev
+          })
+        })
+        return
       }
     }
 
@@ -127,4 +149,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 export function sendToClient(message: string | object, payload?: object, clientId?: string) {
   if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
   _sendToClient(message, payload, clientId)
+}
+
+export function sendToCore(message: string | object, payload?: object) {
+  if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
+  _sendToClient("reactotron.sendToCore", { type: message, ...payload })
 }

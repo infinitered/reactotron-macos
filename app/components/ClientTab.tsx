@@ -12,10 +12,10 @@ export function ClientTab({ clientId }: { clientId: string }) {
   const os: string = clientData?.platform ?? "Unknown"
 
   const [activeTab, setActiveTab] = useGlobal(tabgroup, label, { persist: true })
-  const active = activeTab === label
+  const active = activeTab === clientId
 
   return (
-    <Pressable key={clientId} onPress={() => setActiveTab(label)} style={$container()}>
+    <Pressable key={clientId} onPress={() => setActiveTab(clientId)} style={$container()}>
       <Text style={[$tab(), active ? $tabActive() : {}]}>{label}</Text>
       <Text style={$os()}>{os}</Text>
     </Pressable>
