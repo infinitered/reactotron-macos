@@ -78,6 +78,7 @@ export const iconRegistry = {
   scrollText: require("../../assets/icons/scrollText.png"),
   squirrel: require("../../assets/icons/squirrel.png"),
   xLogo: require("../../assets/icons/xLogo.png"),
+  trash: require("../../assets/icons/trash.png"),
 }
 
 const $imageStyleBase: ImageStyle = {

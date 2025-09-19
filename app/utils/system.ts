@@ -43,7 +43,7 @@ export function useSystemInfo(onInfo: (info: SystemInfo) => void) {
  * @returns A function to unsubscribe from keyboard events.
  */
 let _keyboardSubscribers: number = 0
-export function useKeyboardEvents(onKeyboardEvent: (event: KeyboardEvent) => void) {
+export function useKeyboardEvents(onKeyboardEvent: (event: KeyboardEvent) => void, deps?: any[]) {
   const keyboardSubscription = useRef<EventSubscription | null>(null)
 
   useEffect(() => {
@@ -57,5 +57,5 @@ export function useKeyboardEvents(onKeyboardEvent: (event: KeyboardEvent) => voi
       keyboardSubscription.current?.remove()
       if (_keyboardSubscribers === 0) IRKeyboard.stopListening()
     }
-  }, [])
+  }, deps ?? [])
 }

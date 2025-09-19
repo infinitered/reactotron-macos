@@ -1,5 +1,5 @@
 import { getUUID } from "../utils/random/getUUID"
-import { TimelineItem } from "../types"
+import { StateSubscription, TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
 
 type UnsubscribeFn = () => void
@@ -33,7 +33,10 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
-  const [_stateValues, setStateValues] = withGlobal<Record<string, any>>("stateValues", {})
+  const [_stateSubscriptions, setStateSubscriptions] = withGlobal<StateSubscription[]>(
+    "stateSubscriptions",
+    [],
+  )
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -101,17 +104,23 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       } else {
         console.tron.log("unknown command", data.cmd)
       }
-      if (data.cmd.type.includes("state.keys")) {
-        const {
-          payload: { keys },
-        } = data.cmd
-        setStateValues(keys)
-      }
-      if (data.cmd.type.includes("state.values")) {
-        const {
-          payload: { value },
-        } = data.cmd
-        setStateValues(value)
+      if (data.cmd.type === "state.values.change") {
+        console.log("state.values.change", data.cmd)
+        data.cmd.payload.changes.forEach((change: StateSubscription) => {
+          setStateSubscriptions((prev) => {
+            const existingSubscriptionIndex = prev.findIndex((sub) => sub.path === change.path)
+            if (existingSubscriptionIndex !== -1) {
+              prev[existingSubscriptionIndex] = {
+                ...prev[existingSubscriptionIndex],
+                value: change.value,
+              }
+            } else {
+              prev.push(change)
+            }
+            return prev
+          })
+        })
+        return
       }
     }
 
