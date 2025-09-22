@@ -9,7 +9,7 @@
 
 namespace winrt::reactotron::implementation
 {
-    REACT_MODULE(IRMenuItemManager)
+    REACT_TURBO_MODULE(IRMenuItemManager)
     struct IRMenuItemManager : reactotronCodegen::IRMenuItemManagerSpec
     {
         // Only the essential types needed for the event
