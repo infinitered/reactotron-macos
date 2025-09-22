@@ -4,6 +4,7 @@ export type FilterType = "all" | "log" | "display" | "api.request" | "api.respon
 
 export interface TimelineFilters {
   types: FilterType[]
+  clientId: string
   // logLevel: LogLevel
   // sortBy: SortBy
 }
