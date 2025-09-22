@@ -112,12 +112,19 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
               (sub) => sub.path === change.path,
             )
             if (existingSubscriptionIndex !== -1) {
+              // Create a safe object with only expected properties to prevent prototype pollution
+              const existingSubscription = currentSubscriptions[existingSubscriptionIndex]
               currentSubscriptions[existingSubscriptionIndex] = {
-                ...currentSubscriptions[existingSubscriptionIndex],
+                path: existingSubscription.path,
                 value: change.value,
               }
             } else {
-              currentSubscriptions.push(change)
+              // Create a safe object with only expected properties to prevent prototype pollution
+              const safeChange = {
+                path: change.path,
+                value: change.value,
+              }
+              currentSubscriptions.push(safeChange)
             }
             return {
               ...prev,
