@@ -12,27 +12,31 @@ import { Icon } from "../components/Icon"
 export function StateScreen() {
   const [showAddSubscription, setShowAddSubscription] = useState(false)
 
-  const [stateSubscriptions, setStateSubscriptions] = useGlobal<StateSubscription[]>(
-    "stateSubscriptions",
-    [],
-  )
+  const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
+    [clientId: string]: StateSubscription[]
+  }>("stateSubscriptionsByClientId", {})
   const [activeTab] = useGlobal("activeClientId", "")
 
+  const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
+
   const saveSubscription = (path: string) => {
-    if (stateSubscriptions.some((s) => s.path === path)) return
+    if (clientStateSubscriptions.some((s) => s.path === path)) return
     sendToCore("state.values.subscribe", {
-      paths: [...stateSubscriptions.map((s) => s.path), path],
+      paths: [...clientStateSubscriptions.map((s) => s.path), path],
       clientId: activeTab,
     })
   }
 
   const removeSubscription = (path: string) => {
-    const newStateSubscriptions = stateSubscriptions.filter((s) => s.path !== path)
+    const newStateSubscriptions = clientStateSubscriptions.filter((s) => s.path !== path)
     sendToCore("state.values.subscribe", {
       paths: newStateSubscriptions.map((s) => s.path),
       clientId: activeTab,
     })
-    setStateSubscriptions(newStateSubscriptions)
+    setStateSubscriptionsByClientId((prev) => ({
+      ...prev,
+      [activeTab]: newStateSubscriptions,
+    }))
   }
 
   if (showAddSubscription) {
@@ -55,7 +59,10 @@ export function StateScreen() {
           <Pressable
             style={$button()}
             onPress={() => {
-              setStateSubscriptions([])
+              setStateSubscriptionsByClientId((prev) => ({
+                ...prev,
+                [activeTab]: [],
+              }))
               sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
             }}
           >
@@ -64,9 +71,9 @@ export function StateScreen() {
         </View>
       </View>
       <View style={$stateContainer()}>
-        {stateSubscriptions.length > 0 ? (
+        {clientStateSubscriptions.length > 0 ? (
           <>
-            {stateSubscriptions.map((subscription, index) => (
+            {clientStateSubscriptions.map((subscription, index) => (
               <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
                 <Text style={$pathText()}>
                   {subscription.path ? subscription.path : "Full State"}
@@ -79,7 +86,9 @@ export function StateScreen() {
                     <Icon icon="trash" size={20} />
                   </Pressable>
                 </View>
-                {index < stateSubscriptions.length - 1 && <Divider extraStyles={$stateDivider()} />}
+                {index < clientStateSubscriptions.length - 1 && (
+                  <Divider extraStyles={$stateDivider()} />
+                )}
               </View>
             ))}
           </>
@@ -133,7 +142,6 @@ function AddSubscription({
             style={$pathInput()}
             value={path}
             onChangeText={(newText) => {
-              console.log("newText", newText)
               setPath(newText)
             }}
           />

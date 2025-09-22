@@ -33,10 +33,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
-  const [_stateSubscriptions, setStateSubscriptions] = withGlobal<StateSubscription[]>(
-    "stateSubscriptions",
-    [],
-  )
+  const [_stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = withGlobal<{
+    [clientId: string]: StateSubscription[]
+  }>("stateSubscriptionsByClientId", {})
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -107,17 +106,23 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       if (data.cmd.type === "state.values.change") {
         console.log("state.values.change", data.cmd)
         data.cmd.payload.changes.forEach((change: StateSubscription) => {
-          setStateSubscriptions((prev) => {
-            const existingSubscriptionIndex = prev.findIndex((sub) => sub.path === change.path)
+          setStateSubscriptionsByClientId((prev) => {
+            const currentSubscriptions = prev[data.cmd.clientId] || []
+            const existingSubscriptionIndex = currentSubscriptions.findIndex(
+              (sub) => sub.path === change.path,
+            )
             if (existingSubscriptionIndex !== -1) {
-              prev[existingSubscriptionIndex] = {
-                ...prev[existingSubscriptionIndex],
+              currentSubscriptions[existingSubscriptionIndex] = {
+                ...currentSubscriptions[existingSubscriptionIndex],
                 value: change.value,
               }
             } else {
-              prev.push(change)
+              currentSubscriptions.push(change)
             }
-            return prev
+            return {
+              ...prev,
+              [data.cmd.clientId]: currentSubscriptions,
+            }
           })
         })
         return
