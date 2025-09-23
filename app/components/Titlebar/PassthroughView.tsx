@@ -15,16 +15,13 @@
  * Usage: Wrap interactive elements that need to remain clickable in the title bar area.
  * Example: <PassthroughView><Button>Settings</Button></PassthroughView>
  */
-import React from 'react';
-import { View, Platform } from 'react-native';
-import type { ViewProps } from 'react-native';
-import NativePassthroughView from '../../native/IRPassthroughView/IRPassthroughViewNativeComponent';
+import { View, Platform } from "react-native"
+import type { ViewProps } from "react-native"
+import NativePassthroughView from "../../native/IRPassthroughView/IRPassthroughViewNativeComponent"
 
-export interface PassthroughViewProps extends ViewProps { }
-
-export const PassthroughView: React.FC<PassthroughViewProps> = (props) => {
+export const PassthroughView = (props: ViewProps) => {
   return Platform.select({
     windows: <NativePassthroughView {...props} />,
     default: <View {...props} />, // macOS and other platforms use regular View
-  });
-};
+  })
+}
