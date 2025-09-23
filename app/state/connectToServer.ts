@@ -30,6 +30,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
+  const [, setActiveClientId] = withGlobal("activeClientId", "")
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
@@ -65,6 +66,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       const clientId = data?.conn?.clientId
       if (!clientIds.includes(clientId)) {
         setClientIds((prev) => [...prev, clientId])
+        // setActiveClientId(clientId)
       }
 
       // Store the client data in global state
