@@ -1,6 +1,7 @@
 import { getUUID } from "../utils/random/getUUID"
-import { TimelineItem } from "../types"
+import { StateSubscription, TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
+import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void
 type SendToClientFn = (message: string | object, payload?: object, clientId?: string) => void
@@ -30,9 +31,13 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_c, setIsConnected] = withGlobal("isConnected", false)
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
+  const [, setActiveClientId] = withGlobal("activeClientId", "")
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
+  const [_stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = withGlobal<{
+    [clientId: string]: StateSubscription[]
+  }>("stateSubscriptionsByClientId", {})
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -62,6 +67,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       const clientId = data?.conn?.clientId
       if (!clientIds.includes(clientId)) {
         setClientIds((prev) => [...prev, clientId])
+        setActiveClientId(clientId)
       }
 
       // Store the client data in global state
@@ -79,7 +85,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       setClientIds(data.clients.map((client: any) => client.clientId))
     }
 
-    if (data.type === "command") {
+    if (data.type === "command" && data.cmd) {
       if (data.cmd.type === "clear") setTimelineItems([])
 
       if (
@@ -99,6 +105,45 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         })
       } else {
         console.tron.log("unknown command", data.cmd)
+      }
+      if (data.cmd.type === "state.values.change") {
+        console.log("state.values.change", data.cmd)
+        data.cmd.payload.changes.forEach((change: StateSubscription) => {
+          if (!isSafeKey(data.cmd.clientId) || !isSafeKey(change.path)) {
+            console.warn(
+              "Ignored suspicious property name in state.values.change:",
+              data.cmd.clientId,
+              change.path,
+            )
+            return
+          }
+          setStateSubscriptionsByClientId((prev) => {
+            const currentSubscriptions = prev[data.cmd.clientId] || []
+            const existingSubscriptionIndex = currentSubscriptions.findIndex(
+              (sub) => sub.path === change.path,
+            )
+            if (existingSubscriptionIndex !== -1) {
+              // Create a safe object with only expected properties to prevent prototype pollution
+              const existingSubscription = currentSubscriptions[existingSubscriptionIndex]
+              currentSubscriptions[existingSubscriptionIndex] = {
+                path: existingSubscription.path,
+                value: sanitizeValue(change.value),
+              }
+            } else {
+              // Create a safe object with only expected properties to prevent prototype pollution
+              const safeChange = {
+                path: change.path,
+                value: sanitizeValue(change.value),
+              }
+              currentSubscriptions.push(safeChange)
+            }
+            return {
+              ...prev,
+              [data.cmd.clientId]: currentSubscriptions,
+            }
+          })
+        })
+        return
       }
     }
 
@@ -127,4 +172,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 export function sendToClient(message: string | object, payload?: object, clientId?: string) {
   if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
   _sendToClient(message, payload, clientId)
+}
+
+export function sendToCore(message: string | object, payload?: object) {
+  if (!_sendToClient) throw new Error("sendToClient not initialized. Call connectToServer() first.")
+  _sendToClient("reactotron.sendToCore", { type: message, ...payload })
 }
