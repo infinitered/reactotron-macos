@@ -66,7 +66,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       const clientId = data?.conn?.clientId
       if (!clientIds.includes(clientId)) {
         setClientIds((prev) => [...prev, clientId])
-        // setActiveClientId(clientId)
+        setActiveClientId(clientId)
       }
 
       // Store the client data in global state
