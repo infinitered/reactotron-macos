@@ -73,12 +73,12 @@ function App(): React.JSX.Element {
           },
           ...(__DEV__
             ? [
-              {
-                label: "Toggle Dev Menu",
-                shortcut: "cmd+shift+d",
-                action: () => NativeModules.DevMenu.show(),
-              },
-            ]
+                {
+                  label: "Toggle Dev Menu",
+                  shortcut: "cmd+shift+d",
+                  action: () => NativeModules.DevMenu.show(),
+                },
+              ]
             : []),
         ],
         Window: [
