@@ -1,8 +1,9 @@
-import { themed, useTheme } from "../theme/theme"
+import { themed, useTheme } from "../../theme/theme"
 import { Platform, View, ViewStyle } from "react-native"
-import { Icon } from "./Icon"
-import ActionButton from "./ActionButton"
-import { useSidebar } from "../state/useSidebar"
+import { Icon } from "../Icon"
+import ActionButton from "../ActionButton"
+import { useSidebar } from "../../state/useSidebar"
+import { PassthroughView } from "./PassthroughView"
 
 export const Titlebar = () => {
   const theme = useTheme()
@@ -12,16 +13,18 @@ export const Titlebar = () => {
     <View style={$borderContainer()}>
       <View style={$container()}>
         <TrafficLightSpacer />
-        <ActionButton
-          icon={() => (
-            <Icon
-              icon={isOpen ? "panelLeftClose" : "panelLeftOpen"}
-              size={18}
-              color={theme.colors.neutral}
-            />
-          )}
-          onClick={toggleSidebar}
-        />
+        <PassthroughView>
+          <ActionButton
+            icon={() => (
+              <Icon
+                icon={isOpen ? "panelLeftClose" : "panelLeftOpen"}
+                size={18}
+                color={theme.colors.neutral}
+              />
+            )}
+            onClick={toggleSidebar}
+          />
+        </PassthroughView>
       </View>
     </View>
   )

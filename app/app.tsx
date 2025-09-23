@@ -10,7 +10,7 @@ import { useTheme, themed } from "./theme/theme"
 import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useMenuItem } from "./utils/useMenuItem"
-import { Titlebar } from "./components/Titlebar"
+import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
 import { AppHeader } from "./components/AppHeader"
@@ -73,12 +73,12 @@ function App(): React.JSX.Element {
           },
           ...(__DEV__
             ? [
-                {
-                  label: "Toggle Dev Menu",
-                  shortcut: "cmd+shift+d",
-                  action: () => NativeModules.DevMenu.show(),
-                },
-              ]
+              {
+                label: "Toggle Dev Menu",
+                shortcut: "cmd+shift+d",
+                action: () => NativeModules.DevMenu.show(),
+              },
+            ]
             : []),
         ],
         Window: [
