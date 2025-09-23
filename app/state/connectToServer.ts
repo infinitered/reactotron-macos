@@ -1,6 +1,7 @@
 import { getUUID } from "../utils/random/getUUID"
 import { StateSubscription, TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
+import { sanitizeValue } from "app/utils/sanitize"
 
 type UnsubscribeFn = () => void
 type SendToClientFn = (message: string | object, payload?: object, clientId?: string) => void
@@ -118,13 +119,13 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
               const existingSubscription = currentSubscriptions[existingSubscriptionIndex]
               currentSubscriptions[existingSubscriptionIndex] = {
                 path: existingSubscription.path,
-                value: change.value,
+                value: sanitizeValue(change.value),
               }
             } else {
               // Create a safe object with only expected properties to prevent prototype pollution
               const safeChange = {
                 path: change.path,
-                value: change.value,
+                value: sanitizeValue(change.value),
               }
               currentSubscriptions.push(safeChange)
             }
