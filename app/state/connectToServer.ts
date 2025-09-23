@@ -1,7 +1,7 @@
 import { getUUID } from "../utils/random/getUUID"
 import { StateSubscription, TimelineItem } from "../types"
 import { withGlobal } from "./useGlobal"
-import { sanitizeValue } from "../utils/sanitize"
+import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void
 type SendToClientFn = (message: string | object, payload?: object, clientId?: string) => void
@@ -109,6 +109,14 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       if (data.cmd.type === "state.values.change") {
         console.log("state.values.change", data.cmd)
         data.cmd.payload.changes.forEach((change: StateSubscription) => {
+          if (!isSafeKey(data.cmd.clientId) || !isSafeKey(change.path)) {
+            console.warn(
+              "Ignored suspicious property name in state.values.change:",
+              data.cmd.clientId,
+              change.path,
+            )
+            return
+          }
           setStateSubscriptionsByClientId((prev) => {
             const currentSubscriptions = prev[data.cmd.clientId] || []
             const existingSubscriptionIndex = currentSubscriptions.findIndex(

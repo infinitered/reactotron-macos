@@ -12,11 +12,15 @@ export function sanitizeValue(value: any): any {
   const sanitized = Object.create(null)
   for (const [key, val] of Object.entries(value)) {
     // Skip dangerous properties
-    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+    if (!isSafeKey(key)) {
       continue
     }
     sanitized[key] = sanitizeValue(val)
   }
 
   return sanitized
+}
+
+export function isSafeKey(key: string): boolean {
+  return key !== "__proto__" && key !== "constructor" && key !== "prototype"
 }
