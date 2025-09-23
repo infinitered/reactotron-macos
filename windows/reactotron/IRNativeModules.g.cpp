@@ -4,6 +4,7 @@
 namespace winrt::reactotron::implementation {
     void RegisterAllFabricComponents(winrt::Microsoft::ReactNative::IReactPackageBuilder const& packageBuilder) noexcept {
         // Auto-generated Fabric component registrations
+        RegisterIRPassthroughNativeComponent(packageBuilder);
         RegisterIRTabNativeComponent(packageBuilder);
     }
 }

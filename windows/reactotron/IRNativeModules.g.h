@@ -3,7 +3,7 @@
 // DO NOT EDIT - This file is auto-generated
 //
 // TurboModules (9) will be auto-registered by AddAttributedModules()
-// Fabric Components (1) require manual registration calls
+// Fabric Components (2) require manual registration calls
 
 
 #include "../../app/native/IRActionMenuManager/IRActionMenuManager.windows.h"
@@ -11,6 +11,7 @@
 #include "../../app/native/IRFontList/IRFontList.windows.h"
 #include "../../app/native/IRKeyboard/IRKeyboard.windows.h"
 #include "../../app/native/IRMenuItemManager/IRMenuItemManager.windows.h"
+#include "../../app/native/IRPassthroughView/IRPassthroughView.windows.h"
 #include "../../app/native/IRRunShellCommand/IRRunShellCommand.windows.h"
 #include "../../app/native/IRSystemInfo/IRSystemInfo.windows.h"
 #include "../../app/native/IRTabComponentView/IRTabComponentView.windows.h"
@@ -19,6 +20,7 @@
 
 namespace winrt::reactotron::implementation {
     // Fabric component registration functions
+    void RegisterIRPassthroughNativeComponent(winrt::Microsoft::ReactNative::IReactPackageBuilder const& packageBuilder) noexcept;
     void RegisterIRTabNativeComponent(winrt::Microsoft::ReactNative::IReactPackageBuilder const& packageBuilder) noexcept;
     
     // Helper function to register all Fabric components
