@@ -57,7 +57,6 @@ import NativeIRMenuItemManager, {
   type MenuListEntry,
   SEPARATOR,
 } from "../native/IRMenuItemManager/NativeIRMenuItemManager"
-import { Alert, Platform } from "react-native"
 
 // Only thing to configure here is the path separator.
 const PATH_SEPARATOR = " > "
