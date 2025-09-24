@@ -53,3 +53,6 @@ macos/.xcode.env.local
 msbuild.binlog
 
 .claude/*
+
+# Windows reserved device names
+nul

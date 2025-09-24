@@ -22,7 +22,7 @@ IRPassthroughView::~IRPassthroughView() {
 
 void RegisterIRPassthroughNativeComponent(
     winrt::Microsoft::ReactNative::IReactPackageBuilder const &packageBuilder) noexcept {
-  reactotronCodegen::RegisterIRPassthroughNativeComponent<IRPassthroughView>(packageBuilder);
+  reactotronCodegen::RegisterIRPassthroughNativeComponent<IRPassthroughView>(packageBuilder, nullptr);
 }
 
 winrt::Microsoft::UI::Composition::Visual IRPassthroughView::CreateVisual(
