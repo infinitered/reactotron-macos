@@ -112,6 +112,10 @@ function buildSetValue<T>(id: string, persist: boolean) {
   }
 }
 
+export function deleteGlobal(id: string): void {
+  delete globals[id]
+}
+
 /**
  * Clear all globals and reset the storage entirely.
  * Optionally rerender all components that use useGlobal.

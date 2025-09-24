@@ -1,6 +1,6 @@
 import { getUUID } from "../utils/random/getUUID"
 import { StateSubscription, TimelineItem } from "../types"
-import { withGlobal } from "./useGlobal"
+import { deleteGlobal, withGlobal } from "./useGlobal"
 import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void
@@ -32,9 +32,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
   const [, setActiveClientId] = withGlobal("activeClientId", "")
-  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
-    persist: true,
-  })
+  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
   const [_stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = withGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
@@ -76,13 +74,22 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     }
 
     if (data.type === "connectedClients") {
+      let newestClientId = ""
       data.clients.forEach((client: any) => {
         // Store the client data in global state
         const clientId = client.clientId
         const [_, setClientData] = withGlobal(`client-${clientId}`, {})
         setClientData(client)
+        if (!clientIds.includes(clientId)) {
+          newestClientId = clientId
+        }
       })
       setClientIds(data.clients.map((client: any) => client.clientId))
+
+      if (newestClientId) {
+        // Set the active client to the newest client
+        setActiveClientId(newestClientId)
+      }
     }
 
     if (data.type === "command" && data.cmd) {
@@ -107,7 +114,6 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         console.tron.log("unknown command", data.cmd)
       }
       if (data.cmd.type === "state.values.change") {
-        console.log("state.values.change", data.cmd)
         data.cmd.payload.changes.forEach((change: StateSubscription) => {
           if (!isSafeKey(data.cmd.clientId) || !isSafeKey(change.path)) {
             console.warn(
@@ -153,8 +159,17 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   // Clean up after disconnect
   ws.socket.onclose = () => {
     console.tron.log("Reactotron server disconnected")
-    setIsConnected(false)
+    // Clear individual client data
+    clientIds.forEach((clientId) => {
+      const [_, setClientData] = withGlobal(`client-${clientId}`, {})
+      setClientData({})
+    })
+    deleteGlobal("clientIds")
     setClientIds([])
+    setIsConnected(false)
+    setActiveClientId("")
+    setTimelineItems([])
+    setStateSubscriptionsByClientId({})
   }
 
   // Send a message to the server (which will be forwarded to the client)

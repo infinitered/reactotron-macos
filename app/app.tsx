@@ -30,12 +30,8 @@ if (__DEV__) {
 function App(): React.JSX.Element {
   const { colors } = useTheme()
   const { toggleSidebar } = useSidebar()
-  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
-    persist: true,
-  })
-  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
-    persist: true,
-  })
+  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
+  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
 
   const menuConfig = useMemo(
     () => ({

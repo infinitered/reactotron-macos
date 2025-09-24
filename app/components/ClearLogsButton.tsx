@@ -12,9 +12,7 @@ export function ClearLogsButton() {
   })
 
   // Using withGlobal so we don't rerender when the logs change
-  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
-    persist: true,
-  })
+  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
   const clearLogs = useCallback(() => setTimelineItems([]), [setTimelineItems])
 
   return <Button onPress={clearLogs} title="Clear" />

@@ -15,7 +15,7 @@ import { TimelineItem } from "../types"
  */
 export const useSelectedTimelineItems = () => {
   const [selectedItemId, setSelectedItemId] = useGlobal<string | null>("selectedTimelineItem", null)
-  const [timelineItems] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  const [timelineItems] = useGlobal<TimelineItem[]>("timelineItems", [])
 
   const selectedItem = selectedItemId
     ? timelineItems.find((item) => item.id === selectedItemId) || null

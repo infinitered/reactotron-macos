@@ -1,4 +1,5 @@
 const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config")
+const { spawn } = require("child_process")
 
 const fs = require("fs")
 const path = require("path")
@@ -16,6 +17,9 @@ const rnwPath = fs.realpathSync(
  *
  * @type {import('metro-config').MetroConfig}
  */
+
+let spawned = false
+let childProcess = null
 
 const config = {
   //
@@ -37,6 +41,36 @@ const config = {
         inlineRequires: true,
       },
     }),
+  },
+  server: {
+    enhanceMiddleware: (middleware) => {
+      // This only runs once when Metro starts
+      if (!spawned) {
+        spawned = true
+        childProcess = spawn(
+          "node",
+          ["-e", "require('./standalone-server').startReactotronServer({ port: 9292 })"],
+          {
+            stdio: "inherit", // pipe output directly to console
+            shell: false,
+          },
+        )
+
+        childProcess.on("exit", (code) => {
+          console.log(`Child process exited with code ${code}`)
+        })
+
+        // Handle SIGINT (Ctrl+C) to terminate child process
+        process.on("SIGINT", () => {
+          if (childProcess) {
+            console.log("Terminating child process...")
+            childProcess.kill("SIGINT")
+          }
+        })
+      }
+
+      return middleware
+    },
   },
 }
 
