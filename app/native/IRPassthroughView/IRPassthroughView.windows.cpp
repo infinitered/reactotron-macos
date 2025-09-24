@@ -13,9 +13,13 @@ IRPassthroughView::IRPassthroughView() {
 }
 
 IRPassthroughView::~IRPassthroughView() {
+  // WARNING: This destructor is rarely called in React Native Windows Fabric due to component lifecycle issues.
+  // The proper cleanup happens in UnmountChildComponentView() instead.
+  // Keep this as a safety fallback in case the lifecycle method isn't called.
   auto it = std::find(s_instances.begin(), s_instances.end(), this);
   if (it != s_instances.end()) {
     s_instances.erase(it);
+    DebugLog("Destructor fallback cleanup - this should rarely happen");
     UpdateAllPassthroughRegions();
   }
 }
@@ -37,15 +41,30 @@ winrt::Microsoft::UI::Composition::Visual IRPassthroughView::CreateVisual(
 void IRPassthroughView::Initialize(const winrt::Microsoft::ReactNative::ComponentView &view) noexcept {
   m_view = view;
 
+  // Subscribe to layout changes to keep Windows passthrough regions in sync with React Native layout
   m_layoutMetricChangedRevoker = view.LayoutMetricsChanged(
       winrt::auto_revoke,
       [wkThis = get_weak()](
           const winrt::IInspectable & /*sender*/, const winrt::Microsoft::ReactNative::LayoutMetricsChangedArgs &args) {
         if (auto strongThis = wkThis.get()) {
-          // Update passthrough regions whenever component layout changes
           UpdateAllPassthroughRegions();
         }
       });
+}
+
+void IRPassthroughView::UnmountChildComponentView(const winrt::Microsoft::ReactNative::ComponentView &view,
+                                                const winrt::Microsoft::ReactNative::UnmountChildComponentViewArgs &args) noexcept {
+  // CRITICAL: This is the proper React Native Windows Fabric lifecycle method for component cleanup.
+  // Unlike C++ destructors, this method is reliably called when React Native unmounts components.
+  if (view == m_view) {
+    // Remove this instance from the global instances list and update Windows passthrough regions
+    auto it = std::find(s_instances.begin(), s_instances.end(), this);
+    if (it != s_instances.end()) {
+      s_instances.erase(it);
+      DebugLog("Component unmounted - cleaned up passthrough region");
+      UpdateAllPassthroughRegions();
+    }
+  }
 }
 
 
@@ -55,23 +74,28 @@ winrt::Windows::Graphics::RectInt32 IRPassthroughView::GetPassthroughRect() cons
     return { 0, 0, 0, 0 };
   }
 
-  // Get component position and size from React Native layout system
-  auto layoutMetrics = m_view.LayoutMetrics();
-  auto frame = layoutMetrics.Frame;
-  auto scale = layoutMetrics.PointScaleFactor;
+  try {
+    // Get component position and size from React Native layout system
+    auto layoutMetrics = m_view.LayoutMetrics();
+    auto frame = layoutMetrics.Frame;
+    auto scale = layoutMetrics.PointScaleFactor;
 
-  // Convert to screen coordinates for Windows passthrough regions
-  return {
-    static_cast<int32_t>(frame.X * scale),
-    static_cast<int32_t>(frame.Y * scale),
-    static_cast<int32_t>(frame.Width * scale),
-    static_cast<int32_t>(frame.Height * scale)
-  };
+    // Convert React Native coordinates to Windows screen coordinates for passthrough regions
+    return {
+      static_cast<int32_t>(frame.X * scale),
+      static_cast<int32_t>(frame.Y * scale),
+      static_cast<int32_t>(frame.Width * scale),
+      static_cast<int32_t>(frame.Height * scale)
+    };
+  } catch (...) {
+    DebugLog("Exception getting passthrough rect - component may be unmounted");
+    return { 0, 0, 0, 0 };
+  }
 }
 
 void IRPassthroughView::UpdateAllPassthroughRegions() noexcept {
   try {
-    // Find the application window using process enumeration
+    // Find the main application window by enumerating all windows for this process
     HWND hwnd = nullptr;
     EnumWindows([](HWND h, LPARAM p) -> BOOL {
       DWORD pid = 0;
@@ -84,50 +108,58 @@ void IRPassthroughView::UpdateAllPassthroughRegions() noexcept {
     }, reinterpret_cast<LPARAM>(&hwnd));
 
     if (!hwnd) {
+      DebugLog("Application window not found");
       return;
     }
 
-    // Get Windows App SDK window components
+    // Get Windows App SDK components needed for passthrough region management
     auto windowId = winrt::Microsoft::UI::GetWindowIdFromWindow(hwnd);
     auto appWindow = winrt::Microsoft::UI::Windowing::AppWindow::GetFromWindowId(windowId);
     if (!appWindow) {
+      DebugLog("Failed to get AppWindow from window handle");
       return;
     }
 
     auto nonClientInputSrc = winrt::Microsoft::UI::Input::InputNonClientPointerSource::GetForWindowId(appWindow.Id());
     if (!nonClientInputSrc) {
+      DebugLog("Failed to get InputNonClientPointerSource");
       return;
     }
 
-    // Collect all PassthroughView rectangles
-    std::vector<winrt::Windows::Graphics::RectInt32> passthroughRects;
+    // CRITICAL: Clear only passthrough regions, not all regions (which would break title bar dragging)
+    // This prevents accumulation of stale regions from unmounted components
+    nonClientInputSrc.ClearRegionRects(winrt::Microsoft::UI::Input::NonClientRegionKind::Passthrough);
 
+    // Collect rectangles from all currently mounted PassthroughView instances
+    std::vector<winrt::Windows::Graphics::RectInt32> passthroughRects;
     for (auto* instance : s_instances) {
       if (instance && instance->m_view) {
-        try {
-          auto rect = instance->GetPassthroughRect();
-          if (rect.Width > 0 && rect.Height > 0) {
-            passthroughRects.push_back(rect);
-          }
-        } catch (...) {
-          #ifdef _DEBUG
-            OutputDebugStringA("[IRPassthroughView] Exception accessing instance during rect collection\n");
-          #endif
+        auto rect = instance->GetPassthroughRect();
+        if (rect.Width > 0 && rect.Height > 0) {
+          passthroughRects.push_back(rect);
         }
       }
     }
 
-    // Apply passthrough regions to Windows title bar
-    nonClientInputSrc.SetRegionRects(
-      winrt::Microsoft::UI::Input::NonClientRegionKind::Passthrough,
-      passthroughRects
-    );
+    // Apply the complete new set of passthrough regions to Windows
+    // SetRegionRects replaces ALL existing passthrough regions with this new set
+    if (!passthroughRects.empty()) {
+      nonClientInputSrc.SetRegionRects(
+        winrt::Microsoft::UI::Input::NonClientRegionKind::Passthrough,
+        passthroughRects
+      );
+    }
 
   } catch (...) {
-    #ifdef _DEBUG
-        OutputDebugStringA("[IRPassthroughView] Exception in UpdateAllPassthroughRegions\n");
-    #endif
+    DebugLog("Exception in UpdateAllPassthroughRegions");
   }
+}
+
+void IRPassthroughView::DebugLog(const std::string& message) noexcept {
+#ifdef _DEBUG
+  std::string fullMessage = "[IRPassthroughView] " + message + "\n";
+  OutputDebugStringA(fullMessage.c_str());
+#endif
 }
 
 } // namespace winrt::reactotron::implementation

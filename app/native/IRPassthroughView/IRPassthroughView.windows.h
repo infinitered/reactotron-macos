@@ -22,6 +22,8 @@ namespace winrt::reactotron::implementation
         winrt::Microsoft::UI::Composition::Visual CreateVisual(
             const winrt::Microsoft::ReactNative::ComponentView &view) noexcept override;
         void Initialize(const winrt::Microsoft::ReactNative::ComponentView & /*view*/) noexcept override;
+        void UnmountChildComponentView(const winrt::Microsoft::ReactNative::ComponentView &view,
+                                     const winrt::Microsoft::ReactNative::UnmountChildComponentViewArgs &args) noexcept override;
 
 
     private:
@@ -32,6 +34,9 @@ namespace winrt::reactotron::implementation
         static void UpdateAllPassthroughRegions() noexcept;
 
         winrt::Windows::Graphics::RectInt32 GetPassthroughRect() const noexcept;
+
+        // Debug logging helper
+        static void DebugLog(const std::string& message) noexcept;
     };
 
 } // namespace winrt::reactotron::implementation
