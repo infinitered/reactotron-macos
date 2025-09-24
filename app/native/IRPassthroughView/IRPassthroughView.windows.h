@@ -26,7 +26,6 @@ namespace winrt::reactotron::implementation
 
     private:
         winrt::Microsoft::ReactNative::ComponentView::LayoutMetricsChanged_revoker m_layoutMetricChangedRevoker;
-        winrt::Microsoft::UI::Composition::SpriteVisual m_visual{nullptr};
         winrt::Microsoft::ReactNative::ComponentView m_view{nullptr};
 
         static std::vector<IRPassthroughView*> s_instances;
