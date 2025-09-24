@@ -57,7 +57,6 @@ import NativeIRMenuItemManager, {
   type MenuListEntry,
   SEPARATOR,
 } from "../native/IRMenuItemManager/NativeIRMenuItemManager"
-import { Platform } from "react-native"
 
 // Only thing to configure here is the path separator.
 const PATH_SEPARATOR = " > "
@@ -288,7 +287,6 @@ export function useMenuItem(config?: MenuItemConfig) {
   }, [config, addEntries, removeMenuItems, getItemDifference])
 
   useEffect(() => {
-    if (Platform.OS === "windows") return
     const subscription = NativeIRMenuItemManager.onMenuItemPressed(handleMenuItemPressed)
     discoverMenus()
     return () => {

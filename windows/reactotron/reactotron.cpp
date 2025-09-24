@@ -7,6 +7,11 @@
 #include "AutolinkedNativeModules.g.h"
 
 #include "NativeModules.h"
+#include "IRNativeModules.g.h"
+
+#include <winrt/Windows.UI.h>
+#include <winrt/Microsoft.UI.Windowing.h>
+
 
 // A PackageProvider containing any turbo modules you define within this app project
 struct CompReactPackageProvider
@@ -14,6 +19,8 @@ struct CompReactPackageProvider
  public: // IReactPackageProvider
   void CreatePackage(winrt::Microsoft::ReactNative::IReactPackageBuilder const &packageBuilder) noexcept {
     AddAttributedModules(packageBuilder, true);
+    // Register Fabric components directly
+    winrt::reactotron::implementation::RegisterAllFabricComponents(packageBuilder);
   }
 };
 
@@ -70,8 +77,27 @@ _Use_decl_annotations_ int CALLBACK WinMain(HINSTANCE instance, HINSTANCE, PSTR 
 
   // Get the AppWindow so we can configure its initial title and size
   auto appWindow{reactNativeWin32App.AppWindow()};
-  appWindow.Title(L"Reactotron");
-  appWindow.Resize({1000, 1000});
+  appWindow.Title(L"");
+  appWindow.Resize({2000, 1500});
+
+
+  {
+    using namespace winrt::Microsoft::UI::Windowing;
+
+    auto titleBar = appWindow.TitleBar();
+    if (titleBar)
+    {
+      // Extend React Native content into the title bar area
+      titleBar.ExtendsContentIntoTitleBar(true);
+
+      // Make system caption buttons transparent so they overlay our content
+      winrt::Windows::UI::Color transparent = winrt::Windows::UI::Colors::Transparent();
+      titleBar.ButtonBackgroundColor(transparent);
+      titleBar.ButtonInactiveBackgroundColor(transparent);
+      titleBar.ButtonHoverBackgroundColor(transparent);
+      titleBar.ButtonPressedBackgroundColor(transparent);
+    }
+  }
 
   // Get the ReactViewOptions so we can set the initial RN component to load
   auto viewOptions{reactNativeWin32App.ReactViewOptions()};

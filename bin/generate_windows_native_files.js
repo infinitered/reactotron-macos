@@ -179,7 +179,7 @@ function findWindowsNativeFiles(appPath, projectRoot) {
       // Detect module type by examining the header file
       const headerContent = fs.readFileSync(module.files.h, "utf8")
 
-      if (headerContent.includes("REACT_MODULE")) {
+      if (headerContent.includes("REACT_MODULE") || headerContent.includes("REACT_TURBO_MODULE")) {
         module.type = "turbo"
       } else if (
         headerContent.includes("RegisterIRTabNativeComponent") ||
