@@ -51,6 +51,8 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from "react"
+import { Platform } from "react-native"
+import { useGlobal } from "../state/useGlobal"
 import NativeIRMenuItemManager, {
   type MenuItemPressedEvent,
   type MenuStructure,
@@ -68,7 +70,8 @@ export interface MenuItem {
   shortcut?: string
   enabled?: boolean
   position?: number
-  action: () => void
+  action?: () => void // Make action optional for items with submenus
+  submenu?: MenuListEntry[] // Add submenu support
 }
 
 export interface MenuItemConfig {
@@ -91,6 +94,21 @@ export function useMenuItem(config?: MenuItemConfig) {
   const previousConfigRef = useRef<MenuItemConfig | null>(null)
   const [availableMenus, setAvailableMenus] = useState<string[]>([])
   const [menuStructure, setMenuStructure] = useState<MenuStructure>([])
+  const [windowsMenuItems, setWindowsMenuItems] = useState<Record<string, MenuItem[]>>({})
+
+  // Global state for Windows menu persistence
+  const [globalMenuConfig, setGlobalMenuConfig] = useGlobal<MenuItemConfig | null>(
+    "windows-menu-config",
+    null,
+  )
+  const [globalMenuStructure, setGlobalMenuStructure] = useGlobal<MenuStructure>(
+    "windows-menu-structure",
+    [],
+  )
+  const [globalMenuItems, setGlobalMenuItems] = useGlobal<Record<string, MenuItem[]>>(
+    "windows-menu-items",
+    {},
+  )
 
   const handleMenuItemPressed = useCallback((event: MenuItemPressedEvent) => {
     const key = joinPath(event.menuPath)
@@ -100,16 +118,46 @@ export function useMenuItem(config?: MenuItemConfig) {
 
   const discoverMenus = useCallback(async () => {
     try {
-      const menus = NativeIRMenuItemManager.getAvailableMenus()
-      const structure = NativeIRMenuItemManager.getMenuStructure()
-      setAvailableMenus(menus)
-      setMenuStructure(structure)
-      return menus
+      if (Platform.OS === "windows") {
+        // For Windows, use global state
+        const configToUse = config || globalMenuConfig
+        if (configToUse?.items) {
+          const winStructure: MenuStructure = Object.keys(configToUse.items).map((title) => ({
+            title,
+            enabled: true,
+            path: [title],
+            items: [],
+            children: [],
+          }))
+
+          // Update global state if we have a config
+          if (config && config !== globalMenuConfig) {
+            setGlobalMenuConfig(config)
+            setGlobalMenuStructure(winStructure)
+            setGlobalMenuItems(config.items as Record<string, MenuItem[]>)
+          }
+
+          // Always use global state for consistency
+          setMenuStructure(globalMenuStructure.length > 0 ? globalMenuStructure : winStructure)
+          setWindowsMenuItems(
+            Object.keys(globalMenuItems).length > 0
+              ? globalMenuItems
+              : (configToUse.items as Record<string, MenuItem[]>),
+          )
+        }
+        return []
+      } else {
+        const menus = NativeIRMenuItemManager.getAvailableMenus()
+        const structure = NativeIRMenuItemManager.getMenuStructure()
+        setAvailableMenus(menus)
+        setMenuStructure(structure)
+        return menus
+      }
     } catch (error) {
       console.error("Failed to discover menus:", error)
       return []
     }
-  }, [])
+  }, [config, globalMenuConfig, globalMenuStructure, globalMenuItems])
 
   const addEntries = useCallback(async (parentKey: string, entries: MenuListEntry[]) => {
     const parentPath = parsePathKey(parentKey)
@@ -248,49 +296,78 @@ export function useMenuItem(config?: MenuItemConfig) {
     const updateMenus = async () => {
       if (!config) return
 
-      const previousConfig = previousConfigRef.current
-
-      if (config.remove?.length) {
-        for (const entry of config.remove) {
-          await removeMenuItemByName(entry)
+      if (Platform.OS === "windows") {
+        // For Windows, update global state and action map
+        if (config.items) {
+          // Store actions in actionsRef
+          for (const [parentKey, entries] of Object.entries(config.items)) {
+            for (const entry of entries) {
+              if (!isSeparator(entry)) {
+                const item = entry as MenuItem
+                const leafPath = [parentKey, item.label]
+                if (item.action) {
+                  actionsRef.current.set(joinPath(leafPath), item.action)
+                }
+              }
+            }
+          }
+          // Update global state
+          setGlobalMenuConfig(config)
         }
-      }
+        previousConfigRef.current = config
+        await discoverMenus()
+      } else {
+        // Original macOS logic
+        const previousConfig = previousConfigRef.current
 
-      if (config.items) {
-        for (const [parentKey, entries] of Object.entries(config.items)) {
-          const previousEntries = previousConfig?.items?.[parentKey] || []
-          const { toRemove, toUpdate } = getItemDifference(previousEntries, entries)
+        if (config.remove?.length) {
+          for (const entry of config.remove) {
+            await removeMenuItemByName(entry)
+          }
+        }
 
-          if (toRemove.length) await removeMenuItems(parentKey, toRemove)
+        if (config.items) {
+          for (const [parentKey, entries] of Object.entries(config.items)) {
+            const previousEntries = previousConfig?.items?.[parentKey] || []
+            const { toRemove, toUpdate } = getItemDifference(previousEntries, entries)
 
-          await addEntries(parentKey, entries)
+            if (toRemove.length) await removeMenuItems(parentKey, toRemove)
 
-          for (const item of toUpdate) {
-            const leafPath = [...parsePathKey(parentKey), item.label]
-            actionsRef.current.set(joinPath(leafPath), item.action)
-            if (item.enabled !== undefined) {
-              try {
-                await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
-              } catch (e) {
-                console.error(`Failed to update ${joinPath(leafPath)}:`, e)
+            await addEntries(parentKey, entries)
+
+            for (const item of toUpdate) {
+              const leafPath = [...parsePathKey(parentKey), item.label]
+              actionsRef.current.set(joinPath(leafPath), item.action)
+              if (item.enabled !== undefined) {
+                try {
+                  await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
+                } catch (e) {
+                  console.error(`Failed to update ${joinPath(leafPath)}:`, e)
+                }
               }
             }
           }
         }
-      }
 
-      previousConfigRef.current = config
-      await discoverMenus()
+        previousConfigRef.current = config
+        await discoverMenus()
+      }
     }
 
     updateMenus()
   }, [config, addEntries, removeMenuItems, getItemDifference])
 
   useEffect(() => {
-    const subscription = NativeIRMenuItemManager.onMenuItemPressed(handleMenuItemPressed)
-    discoverMenus()
-    return () => {
-      subscription.remove()
+    if (Platform.OS === "windows") {
+      // For Windows, just discover menus from config
+      discoverMenus()
+    } else {
+      // For macOS, use native menu manager
+      const subscription = NativeIRMenuItemManager.onMenuItemPressed(handleMenuItemPressed)
+      discoverMenus()
+      return () => {
+        subscription.remove()
+      }
     }
   }, [handleMenuItemPressed, discoverMenus])
 
@@ -337,13 +414,33 @@ export function useMenuItem(config?: MenuItemConfig) {
     [addEntries],
   )
 
+  // For Windows, populate actions from global state if no config provided
+  useEffect(() => {
+    if (Platform.OS === "windows" && !config && globalMenuConfig?.items) {
+      // Restore actions from global config
+      for (const [parentKey, entries] of Object.entries(globalMenuConfig.items)) {
+        for (const entry of entries) {
+          if (!isSeparator(entry)) {
+            const item = entry as MenuItem
+            const leafPath = [parentKey, item.label]
+            if (item.action) {
+              actionsRef.current.set(joinPath(leafPath), item.action)
+            }
+          }
+        }
+      }
+    }
+  }, [config, globalMenuConfig])
+
   return {
     availableMenus,
-    menuStructure,
+    menuStructure: Platform.OS === "windows" ? globalMenuStructure : menuStructure,
+    menuItems: Platform.OS === "windows" ? globalMenuItems : {},
     discoverMenus,
     addMenuItem,
     removeMenuItemByName,
     setMenuItemEnabled,
     getAllMenuPaths,
+    handleMenuItemPressed,
   }
 }
