@@ -1,87 +1,92 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
+// globalStore.ts
+import { useSyncExternalStore, useCallback } from "react";
+import { unstable_batchedUpdates } from "react-native";
 
-type UseGlobalOptions = Record<string, unknown>
+type Id = string;
+type Listener = () => void;
+type SetValue<T> = T | ((prev: T) => T);
 
-const globals: Record<string, unknown> = {}
-const components_to_rerender: Record<string, Dispatch<SetStateAction<never[]>>[]> = {}
+const globals = new Map<Id, unknown>();
+const listeners = new Map<Id, Set<Listener>>();
 
-type SetValueFn<T> = (prev: T) => T
-type SetValue<T> = T | SetValueFn<T>
-
-/**
- * Trying for the simplest possible global state management.
- * Use anywhere and it'll share the same state globally, and rerender any component that uses it.
- *
- * const [value, setValue] = useGlobal("my-state", "initial-value")
- *
- */
-export function useGlobal<T = unknown>(
-  id: string,
-  initialValue: T,
-  options: UseGlobalOptions = {},
-): [T, (value: SetValue<T>) => void] {
-  // This is a dummy state to rerender any component that uses this global.
-  const [_v, setRender] = useState([])
-
-  // Subscribe & unsubscribe from state changes for this ID.
-  useEffect(() => {
-    components_to_rerender[id] ||= []
-    components_to_rerender[id].push(setRender)
-    return () => {
-      if (!components_to_rerender[id]) return
-      components_to_rerender[id] = components_to_rerender[id].filter(
-        (listener) => listener !== setRender,
-      )
-    }
-  }, [id])
-
-  // We use the withGlobal hook to do the actual work.
-  const [value] = withGlobal<T>(id, initialValue, options)
-
-  // We use a callback to ensure that the setValue function is stable.
-  const setValue = useCallback(buildSetValue(id), [id])
-
-  return [value, setValue]
-}
-
-/**
- * For global state used outside of a component. Can be used in a component with
- * the same id string, using useGlobal.
- */
-export function withGlobal<T>(
-  id: string,
-  initialValue: T,
-  _: UseGlobalOptions = {},
-): [T, (value: SetValue<T> | null) => void] {
-  // Initialize this global if it doesn't exist.
-  if (globals[id] === undefined) globals[id] = initialValue
-
-  return [globals[id] as T, buildSetValue(id)]
-}
-
-function buildSetValue<T>(id: string) {
-  return (value: SetValue<T> | null) => {
-    // Call the setter function if it's a function.
-    if (typeof value === "function") value = (value as SetValueFn<T>)(globals[id] as T)
-    if (value === null) {
-      delete globals[id]
-    } else {
-      globals[id] = value
-    }
-    components_to_rerender[id] ||= []
-    components_to_rerender[id].forEach((rerender) => rerender([]))
+// Initialize global value if it doesn't exist, but don't modify during snapshot reads
+function initializeGlobal<T>(id: Id, initialValue: T): void {
+  if (!globals.has(id)) {
+    globals.set(id, initialValue);
   }
 }
 
-/**
- * Clear all globals and reset the storage entirely.
- * Optionally rerender all components that use useGlobal.
- */
-export function clearGlobals(rerender: boolean = true): void {
-  Object.keys(globals).forEach((key) => delete globals[key])
+function getSnapshot<T>(id: Id): T {
+  return globals.get(id) as T;
+}
+
+function subscribe(id: Id, cb: Listener): () => void {
+  let set = listeners.get(id);
+  if (!set) listeners.set(id, (set = new Set()));
+  set.add(cb);
+  return () => {
+    const s = listeners.get(id);
+    if (!s) return;
+    s.delete(cb);
+    if (s.size === 0) listeners.delete(id);
+  };
+}
+
+function notify(id: Id) {
+  const s = listeners.get(id);
+  if (!s || s.size === 0) return;
+  unstable_batchedUpdates(() => {
+    for (const l of s) l();
+  });
+}
+
+export function useGlobal<T>(id: Id, initialValue: T): [T, (v: SetValue<T>) => void] {
+  // Initialize the global value once, outside of the snapshot function
+  initializeGlobal(id, initialValue);
+
+  const value = useSyncExternalStore(
+    (cb) => subscribe(id, cb),
+    () => getSnapshot<T>(id)
+  );
+
+  // Memoize the setter function to prevent unnecessary re-renders
+  const set = useCallback((next: SetValue<T>) => {
+    const current = getSnapshot<T>(id);
+    const resolved = typeof next === "function" ? (next as (p: T) => T)(current) : next;
+    globals.set(id, resolved);
+    notify(id);
+  }, [id]);
+
+  return [value, set];
+}
+
+// Imperative access (outside components)
+export function withGlobal<T>(
+  id: Id,
+  initialValue: T
+): [T, (v: SetValue<T> | null) => void] {
+  // Initialize the global value
+  initializeGlobal(id, initialValue);
+
+  const setter = (v: SetValue<T> | null) => {
+    if (v === null) return resetGlobal(id);
+    const current = getSnapshot<T>(id);
+    const resolved = typeof v === "function" ? (v as (p: T) => T)(current) : v;
+    globals.set(id, resolved);
+    notify(id);
+  };
+  return [getSnapshot<T>(id), setter];
+}
+
+export function resetGlobal(id: Id, rerender = true) {
+  globals.delete(id);
+  if (rerender) notify(id);
+}
+
+export function clearGlobals(rerender = true) {
+  globals.clear();
   if (rerender) {
-    Object.keys(components_to_rerender).forEach((key) => {
-      components_to_rerender[key].forEach((rerender) => rerender([]))
-    })
+    // Only notify ids that have listeners; avoids stale maps
+    for (const id of listeners.keys()) notify(id);
   }
 }
