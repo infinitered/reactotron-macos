@@ -10,11 +10,12 @@ export function useTimeline(filters: TimelineFilters): TimelineItem[] {
   const [search] = useGlobal("search", "")
 
   return useMemo(() => {
+    const clientScopedItems = items.filter((item) => item.clientId === filters.clientId)
     // 1) Types filter: if none selected, show everything
     const byType =
       (filters.types?.length ?? 0) === 0
-        ? items.slice() // clone so we can sort safely later
-        : items.filter((item) => filters.types.includes(item.type))
+        ? clientScopedItems.slice() // clone so we can sort safely later
+        : clientScopedItems.filter((item) => filters.types.includes(item.type))
 
     // 2) Search (normalize once)
     const q = normalize(search)
@@ -51,7 +52,7 @@ export function useTimeline(filters: TimelineFilters): TimelineItem[] {
     bySearch.sort((a, b) => safeTime(b.date) - safeTime(a.date))
 
     return bySearch
-  }, [items, JSON.stringify(filters.types ?? []), search])
+  }, [items, JSON.stringify(filters.types ?? []), search, filters.clientId])
 
   // TODO: User controlled sorting and level filtering
 

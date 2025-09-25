@@ -64,8 +64,10 @@ export function TimelineScreen() {
   const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
   })
+  const [activeClientId] = useGlobal("activeClientId", "")
   const timelineItems = useTimeline({
     types: getTimelineTypes(activeItem),
+    clientId: activeClientId,
   })
   const [timelineWidth, setTimelineWidth] = useGlobal<number>("timelineWidth", 300, {
     persist: true,
