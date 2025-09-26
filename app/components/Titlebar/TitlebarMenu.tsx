@@ -6,7 +6,7 @@ import { MenuDropdown } from "../Menu/MenuDropdown"
 import { MenuOverlay } from "../Menu/MenuOverlay"
 import type { Position } from "../Menu/types"
 import { PassthroughView } from "./PassthroughView"
-import { useSystemMenu } from "../../utils/useSystemMenu"
+import { useSystemMenu } from "../../utils/useSystemMenu/useSystemMenu"
 
 export const TitlebarMenu = () => {
   const { menuStructure, menuItems, handleMenuItemPressed } = useSystemMenu()
