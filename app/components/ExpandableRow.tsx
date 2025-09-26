@@ -35,7 +35,7 @@ export function ExpandableRow({
   responseStatusCode,
   children,
 }: ExpandableRowProps) {
-  const [isOpen, setIsOpen] = useGlobal(`timeline-${id}-open`, false, { persist: true })
+  const [isOpen, setIsOpen] = useGlobal(`timeline-${id}-open`, false)
   const time = formatTime(date)
 
   return (

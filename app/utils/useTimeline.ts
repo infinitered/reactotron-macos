@@ -6,7 +6,7 @@ import { normalize } from "./normalize"
 import { safeTime } from "./safeTime"
 
 export function useTimeline(filters: TimelineFilters): TimelineItem[] {
-  const [items] = useGlobal<TimelineItem[]>("timelineItems", [], { persist: true })
+  const [items] = useGlobal<TimelineItem[]>("timelineItems", [])
   const [search] = useGlobal("search", "")
 
   return useMemo(() => {
