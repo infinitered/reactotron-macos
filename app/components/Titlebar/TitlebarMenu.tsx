@@ -6,10 +6,10 @@ import { MenuDropdown } from "../Menu/MenuDropdown"
 import { MenuOverlay } from "../Menu/MenuOverlay"
 import type { Position } from "../Menu/types"
 import { PassthroughView } from "./PassthroughView"
-import { useMenuItem } from "../../utils/useMenuItem"
+import { useSystemMenu } from "../../utils/useSystemMenu"
 
 export const TitlebarMenu = () => {
-  const { menuStructure, menuItems, handleMenuItemPressed } = useMenuItem()
+  const { menuStructure, menuItems, handleMenuItemPressed } = useSystemMenu()
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [dropdownPosition, setDropdownPosition] = useState<Position>({ x: 0, y: 0 })
   const menuRefs = useRef<Map<string, View>>(new Map())

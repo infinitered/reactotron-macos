@@ -1,16 +1,16 @@
-#import "IRMenuItemManager.h"
+#import "IRSystemMenuManager.h"
 #import <Cocoa/Cocoa.h>
 #import <React/RCTUtils.h>
 
 static NSString * const separatorString = @"menu-item-separator";
 
-@implementation IRMenuItemManager {
+@implementation IRSystemMenuManager {
 }
 
 RCT_EXPORT_MODULE()
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
-  return std::make_shared<facebook::react::NativeIRMenuItemManagerSpecJSI>(params);
+  return std::make_shared<facebook::react::NativeIRSystemMenuManagerSpecJSI>(params);
 }
 
 #pragma mark - API

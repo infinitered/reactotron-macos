@@ -2,7 +2,7 @@ import { Pressable, Text, View, type ViewStyle, type TextStyle } from "react-nat
 import { useState, useRef, memo, useCallback } from "react"
 import { themed } from "../../theme/theme"
 import { menuSettings } from "./menuSettings"
-import type { MenuItem } from "../../utils/useMenuItem"
+import type { MenuItem } from "./types"
 
 interface MenuDropdownItemProps {
   item: MenuItem

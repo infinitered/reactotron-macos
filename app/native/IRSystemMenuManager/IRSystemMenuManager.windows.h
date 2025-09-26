@@ -4,17 +4,17 @@
 #include <winrt/Microsoft.ReactNative.h>
 
 // Generated (DataTypes before Spec)
-#include "..\..\..\windows\reactotron\codegen\NativeIRMenuItemManagerDataTypes.g.h"
-#include "..\..\..\windows\reactotron\codegen\NativeIRMenuItemManagerSpec.g.h"
+#include "..\..\..\windows\reactotron\codegen\NativeIRSystemMenuManagerDataTypes.g.h"
+#include "..\..\..\windows\reactotron\codegen\NativeIRSystemMenuManagerSpec.g.h"
 
 namespace winrt::reactotron::implementation
 {
-    REACT_TURBO_MODULE(IRMenuItemManager)
-    struct IRMenuItemManager : reactotronCodegen::IRMenuItemManagerSpec
+    REACT_TURBO_MODULE(IRSystemMenuManager)
+    struct IRSystemMenuManager : reactotronCodegen::IRSystemMenuManagerSpec
     {
         // Only the essential types needed for the event
-        using PressEvent = reactotronCodegen::IRMenuItemManagerSpec_MenuItemPressedEvent;
-        using CreateRet = reactotronCodegen::IRMenuItemManagerSpec_createMenu_returnType;
+        using PressEvent = reactotronCodegen::IRSystemMenuManagerSpec_MenuItemPressedEvent;
+        using CreateRet = reactotronCodegen::IRSystemMenuManagerSpec_createMenu_returnType;
 
         // One simple method to test event emission
         REACT_METHOD(createMenu)

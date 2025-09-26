@@ -53,29 +53,30 @@
 import { useEffect, useRef, useCallback, useState } from "react"
 import { Platform } from "react-native"
 import { useGlobal } from "../state/useGlobal"
-import NativeIRMenuItemManager, {
-  type MenuItemPressedEvent,
-  type MenuStructure,
-  type MenuListEntry,
+import NativeIRSystemMenuManager, {
+  type SystemMenuItemPressedEvent,
+  type SystemMenuStructure,
   SEPARATOR,
-} from "../native/IRMenuItemManager/NativeIRMenuItemManager"
+} from "../native/IRSystemMenuManager/NativeIRSystemMenuManager"
 
 // Only thing to configure here is the path separator.
 const PATH_SEPARATOR = " > "
 
 export { SEPARATOR } // Menu separator
 
-export interface MenuItem {
+export interface SystemMenuItem {
   label: string
   shortcut?: string
   enabled?: boolean
   position?: number
   action?: () => void // Make action optional for items with submenus
-  submenu?: MenuListEntry[] // Add submenu support
+  submenu?: SystemMenuListEntry[] // Add submenu support
 }
 
-export interface MenuItemConfig {
-  items?: Record<string, MenuListEntry[]>
+export type SystemMenuListEntry = SystemMenuItem | typeof SEPARATOR
+
+export interface SystemMenuConfig {
+  items?: Record<string, SystemMenuListEntry[]>
   remove?: string[]
 }
 
@@ -87,30 +88,29 @@ const parsePathKey = (key: string): string[] =>
 
 const joinPath = (p: string[]) => p.join(PATH_SEPARATOR)
 
-const isSeparator = (e: MenuListEntry): e is typeof SEPARATOR => e === SEPARATOR
+const isSeparator = (e: SystemMenuListEntry): e is typeof SEPARATOR => e === SEPARATOR
 
-export function useMenuItem(config?: MenuItemConfig) {
+export function useSystemMenu(config?: SystemMenuConfig) {
   const actionsRef = useRef<Map<string, () => void>>(new Map())
-  const previousConfigRef = useRef<MenuItemConfig | null>(null)
+  const previousConfigRef = useRef<SystemMenuConfig | null>(null)
   const [availableMenus, setAvailableMenus] = useState<string[]>([])
-  const [menuStructure, setMenuStructure] = useState<MenuStructure>([])
-  const [windowsMenuItems, setWindowsMenuItems] = useState<Record<string, MenuItem[]>>({})
+  const [menuStructure, setMenuStructure] = useState<SystemMenuStructure>([])
 
   // Global state for Windows menu persistence
-  const [globalMenuConfig, setGlobalMenuConfig] = useGlobal<MenuItemConfig | null>(
+  const [globalMenuConfig, setGlobalMenuConfig] = useGlobal<SystemMenuConfig | null>(
     "windows-menu-config",
     null,
   )
-  const [globalMenuStructure, setGlobalMenuStructure] = useGlobal<MenuStructure>(
+  const [globalMenuStructure, setGlobalMenuStructure] = useGlobal<SystemMenuStructure>(
     "windows-menu-structure",
     [],
   )
-  const [globalMenuItems, setGlobalMenuItems] = useGlobal<Record<string, MenuItem[]>>(
+  const [globalMenuItems, setGlobalMenuItems] = useGlobal<Record<string, SystemMenuItem[]>>(
     "windows-menu-items",
     {},
   )
 
-  const handleMenuItemPressed = useCallback((event: MenuItemPressedEvent) => {
+  const handleMenuItemPressed = useCallback((event: SystemMenuItemPressedEvent) => {
     const key = joinPath(event.menuPath)
     const action = actionsRef.current.get(key)
     if (action) action()
@@ -122,7 +122,7 @@ export function useMenuItem(config?: MenuItemConfig) {
         // For Windows, use global state
         const configToUse = config || globalMenuConfig
         if (configToUse?.items) {
-          const winStructure: MenuStructure = Object.keys(configToUse.items).map((title) => ({
+          const winStructure: SystemMenuStructure = Object.keys(configToUse.items).map((title) => ({
             title,
             enabled: true,
             path: [title],
@@ -134,21 +134,16 @@ export function useMenuItem(config?: MenuItemConfig) {
           if (config && config !== globalMenuConfig) {
             setGlobalMenuConfig(config)
             setGlobalMenuStructure(winStructure)
-            setGlobalMenuItems(config.items as Record<string, MenuItem[]>)
+            setGlobalMenuItems(config.items as Record<string, SystemMenuItem[]>)
           }
 
           // Always use global state for consistency
           setMenuStructure(globalMenuStructure.length > 0 ? globalMenuStructure : winStructure)
-          setWindowsMenuItems(
-            Object.keys(globalMenuItems).length > 0
-              ? globalMenuItems
-              : (configToUse.items as Record<string, MenuItem[]>),
-          )
         }
         return []
       } else {
-        const menus = NativeIRMenuItemManager.getAvailableMenus()
-        const structure = NativeIRMenuItemManager.getMenuStructure()
+        const menus = NativeIRSystemMenuManager.getAvailableMenus()
+        const structure = NativeIRSystemMenuManager.getMenuStructure()
         setAvailableMenus(menus)
         setMenuStructure(structure)
         return menus
@@ -159,11 +154,11 @@ export function useMenuItem(config?: MenuItemConfig) {
     }
   }, [config, globalMenuConfig, globalMenuStructure, globalMenuItems])
 
-  const addEntries = useCallback(async (parentKey: string, entries: MenuListEntry[]) => {
+  const addEntries = useCallback(async (parentKey: string, entries: SystemMenuListEntry[]) => {
     const parentPath = parsePathKey(parentKey)
 
     try {
-      await NativeIRMenuItemManager.removeMenuItemAtPath([...parentPath, SEPARATOR])
+      await NativeIRSystemMenuManager.removeMenuItemAtPath([...parentPath, SEPARATOR])
     } catch (e) {
       console.warn(`Failed to clear separators for "${parentKey}":`, e)
     }
@@ -171,28 +166,29 @@ export function useMenuItem(config?: MenuItemConfig) {
     for (const entry of entries) {
       if (isSeparator(entry)) {
         try {
-          await NativeIRMenuItemManager.addMenuItemAtPath(parentPath, SEPARATOR, "")
+          await NativeIRSystemMenuManager.addMenuItemAtPath(parentPath, SEPARATOR, "")
         } catch (e) {
           console.error(`Failed to add separator under "${parentKey}":`, e)
         }
         continue
       }
 
-      const item = entry as MenuItem
+      const item = entry as SystemMenuItem
       const leafPath = [...parentPath, item.label]
       const actionKey = joinPath(leafPath)
-      actionsRef.current.set(actionKey, item.action)
+
+      if (item.action) actionsRef.current.set(actionKey, item.action)
 
       try {
         if (typeof item.position === "number") {
-          await NativeIRMenuItemManager.insertMenuItemAtPath(
+          await NativeIRSystemMenuManager.insertMenuItemAtPath(
             parentPath,
             item.label,
             item.position,
             item.shortcut ?? "",
           )
         } else {
-          await NativeIRMenuItemManager.addMenuItemAtPath(
+          await NativeIRSystemMenuManager.addMenuItemAtPath(
             parentPath,
             item.label,
             item.shortcut ?? "",
@@ -200,7 +196,7 @@ export function useMenuItem(config?: MenuItemConfig) {
         }
 
         if (item.enabled !== undefined) {
-          await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
+          await NativeIRSystemMenuManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
         }
       } catch (error) {
         console.error(`Failed to add "${item.label}" under "${parentKey}":`, error)
@@ -208,12 +204,12 @@ export function useMenuItem(config?: MenuItemConfig) {
     }
   }, [])
 
-  const removeMenuItems = useCallback(async (parentKey: string, items: MenuItem[]) => {
+  const removeMenuItems = useCallback(async (parentKey: string, items: SystemMenuItem[]) => {
     const parentPath = parsePathKey(parentKey)
     for (const item of items) {
       const leafPath = [...parentPath, item.label]
       try {
-        await NativeIRMenuItemManager.removeMenuItemAtPath(leafPath)
+        await NativeIRSystemMenuManager.removeMenuItemAtPath(leafPath)
       } catch (error) {
         console.error(`Failed to remove menu item ${joinPath(leafPath)}:`, error)
       } finally {
@@ -225,7 +221,7 @@ export function useMenuItem(config?: MenuItemConfig) {
   const removeMenuItemByName = useCallback(async (nameOrPath: string) => {
     const path = parsePathKey(nameOrPath)
     try {
-      await NativeIRMenuItemManager.removeMenuItemAtPath(path)
+      await NativeIRSystemMenuManager.removeMenuItemAtPath(path)
       actionsRef.current.delete(joinPath(path))
     } catch (error) {
       console.error(`Failed to remove menu item/menu ${nameOrPath}:`, error)
@@ -235,7 +231,7 @@ export function useMenuItem(config?: MenuItemConfig) {
   const setMenuItemEnabled = useCallback(async (pathOrKey: string | string[], enabled: boolean) => {
     const path = Array.isArray(pathOrKey) ? pathOrKey : parsePathKey(pathOrKey)
     try {
-      await NativeIRMenuItemManager.setMenuItemEnabledAtPath(path, enabled)
+      await NativeIRSystemMenuManager.setMenuItemEnabledAtPath(path, enabled)
     } catch (error) {
       console.error(`Failed to set enabled for ${joinPath(path)}:`, error)
     }
@@ -243,7 +239,7 @@ export function useMenuItem(config?: MenuItemConfig) {
 
   const getAllMenuPaths = useCallback(async (): Promise<string[]> => {
     try {
-      const structure = NativeIRMenuItemManager.getMenuStructure()
+      const structure = NativeIRSystemMenuManager.getMenuStructure()
       const out: string[] = []
       const walk = (nodes?: any[]) => {
         if (!nodes) return
@@ -261,16 +257,16 @@ export function useMenuItem(config?: MenuItemConfig) {
   }, [])
 
   const getItemDifference = useCallback(
-    (oldEntries: MenuListEntry[] = [], newEntries: MenuListEntry[] = []) => {
-      const oldItems = oldEntries.filter((e): e is MenuItem => !isSeparator(e))
-      const newItems = newEntries.filter((e): e is MenuItem => !isSeparator(e))
+    (oldEntries: SystemMenuListEntry[] = [], newEntries: SystemMenuListEntry[] = []) => {
+      const oldItems = oldEntries.filter((e): e is SystemMenuItem => !isSeparator(e))
+      const newItems = newEntries.filter((e): e is SystemMenuItem => !isSeparator(e))
 
-      const byLabel = (xs: MenuItem[]) => new Map(xs.map((x) => [x.label, x]))
+      const byLabel = (xs: SystemMenuItem[]) => new Map(xs.map((x) => [x.label, x]))
       const oldMap = byLabel(oldItems)
       const newMap = byLabel(newItems)
 
-      const toRemove: MenuItem[] = []
-      const toUpdate: MenuItem[] = []
+      const toRemove: SystemMenuItem[] = []
+      const toUpdate: SystemMenuItem[] = []
 
       for (const [label, item] of newMap) {
         if (oldMap.has(label)) {
@@ -303,7 +299,7 @@ export function useMenuItem(config?: MenuItemConfig) {
           for (const [parentKey, entries] of Object.entries(config.items)) {
             for (const entry of entries) {
               if (!isSeparator(entry)) {
-                const item = entry as MenuItem
+                const item = entry as SystemMenuItem
                 const leafPath = [parentKey, item.label]
                 if (item.action) {
                   actionsRef.current.set(joinPath(leafPath), item.action)
@@ -337,10 +333,12 @@ export function useMenuItem(config?: MenuItemConfig) {
 
             for (const item of toUpdate) {
               const leafPath = [...parsePathKey(parentKey), item.label]
-              actionsRef.current.set(joinPath(leafPath), item.action)
+              if (item.action) {
+                actionsRef.current.set(joinPath(leafPath), item.action)
+              }
               if (item.enabled !== undefined) {
                 try {
-                  await NativeIRMenuItemManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
+                  await NativeIRSystemMenuManager.setMenuItemEnabledAtPath(leafPath, item.enabled)
                 } catch (e) {
                   console.error(`Failed to update ${joinPath(leafPath)}:`, e)
                 }
@@ -363,7 +361,7 @@ export function useMenuItem(config?: MenuItemConfig) {
       discoverMenus()
     } else {
       // For macOS, use native menu manager
-      const subscription = NativeIRMenuItemManager.onMenuItemPressed(handleMenuItemPressed)
+      const subscription = NativeIRSystemMenuManager.onMenuItemPressed(handleMenuItemPressed)
       discoverMenus()
       return () => {
         subscription.remove()
@@ -380,22 +378,22 @@ export function useMenuItem(config?: MenuItemConfig) {
       const pairs = Object.entries(previousConfigRef.current.items ?? config.items)
       const cleanup = async () => {
         for (const [parentKey, entries] of pairs) {
-          const itemsOnly = entries.filter((e): e is MenuItem => !isSeparator(e))
+          const itemsOnly = entries.filter((e): e is SystemMenuItem => !isSeparator(e))
           await removeMenuItems(parentKey, itemsOnly)
-          await NativeIRMenuItemManager.removeMenuItemAtPath([
+          await NativeIRSystemMenuManager.removeMenuItemAtPath([
             ...parsePathKey(parentKey),
             SEPARATOR,
           ])
           const parentPath = parsePathKey(parentKey)
           if (parentPath.length === 1) {
             const top = parentPath[0]
-            const structure = NativeIRMenuItemManager.getMenuStructure()
+            const structure = NativeIRSystemMenuManager.getMenuStructure()
             const entry = structure.find(
               (e) => e.title.localeCompare(top, undefined, { sensitivity: "accent" }) === 0,
             )
             if (!entry || !entry.items || entry.items.length === 0) {
               try {
-                await NativeIRMenuItemManager.removeMenuItemAtPath([top])
+                await NativeIRSystemMenuManager.removeMenuItemAtPath([top])
               } catch (e) {
                 console.warn(`Couldn't remove top-level menu "${top}":`, e)
               }
@@ -408,7 +406,7 @@ export function useMenuItem(config?: MenuItemConfig) {
   }, [])
 
   const addMenuItem = useCallback(
-    async (parentKey: string, item: MenuItem) => {
+    async (parentKey: string, item: SystemMenuItem) => {
       await addEntries(parentKey, [item])
     },
     [addEntries],
@@ -421,7 +419,7 @@ export function useMenuItem(config?: MenuItemConfig) {
       for (const [parentKey, entries] of Object.entries(globalMenuConfig.items)) {
         for (const entry of entries) {
           if (!isSeparator(entry)) {
-            const item = entry as MenuItem
+            const item = entry as SystemMenuItem
             const leafPath = [parentKey, item.label]
             if (item.action) {
               actionsRef.current.set(joinPath(leafPath), item.action)

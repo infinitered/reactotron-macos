@@ -5,17 +5,12 @@ import { Portal } from "../Portal"
 import { MenuDropdownItem } from "./MenuDropdownItem"
 import { useSubmenuState } from "./useSubmenuState"
 import { menuSettings } from "./menuSettings"
-import { type Position } from "./types"
-import { MenuItem, SEPARATOR } from "../../utils/useMenuItem"
+import { type Position, type DropdownMenuItem, type MenuItem, MENU_SEPARATOR } from "./types"
 import { getUUID } from "../../utils/random/getUUID"
 import { Separator } from "../Separator"
 
-type DropdownMenuItem = MenuItem & {
-  submenu?: (DropdownMenuItem | typeof SEPARATOR)[]
-}
-
 interface MenuDropdownProps {
-  items: (DropdownMenuItem | typeof SEPARATOR)[]
+  items: (DropdownMenuItem | typeof MENU_SEPARATOR)[]
   position: Position
   onItemPress: (item: MenuItem) => void
   isSubmenu?: boolean
@@ -32,8 +27,8 @@ const MenuDropdownComponent = ({
   ).current
   const { openSubmenu, submenuPosition, handleItemHover } = useSubmenuState(position)
 
-  const isSeparator = (item: MenuItem | typeof SEPARATOR): item is typeof SEPARATOR => {
-    return item === SEPARATOR
+  const isSeparator = (item: MenuItem | typeof MENU_SEPARATOR): item is typeof MENU_SEPARATOR => {
+    return item === MENU_SEPARATOR
   }
 
   // Find the submenu item if one is open

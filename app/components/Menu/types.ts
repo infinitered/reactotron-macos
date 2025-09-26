@@ -3,11 +3,17 @@ export interface Position {
   y: number
 }
 
-export interface MenuItemWithSubmenu {
+// Generic menu item interface for UI components
+export interface MenuItem {
   label: string
   shortcut?: string
   enabled?: boolean
-  position?: number
   action?: () => void
-  submenu?: (MenuItemWithSubmenu | 'menu-item-separator')[]
+  submenu?: (MenuItem | typeof MENU_SEPARATOR)[]
 }
+
+// Type alias for dropdown menu items (same as MenuItem)
+export type DropdownMenuItem = MenuItem
+
+// Menu separator constant
+export const MENU_SEPARATOR = 'menu-item-separator' as const
