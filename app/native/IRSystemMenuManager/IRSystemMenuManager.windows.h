@@ -13,7 +13,7 @@ namespace winrt::reactotron::implementation
     struct IRSystemMenuManager : reactotronCodegen::IRSystemMenuManagerSpec
     {
         // Only the essential types needed for the event
-        using PressEvent = reactotronCodegen::IRSystemMenuManagerSpec_MenuItemPressedEvent;
+        using PressEvent = reactotronCodegen::IRSystemMenuManagerSpec_SystemMenuItemPressedEvent;
         using CreateRet = reactotronCodegen::IRSystemMenuManagerSpec_createMenu_returnType;
 
         // One simple method to test event emission
