@@ -9,7 +9,7 @@ import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
 import { useEffect, useMemo } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
-import { useMenuItem } from "./utils/useMenuItem"
+import { useSystemMenu } from "./utils/useSystemMenu/useSystemMenu"
 import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
@@ -74,12 +74,12 @@ function App(): React.JSX.Element {
           },
           ...(__DEV__
             ? [
-                {
-                  label: "Toggle Dev Menu",
-                  shortcut: "cmd+shift+d",
-                  action: () => NativeModules.DevMenu.show(),
-                },
-              ]
+              {
+                label: "Toggle Dev Menu",
+                shortcut: "cmd+shift+d",
+                action: () => NativeModules.DevMenu.show(),
+              },
+            ]
             : []),
         ],
         Window: [
@@ -101,7 +101,7 @@ function App(): React.JSX.Element {
     [toggleSidebar],
   )
 
-  useMenuItem(menuConfig)
+  useSystemMenu(menuConfig)
 
   setTimeout(() => {
     fetch("https://www.google.com")

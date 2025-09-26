@@ -47,7 +47,6 @@ export function useKeyboardEvents(onKeyboardEvent: (event: KeyboardEvent) => voi
   const keyboardSubscription = useRef<EventSubscription | null>(null)
 
   useEffect(() => {
-    if (Platform.OS === "windows") return
     _keyboardSubscribers++
     if (_keyboardSubscribers === 1) IRKeyboard.startListening()
     keyboardSubscription.current = IRKeyboard.onKeyboardEvent(onKeyboardEvent)
