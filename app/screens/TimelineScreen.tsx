@@ -6,7 +6,7 @@ import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
-import { View, ViewStyle } from "react-native"
+import { TextInput, View, ViewStyle, TextStyle } from "react-native"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
@@ -14,7 +14,8 @@ import { $flex, $row } from "../theme/basics"
 import { useTimeline } from "../utils/useTimeline"
 import { MenuItemId } from "app/components/Sidebar/SidebarMenu"
 import { useEffect } from "react"
-import { FilterType } from "app/components/TimelineToolbar"
+import { FilterType } from "../components/TimelineToolbar"
+import { ClearLogsButton } from "../components/ClearLogsButton"
 
 /**
  * Renders the correct component for each timeline item.
@@ -61,6 +62,8 @@ function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
 }
 
 export function TimelineScreen() {
+  const [search, setSearch] = useGlobal("search", "")
+  const [theme] = useThemeName()
   const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
   })
@@ -85,6 +88,18 @@ export function TimelineScreen() {
   return (
     <View style={[$flex, $row]}>
       <View style={{ width: timelineWidth }}>
+        <View style={$statusRow()}>
+          <View style={$searchContainer()}>
+            <TextInput
+              value={search}
+              placeholder="Search"
+              style={$searchInput()}
+              placeholderTextColor={theme === "dark" ? "white" : "black"}
+              onChangeText={setSearch}
+            />
+          </View>
+          <ClearLogsButton />
+        </View>
         <LegendList<TimelineItem>
           data={timelineItems}
           extraData={selectedItem?.id}
@@ -113,4 +128,24 @@ export function TimelineScreen() {
 
 const $contentContainer = themed<ViewStyle>(({ spacing }) => ({
   paddingRight: spacing.xs,
+}))
+const $statusRow = themed<ViewStyle>(({ spacing, colors }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  padding: spacing.sm,
+  justifyContent: "center",
+  width: "100%",
+  backgroundColor: colors.cardBackground,
+}))
+const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  width: 140,
+  fontSize: typography.body,
+  backgroundColor: colors.background,
+  borderWidth: 1,
+  borderRadius: 4,
+  padding: spacing.xxs,
+  zIndex: 1,
+}))
+const $searchContainer = themed<ViewStyle>(({ spacing }) => ({
+  marginRight: spacing.md,
 }))
