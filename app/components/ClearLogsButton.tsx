@@ -1,4 +1,4 @@
-import { Button } from "react-native"
+import { Button, StyleProp, View, ViewStyle } from "react-native"
 import { useGlobal, withGlobal } from "../state/useGlobal"
 import type { TimelineItem } from "../types"
 import { useCallback } from "react"
@@ -20,5 +20,13 @@ export function ClearLogsButton() {
     setTimelineItems((prev) => prev.filter((item) => item.clientId !== activeClientId))
   }, [setTimelineItems])
 
-  return <Button onPress={clearLogs} title="Clear" />
+  return (
+    <View style={$buttonContainer}>
+      <Button onPress={clearLogs} title="Clear" />
+    </View>
+  )
+}
+
+const $buttonContainer: StyleProp<ViewStyle> = {
+  cursor: "pointer",
 }
