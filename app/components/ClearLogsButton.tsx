@@ -1,5 +1,5 @@
 import { Button } from "react-native"
-import { withGlobal } from "../state/useGlobal"
+import { useGlobal, withGlobal } from "../state/useGlobal"
 import type { TimelineItem } from "../types"
 import { useCallback } from "react"
 import { useKeyboardEvents } from "../utils/system"
@@ -15,7 +15,10 @@ export function ClearLogsButton() {
   const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
     persist: true,
   })
-  const clearLogs = useCallback(() => setTimelineItems([]), [setTimelineItems])
+  const [activeClientId] = useGlobal("activeClientId", "")
+  const clearLogs = useCallback(() => {
+    setTimelineItems((prev) => prev.filter((item) => item.clientId !== activeClientId))
+  }, [setTimelineItems])
 
   return <Button onPress={clearLogs} title="Clear" />
 }
