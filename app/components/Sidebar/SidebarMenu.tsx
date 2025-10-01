@@ -1,4 +1,4 @@
-import { Animated, View, ViewStyle, Pressable, TextStyle } from "react-native"
+import { Animated, View, ViewStyle, Pressable, TextStyle, Text } from "react-native"
 import { themed, useTheme, useThemeName } from "../../theme/theme"
 import { useGlobal } from "../../state/useGlobal"
 import { Icon } from "../Icon"
@@ -21,8 +21,11 @@ interface SidebarMenuProps {
 }
 
 export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuProps) => {
-  const [themeName] = useThemeName()
   const theme = useTheme()
+  const [themeName, setTheme] = useThemeName()
+  const [isConnected] = useGlobal("isConnected", false)
+  const [error] = useGlobal("error", null)
+  const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
   const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
@@ -40,57 +43,131 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
 
   return (
     <View style={$menu}>
-      {MENU_ITEMS.map((item) => {
-        const active = activeItem === item.id
-        return (
-          <Pressable
-            key={item.id}
-            style={({ pressed }) => [
-              $menuItem(),
-              active && $menuItemActive(),
-              pressed && $menuItemPressed,
-            ]}
-            onPress={() => setActiveItem(item.id)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-            accessibilityLabel={item.label}
-          >
-            {/* Fixed-width icon column (centers icon when collapsed) */}
-            <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
-              <Icon
-                icon={item.icon}
-                size={18}
-                color={active ? theme.colors.mainTextInverted : theme.colors.neutral}
-                // TODO: don't love this but it's the only thing that works to change the icon color
-                key={`${item.id}-${
-                  activeItem === item.id ? "active" : "inactive"
-                }-${themeName}-icon`}
-              />
-            </View>
+      <View>
+        {MENU_ITEMS.map((item) => {
+          const active = activeItem === item.id
+          return (
+            <Pressable
+              key={item.id}
+              style={({ pressed }) => [
+                $menuItem(),
+                active && $menuItemActive(),
+                pressed && $menuItemPressed,
+              ]}
+              onPress={() => setActiveItem(item.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={item.label}
+            >
+              {/* Fixed-width icon column (centers icon when collapsed) */}
+              <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
+                <Icon
+                  icon={item.icon}
+                  size={18}
+                  color={active ? theme.colors.mainTextInverted : theme.colors.neutral}
+                  // TODO: don't love this but it's the only thing that works to change the icon color
+                  key={`${item.id}-${
+                    activeItem === item.id ? "active" : "inactive"
+                  }-${themeName}-icon`}
+                />
+              </View>
 
-            {mounted && (
-              <Animated.Text
-                style={[
-                  $menuItemText(),
-                  active && $menuItemTextActive(),
-                  { opacity: labelOpacity },
-                ]}
-                numberOfLines={1}
-                ellipsizeMode="clip"
-                accessibilityElementsHidden={!mounted}
-                importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
-              >
-                {item.label}
-              </Animated.Text>
-            )}
-          </Pressable>
-        )
-      })}
+              {mounted && (
+                <Animated.Text
+                  style={[
+                    $menuItemText(),
+                    active && $menuItemTextActive(),
+                    { opacity: labelOpacity },
+                  ]}
+                  numberOfLines={1}
+                  ellipsizeMode="clip"
+                  accessibilityElementsHidden={!mounted}
+                  importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
+                >
+                  {item.label}
+                </Animated.Text>
+              )}
+            </Pressable>
+          )
+        })}
+      </View>
+      <View>
+        <View style={[$menuItem(), $statusItemContainer]}>
+          <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
+            <View
+              style={[
+                { width: iconColumnWidth },
+                $dot(),
+                error ? $dotRed() : isConnected ? $dotGreen() : $dotGray(),
+              ]}
+            />
+          </View>
+
+          {mounted && (
+            <Animated.Text
+              style={[$menuItemText(), { opacity: labelOpacity }]}
+              numberOfLines={1}
+              ellipsizeMode="clip"
+              accessibilityElementsHidden={!mounted}
+              importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
+            >
+              Connection
+            </Animated.Text>
+          )}
+        </View>
+        <View style={[$menuItem(), $statusItemContainer]}>
+          <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
+            <View
+              style={[
+                { width: iconColumnWidth },
+                $dot(),
+                arch === "Fabric" ? $dotGreen() : $dotOrange(),
+              ]}
+            />
+          </View>
+
+          {mounted && (
+            <Animated.Text
+              style={[$menuItemText(), { opacity: labelOpacity }]}
+              numberOfLines={1}
+              ellipsizeMode="clip"
+              accessibilityElementsHidden={!mounted}
+              importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
+            >
+              {arch}
+            </Animated.Text>
+          )}
+        </View>
+        <Pressable
+          style={({ pressed }) => [$menuItem(), pressed && $menuItemPressed]}
+          onPress={() => setTheme(themeName === "dark" ? "light" : "dark")}
+          accessibilityRole="button"
+          accessibilityLabel={"Switch theme"}
+        >
+          <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
+            <Text style={[{ width: iconColumnWidth }, $statusText()]}>
+              {`${themeName === "dark" ? "🌙" : "☀️"}`}
+            </Text>
+          </View>
+
+          {mounted && (
+            <Animated.Text
+              style={[$menuItemText(), { opacity: labelOpacity }]}
+              numberOfLines={1}
+              ellipsizeMode="clip"
+              accessibilityElementsHidden={!mounted}
+              importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
+            >
+              Light / Dark
+            </Animated.Text>
+          )}
+        </Pressable>
+      </View>
     </View>
   )
 }
 
-const $menu: ViewStyle = { flex: 1, marginTop: 12, width: "100%" }
+const $menu: ViewStyle = { flex: 1, marginTop: 12, width: "100%", justifyContent: "space-between" }
 
 const $menuItem = themed<ViewStyle>(({ spacing }) => ({
   paddingVertical: spacing.xs,
@@ -122,3 +199,23 @@ const $menuItemTextActive = themed<TextStyle>((theme) => ({
 const $iconColumn = themed<ViewStyle>(({ spacing }) => ({
   marginLeft: spacing.xs,
 }))
+
+const $dot = themed<ViewStyle>(({ colors }) => ({
+  width: 12,
+  height: 12,
+  borderRadius: 6,
+  marginRight: 8,
+  borderWidth: 1,
+  borderColor: colors.border,
+}))
+const $dotGray = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.neutral }))
+const $dotGreen = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.success }))
+const $dotRed = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.danger }))
+const $dotOrange = themed<ViewStyle>(({ colors }) => ({ backgroundColor: colors.primary }))
+const $statusText = themed<TextStyle>(({ colors }) => ({
+  fontSize: 16,
+  color: colors.mainText,
+  fontWeight: "600",
+  marginLeft: -4,
+}))
+const $statusItemContainer: ViewStyle = { cursor: "default", height: 32 }

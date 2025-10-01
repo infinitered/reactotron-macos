@@ -13,7 +13,6 @@ import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
-import { AppHeader } from "./components/AppHeader"
 import { useGlobal, withGlobal } from "./state/useGlobal"
 import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
@@ -129,10 +128,7 @@ function App(): React.JSX.Element {
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <View style={$mainContent}>
         <Sidebar />
-        <View style={$contentContainer}>
-          <AppHeader />
-          {renderActiveItem()}
-        </View>
+        <View style={$contentContainer}>{renderActiveItem()}</View>
       </View>
       <PortalHost />
     </View>

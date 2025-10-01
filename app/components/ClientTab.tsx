@@ -1,46 +1,61 @@
 import type { ClientData } from "../types"
 import { useGlobal } from "../state/useGlobal"
 import { themed } from "../theme/theme"
-import { Pressable, Text, TextStyle, ViewStyle } from "react-native"
+import { Pressable, Text, TextStyle, View, ViewStyle } from "react-native"
 
 const tabgroup = "activeClientId"
 
 export function ClientTab({ clientId }: { clientId: string }) {
   const [clientData] = useGlobal<ClientData>(`client-${clientId}`, {} as ClientData)
-
-  const label: string = (clientData?.name ?? clientId) + "\n"
-  const os: string = clientData?.platform ?? "Unknown"
+  const label: string = clientData?.name ?? clientId
+  const platformVersion: string = clientData?.platformVersion ?? ""
 
   const [activeTab, setActiveTab] = useGlobal(tabgroup, label)
   const active = activeTab === clientId
 
+  const getOsLabel = (os: string) => {
+    switch (os) {
+      case "ios":
+        return "iOS"
+      case "android":
+        return "Android"
+      default:
+        return "Unknown OS"
+    }
+  }
+
   return (
-    <Pressable key={clientId} onPress={() => setActiveTab(clientId)} style={$container()}>
-      <Text style={[$tab(), active ? $tabActive() : {}]}>{label}</Text>
-      <Text style={$os()}>{os}</Text>
-    </Pressable>
+    <View style={[$container(), active && $containerActive()]}>
+      <Pressable key={clientId} onPress={() => setActiveTab(clientId)}>
+        <Text numberOfLines={2} style={[$tab(), active && $tabActive()]}>
+          {`${label} - ${getOsLabel(clientData?.platform)} ${platformVersion}`}
+        </Text>
+      </Pressable>
+    </View>
   )
 }
 
+const $containerActive = themed<ViewStyle>(({ colors }) => ({
+  backgroundColor: colors.cardBackground,
+}))
+
 const $container = themed<ViewStyle>(({ spacing }) => ({
-  flexDirection: "column",
-  alignItems: "flex-start",
   gap: spacing.xxs,
   cursor: "pointer",
+  borderTopLeftRadius: 8,
+  borderTopRightRadius: 8,
+  height: 32,
+  alignItems: "center",
+  justifyContent: "center",
+  paddingHorizontal: spacing.xl,
 }))
 
-const $tab = themed<TextStyle>(({ spacing, colors }) => ({
-  fontSize: spacing.md,
-  color: colors.mainText,
+const $tabActive = themed<TextStyle>(() => ({
+  fontWeight: "600",
 }))
 
-const $tabActive = themed<TextStyle>(({ colors }) => ({
-  borderBottomColor: colors.primary,
+const $tab = themed<TextStyle>(({ colors }) => ({
+  fontSize: 14,
   color: colors.mainText,
-  textDecorationLine: "underline",
-}))
-
-const $os = themed<TextStyle>(({ colors }) => ({
-  fontSize: 12,
-  color: colors.mainText,
+  textAlign: "center",
 }))
