@@ -10,7 +10,7 @@ export function ClientTab({ clientId }: { clientId: string }) {
   const label: string = clientData?.name ?? clientId
   const platformVersion: string = clientData?.platformVersion ?? ""
 
-  const [activeTab, setActiveTab] = useGlobal(tabgroup, label, { persist: true })
+  const [activeTab, setActiveTab] = useGlobal(tabgroup, label)
   const active = activeTab === clientId
 
   const getOsLabel = (os: string) => {

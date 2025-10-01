@@ -15,7 +15,7 @@ export function StateScreen() {
   const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
-  const [activeTab] = useGlobal("activeClientId", "")
+  const [activeTab, setActiveTab] = useGlobal("activeClientId", "")
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
 
@@ -64,6 +64,7 @@ export function StateScreen() {
                 [activeTab]: [],
               }))
               sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
+              setActiveTab("")
             }}
           >
             <Text>Clear State</Text>
