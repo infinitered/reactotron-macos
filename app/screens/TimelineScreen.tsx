@@ -141,6 +141,7 @@ const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
   width: 140,
   fontSize: typography.body,
   backgroundColor: colors.background,
+  color: colors.mainText,
   borderWidth: 1,
   borderRadius: 4,
   padding: spacing.xxs,
