@@ -1,8 +1,10 @@
-import { Animated, View, ViewStyle, StyleSheet } from "react-native"
+import { Animated, View, ViewStyle, StyleSheet, Pressable } from "react-native"
 import { themed } from "../../theme/theme"
 import { AnimatedReactotronLogo } from "./AnimatedReactotronLogo"
 import { useSidebarAnimationProgress } from "./useSidebarAnimationProgress"
 import { SidebarMenu } from "./SidebarMenu"
+import { Tooltip } from "../Tooltip"
+import { getReactotronAppId } from "../../state/connectToServer"
 
 // Expanded sidebar width in px
 const EXPANDED_WIDTH = 250
@@ -12,17 +14,23 @@ const COLLAPSED_WIDTH = 60
 
 export const Sidebar = () => {
   const { progress, mounted } = useSidebarAnimationProgress()
+  const reactotronAppId = getReactotronAppId()
 
   const animatedWidth = progress.interpolate({
     inputRange: [0, 1],
     outputRange: [COLLAPSED_WIDTH, EXPANDED_WIDTH],
   })
+  console.log("progress", progress)
 
   return (
     <Animated.View style={[{ width: animatedWidth }, $overflowHidden]}>
       <View style={$container()}>
         <View style={$content()}>
-          <AnimatedReactotronLogo progress={progress} mounted={mounted} />
+          <Tooltip label={`Reactotron ID: ${reactotronAppId}`}>
+            <Pressable disabled={true}>
+              <AnimatedReactotronLogo progress={progress} mounted={mounted} />
+            </Pressable>
+          </Tooltip>
           <SidebarMenu progress={progress} mounted={mounted} collapsedWidth={COLLAPSED_WIDTH} />
         </View>
       </View>
@@ -48,4 +56,7 @@ const $container = themed<ViewStyle>((theme) => ({
 const $content = themed<ViewStyle>((theme) => ({
   flex: 1,
   padding: theme.spacing.sm,
+  flexDirection: "column",
+  justifyContent: "space-between",
+  height: "100%",
 }))

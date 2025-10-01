@@ -145,7 +145,7 @@ const $tooltipBubble = themed<ViewStyle>(({ colors, spacing }) => ({
 }))
 
 const $tooltipPosition = (position: { x: number; y: number }, positioned: boolean) => ({
-  left: position.x,
+  left: position.x < 0 ? 0 : position.x,
   top: position.y,
   opacity: positioned ? 1 : 0,
 })
