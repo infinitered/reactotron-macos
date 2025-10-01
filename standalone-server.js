@@ -105,11 +105,11 @@ function startReactotronServer(opts = {}) {
       // We will forward this to all connected Reactotron apps.
       // https://github.com/infinitered/reactotron/blob/bba01082f882307773a01e4f90ccf25ccff76949/apps/reactotron-app/src/renderer/contexts/Standalone/useStandalone.ts#L18
       reactotronApp.send(JSON.stringify({ type: "disconnect", conn }))
-
-      // Remove the client from the list of connected clients
-      const delIndex = connectedClients.findIndex((c) => c.clientId === conn.clientId)
-      if (delIndex !== -1) connectedClients.splice(delIndex, 1)
     })
+
+    // Remove the client from the list of connected clients
+    const delIndex = connectedClients.findIndex((c) => c.clientId === conn.clientId)
+    if (delIndex !== -1) connectedClients.splice(delIndex, 1)
   })
 
   // The server has stopped.
@@ -123,21 +123,6 @@ function startReactotronServer(opts = {}) {
     console.log("Server failed to start")
     return
   }
-
-  // // say hello when we connect (this is automatic, you don't send this)
-  // server.send("hello.server", {})
-
-  // // request some values from state
-  // server.send("state.values.request", { path: "user.givenName" })
-
-  // // request some keys from state
-  // server.send("state.keys.request", { path: "" })
-
-  // // subscribe to some state paths so when then change, we get notified
-  // server.send("state.values.subscribe", { paths: ["user.givenName", "user"] })
-
-  // // stop the server
-  // server.stop()
 
   // stop the server on SIGINT (metro shutdown)
   process.on("SIGINT", () => {
