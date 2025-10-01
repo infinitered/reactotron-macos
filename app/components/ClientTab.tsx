@@ -7,7 +7,6 @@ const tabgroup = "activeClientId"
 
 export function ClientTab({ clientId }: { clientId: string }) {
   const [clientData] = useGlobal<ClientData>(`client-${clientId}`, {} as ClientData)
-  console.log("clientData", clientData)
   const label: string = clientData?.name ?? clientId
   const platformVersion: string = clientData?.platformVersion ?? ""
 
