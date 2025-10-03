@@ -10,7 +10,7 @@ import {
   Linking,
 } from "react-native"
 import { themed } from "../theme/theme"
-import { TimelineItem } from "../types"
+import { TimelineItem, TimelineItemBenchmark } from "../types"
 import { TreeViewWithProvider } from "./TreeView"
 import ActionButton from "./ActionButton"
 import { Tooltip } from "./Tooltip"
@@ -48,6 +48,8 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return "Log Details"
       case "display":
         return "Display Details"
+      case "benchmark.report":
+        return "Benchmark Details"
       default:
         return "Network Details"
     }
@@ -59,6 +61,8 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return <LogDetailContent item={selectedItem} />
       case "display":
         return <DisplayDetailContent item={selectedItem} />
+      case "benchmark.report":
+        return <BenchmarkDetailContent item={selectedItem} />
       case "api.request":
       case "api.response":
         return <NetworkDetailContent item={selectedItem} />
@@ -175,6 +179,18 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
             deltaTime: item.deltaTime,
           }}
         />
+      </DetailSection>
+    </View>
+  )
+}
+
+function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
+  const { payload } = item
+
+  return (
+    <View style={$detailContent()}>
+      <DetailSection title="Benchmark Report">
+        <Text style={$valueText()}>{payload.type}</Text>
       </DetailSection>
     </View>
   )

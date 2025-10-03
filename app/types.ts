@@ -87,6 +87,20 @@ export interface NetworkPayload {
   error?: string
 }
 
+export interface BenchmarkStep {
+  title: string
+  time: number
+  delta: number
+}
+
+export interface BenchmarkPayload {
+  type: "benchmark.report"
+  payload: {
+    title: string
+    steps: BenchmarkStep[]
+  }
+}
+
 // Unified timeline item type
 export type TimelineItemBase = {
   id: string
@@ -103,6 +117,11 @@ export type TimelineItemLog = TimelineItemBase & {
   payload: LogPayload
 }
 
+export type TimelineItemBenchmark = TimelineItemBase & {
+  type: "benchmark.report"
+  payload: BenchmarkPayload
+}
+
 export type TimelineItemNetwork = TimelineItemBase & {
   type: "api.request" | "api.response"
   payload: NetworkPayload
@@ -113,7 +132,11 @@ export type TimelineItemDisplay = TimelineItemBase & {
   payload: DisplayPayload
 }
 
-export type TimelineItem = TimelineItemLog | TimelineItemNetwork | TimelineItemDisplay
+export type TimelineItem =
+  | TimelineItemLog
+  | TimelineItemNetwork
+  | TimelineItemDisplay
+  | TimelineItemBenchmark
 
 export type StateSubscription = {
   path: string

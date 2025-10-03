@@ -3,6 +3,7 @@ import { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
+import { TimelineBenchmmarkItem } from "../components//TimelineBenchmarkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
@@ -46,6 +47,11 @@ const TimelineItemRenderer = ({
   if (item.type === "api.response") {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
+  if (item.type === "benchmark.report") {
+    return (
+      <TimelineBenchmmarkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+    )
+  }
   console.tron.log("Unknown item", item)
   return null
 }
@@ -56,8 +62,10 @@ function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
       return ["log", "display"]
     case "network":
       return ["api.request", "api.response"]
+    case "performance":
+      return ["benchmark.report"]
     default:
-      return ["log", "display", "api.request", "api.response"]
+      return ["log", "display", "api.request", "api.response", "benchmark.report"]
   }
 }
 
@@ -84,6 +92,7 @@ export function TimelineScreen() {
     // Toggle selection: if clicking the same item, deselect it
     setSelectedItemId((prev) => (prev === item.id ? null : item.id))
   }
+  console.log("hello")
 
   return (
     <View style={[$flex, $row]}>
