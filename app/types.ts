@@ -107,11 +107,27 @@ export interface NetworkPayload {
   error?: string
 }
 
+export interface BenchmarkStep {
+  title: string
+  time: number
+  delta: number
+}
+
+export interface BenchmarkPayload {
+  type: "benchmark.report"
+  payload: {
+    title: string
+    steps: BenchmarkStep[]
+  }
+}
+
 /**
  * TimelineItem types are app-specific representations of commands received from reactotron-core-server.
  * While they share similarities with the Command type from reactotron-core-contract, they are
  * tailored for this macOS app's UI needs (e.g., date as string for serialization, additional id field).
  */
+
+// Unified timeline item type
 export type TimelineItemBase = {
   id: string
   important: boolean
@@ -127,6 +143,11 @@ export type TimelineItemLog = TimelineItemBase & {
   payload: LogPayload
 }
 
+export type TimelineItemBenchmark = TimelineItemBase & {
+  type: "benchmark.report"
+  payload: BenchmarkPayload
+}
+
 export type TimelineItemNetwork = TimelineItemBase & {
   type: typeof CommandType.ApiResponse
   payload: NetworkPayload
@@ -137,7 +158,11 @@ export type TimelineItemDisplay = TimelineItemBase & {
   payload: DisplayPayload
 }
 
-export type TimelineItem = TimelineItemLog | TimelineItemNetwork | TimelineItemDisplay
+export type TimelineItem =
+  | TimelineItemLog
+  | TimelineItemNetwork
+  | TimelineItemDisplay
+  | TimelineItemBenchmark
 
 // StateSubscription represents a single state path/value pair tracked by the app
 // This is derived from the contract's StateValuesChangePayload structure

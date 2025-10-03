@@ -4,6 +4,7 @@ import type { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
+import { TimelineBenchmmarkItem } from "../components//TimelineBenchmarkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
@@ -47,6 +48,11 @@ const TimelineItemRenderer = ({
   if (item.type === CommandType.ApiResponse) {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
+  if (item.type === "benchmark.report") {
+    return (
+      <TimelineBenchmmarkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+    )
+  }
   console.tron.log("Unknown item", item)
   return null
 }
@@ -56,9 +62,11 @@ function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
     case "logs":
       return [CommandType.Log, CommandType.Display]
     case "network":
-      return [CommandType.ApiResponse]
+      return [CommandType.ApiResponse, "api.request"]
+    case "performance":
+      return ["benchmark.report"]
     default:
-      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse]
+      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse, "benchmark.report"]
   }
 }
 
@@ -85,6 +93,7 @@ export function TimelineScreen() {
     // Toggle selection: if clicking the same item, deselect it
     setSelectedItemId((prev) => (prev === item.id ? null : item.id))
   }
+  console.log("hello")
 
   return (
     <View style={[$flex, $row]}>

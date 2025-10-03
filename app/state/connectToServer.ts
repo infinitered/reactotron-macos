@@ -92,7 +92,8 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       if (
         data.cmd.type === CommandType.Log ||
         data.cmd.type === CommandType.ApiResponse ||
-        data.cmd.type === CommandType.Display
+        data.cmd.type === CommandType.Display ||
+        data.cmd.type === "benchmark.report"
       ) {
         // Add a unique ID to the timeline item
         data.cmd.id = `${data.cmd.clientId}-${data.cmd.messageId}`
@@ -148,7 +149,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       }
     }
 
-    console.tron.log(data)
+    console.log(data)
   }
 
   // Clean up after disconnect
