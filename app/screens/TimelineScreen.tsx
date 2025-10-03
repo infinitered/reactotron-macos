@@ -105,6 +105,7 @@ export function TimelineScreen() {
     // Toggle selection: if clicking the same item, deselect it
     setSelectedItemId((prev) => (prev === item.id ? null : item.id))
   }
+  console.log("hello")
 
   return (
     <View style={[$flex, $row]}>

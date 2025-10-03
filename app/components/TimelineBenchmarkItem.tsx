@@ -1,6 +1,5 @@
 import { CommandType, TimelineItemBenchmark } from "../types"
 import { TimelineItem } from "./TimelineItem"
-
 type TimelineBenchmarkItemProps = {
   item: TimelineItemBenchmark
   isSelected?: boolean
