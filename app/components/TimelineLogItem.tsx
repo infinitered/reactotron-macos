@@ -1,5 +1,6 @@
 import { MenuListEntry } from "../utils/useActionMenu"
-import { TimelineItemLog } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import type { TimelineItemLog } from "../types"
 import { TimelineItem } from "./TimelineItem"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 
@@ -16,7 +17,7 @@ export function TimelineLogItem({ item, isSelected = false, onSelect }: Timeline
   const { payload, date, deltaTime, important } = item
 
   // Type guard to ensure this is a log item
-  if (item.type !== "log") return null
+  if (item.type !== CommandType.Log) return null
 
   // Determine log level and color
   let level: string = "DEBUG"

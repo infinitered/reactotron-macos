@@ -1,4 +1,5 @@
-import { TimelineItemDisplay } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import type { TimelineItemDisplay } from "../types"
 import { TimelineItem } from "./TimelineItem"
 
 type TimelineDisplayItemProps = {
@@ -18,7 +19,7 @@ export function TimelineDisplayItem({
   const { payload, date, deltaTime, important } = item
 
   // Type guard to ensure this is a display item
-  if (item.type !== "display") return null
+  if (item.type !== CommandType.Display) return null
 
   return (
     <TimelineItem

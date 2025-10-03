@@ -1,4 +1,5 @@
-import { TimelineItemNetwork } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import type { TimelineItemNetwork } from "../types"
 import { TimelineItem } from "./TimelineItem"
 import { useTheme } from "../theme/theme"
 import type { MenuListEntry } from "../utils/useActionMenu"
@@ -19,7 +20,7 @@ export function TimelineNetworkItem({
   onSelect,
 }: TimelineNetworkItemProps) {
   // Type guard to ensure this is a network item
-  if (item.type !== "api.response") return null
+  if (item.type !== CommandType.ApiResponse) return null
 
   const { payload, date, deltaTime, important } = item
 
