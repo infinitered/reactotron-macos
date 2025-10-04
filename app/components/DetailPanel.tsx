@@ -10,7 +10,8 @@ import {
   Linking,
 } from "react-native"
 import { themed } from "../theme/theme"
-import { TimelineItem } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import type { TimelineItem } from "../types"
 import { TreeViewWithProvider } from "./TreeView"
 import ActionButton from "./ActionButton"
 import { Tooltip } from "./Tooltip"
@@ -44,9 +45,9 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
 
   const getHeaderTitle = () => {
     switch (selectedItem.type) {
-      case "log":
+      case CommandType.Log:
         return "Log Details"
-      case "display":
+      case CommandType.Display:
         return "Display Details"
       default:
         return "Network Details"
@@ -55,12 +56,11 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
 
   const renderDetailContent = () => {
     switch (selectedItem.type) {
-      case "log":
+      case CommandType.Log:
         return <LogDetailContent item={selectedItem} />
-      case "display":
+      case CommandType.Display:
         return <DisplayDetailContent item={selectedItem} />
-      case "api.request":
-      case "api.response":
+      case CommandType.ApiResponse:
         return <NetworkDetailContent item={selectedItem} />
       default:
         return null
@@ -113,7 +113,11 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
   )
 }
 
-function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display" } }) {
+function DisplayDetailContent({
+  item,
+}: {
+  item: TimelineItem & { type: typeof CommandType.Display }
+}) {
   const { payload } = item
   const { name, image, preview, ...rest } = payload
 
@@ -183,7 +187,7 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
 /**
  * Renders detailed content for log timeline items including level, message, stack trace, and metadata.
  */
-function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
+function LogDetailContent({ item }: { item: TimelineItem & { type: typeof CommandType.Log } }) {
   const { payload } = item
 
   return (
@@ -234,7 +238,7 @@ function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
 function NetworkDetailContent({
   item,
 }: {
-  item: TimelineItem & { type: "api.request" | "api.response" }
+  item: TimelineItem & { type: typeof CommandType.ApiResponse }
 }) {
   const { payload } = item
 

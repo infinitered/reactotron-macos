@@ -1,5 +1,6 @@
 import { useGlobal } from "../state/useGlobal"
-import { TimelineItem } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import type { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
@@ -37,13 +38,13 @@ const TimelineItemRenderer = ({
     onSelectItem(item)
   }
 
-  if (item.type === "log") {
+  if (item.type === CommandType.Log) {
     return <TimelineLogItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
-  if (item.type === "display") {
+  if (item.type === CommandType.Display) {
     return <TimelineDisplayItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
-  if (item.type === "api.response") {
+  if (item.type === CommandType.ApiResponse) {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
   console.tron.log("Unknown item", item)
@@ -53,11 +54,11 @@ const TimelineItemRenderer = ({
 function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
   switch (activeItem) {
     case "logs":
-      return ["log", "display"]
+      return [CommandType.Log, CommandType.Display]
     case "network":
-      return ["api.request", "api.response"]
+      return [CommandType.ApiResponse]
     default:
-      return ["log", "display", "api.request", "api.response"]
+      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse]
   }
 }
 
