@@ -11,6 +11,7 @@ import type {
   StateBackupRequestPayload,
   StateRestoreRequestPayload,
   Command,
+  StateActionCompletePayload,
 } from "reactotron-core-contract"
 
 /**
@@ -137,7 +138,16 @@ export type TimelineItemDisplay = TimelineItemBase & {
   payload: DisplayPayload
 }
 
-export type TimelineItem = TimelineItemLog | TimelineItemNetwork | TimelineItemDisplay
+export type TimelineItemStateActionComplete = TimelineItemBase & {
+  type: typeof CommandType.StateActionComplete
+  payload: StateActionCompletePayload
+}
+
+export type TimelineItem =
+  | TimelineItemLog
+  | TimelineItemNetwork
+  | TimelineItemDisplay
+  | TimelineItemStateActionComplete
 
 // StateSubscription represents a single state path/value pair tracked by the app
 // This is derived from the contract's StateValuesChangePayload structure

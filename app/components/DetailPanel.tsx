@@ -45,6 +45,8 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
 
   const getHeaderTitle = () => {
     switch (selectedItem.type) {
+      case CommandType.StateActionComplete:
+        return "State Action Details"
       case CommandType.Log:
         return "Log Details"
       case CommandType.Display:
@@ -56,6 +58,8 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
 
   const renderDetailContent = () => {
     switch (selectedItem.type) {
+      case CommandType.StateActionComplete:
+        return <StateActionDetailContent item={selectedItem} />
       case CommandType.Log:
         return <LogDetailContent item={selectedItem} />
       case CommandType.Display:
@@ -109,6 +113,26 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         {/* Render appropriate content based on timeline item type */}
         {renderDetailContent()}
       </ScrollView>
+    </View>
+  )
+}
+
+function StateActionDetailContent({
+  item,
+}: {
+  item: TimelineItem & { type: typeof CommandType.StateActionComplete }
+}) {
+  const {
+    payload: { action },
+  } = item
+  return (
+    <View style={$detailContent()}>
+      <DetailSection title="Type">
+        <Text>{action.type}</Text>
+      </DetailSection>
+      <DetailSection title="Payload">
+        <TreeViewWithProvider data={action.payload} />
+      </DetailSection>
     </View>
   )
 }
