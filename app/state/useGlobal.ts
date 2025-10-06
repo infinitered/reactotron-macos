@@ -11,31 +11,31 @@ export const storage = new MMKV({
 })
 
 // Load the globals from MMKV.
-let _load_globals: any = {}
+let _loadGlobals: any = {}
 try {
-  _load_globals = JSON.parse(storage.getString(PERSISTED_KEY) || "{}")
+  _loadGlobals = JSON.parse(storage.getString(PERSISTED_KEY) || "{}")
 } catch (e) {
   console.error("Error loading globals", e)
 }
 
-const globals: Record<string, unknown> = _load_globals
-const persisted_globals: Record<string, unknown> = _load_globals
-const components_to_rerender: Record<string, Dispatch<SetStateAction<never[]>>[]> = {}
+const _globals: Record<string, unknown> = _loadGlobals
+const _persistedGlobals: Record<string, unknown> = _loadGlobals
+const _componentsToRerender: Record<string, Dispatch<SetStateAction<never[]>>[]> = {}
 
-let _save_initiated_at: number = 0
-function save_globals() {
-  storage.set(PERSISTED_KEY, JSON.stringify(persisted_globals))
-  console.tron.log("saved globals", persisted_globals)
-  _save_initiated_at = 0
+let _saveInitiatedAt: number = 0
+function saveGlobals() {
+  storage.set(PERSISTED_KEY, JSON.stringify(_persistedGlobals))
+  console.tron.log("saved globals", _persistedGlobals)
+  _saveInitiatedAt = 0
 }
 
-let _debounce_persist_timeout: NodeJS.Timeout | null = null
-function debounce_persist(delay: number) {
-  if (_save_initiated_at === 0) _save_initiated_at = Date.now()
-  if (Date.now() - _save_initiated_at > delay) return save_globals()
+let _debouncePersistTimeout: NodeJS.Timeout | null = null
+function debouncePersist(delay: number) {
+  if (_saveInitiatedAt === 0) _saveInitiatedAt = Date.now()
+  if (Date.now() - _saveInitiatedAt > delay) return saveGlobals()
 
-  if (_debounce_persist_timeout) clearTimeout(_debounce_persist_timeout)
-  _debounce_persist_timeout = setTimeout(save_globals, delay)
+  if (_debouncePersistTimeout) clearTimeout(_debouncePersistTimeout)
+  _debouncePersistTimeout = setTimeout(saveGlobals, delay)
 }
 
 type SetValueFn<T> = (prev: T) => T
@@ -61,11 +61,11 @@ export function useGlobal<T = unknown>(
 
   // Subscribe & unsubscribe from state changes for this ID.
   useEffect(() => {
-    components_to_rerender[id] ||= []
-    components_to_rerender[id].push(setRender)
+    _componentsToRerender[id] ||= []
+    _componentsToRerender[id].push(setRender)
     return () => {
-      if (!components_to_rerender[id]) return
-      components_to_rerender[id] = components_to_rerender[id].filter(
+      if (!_componentsToRerender[id]) return
+      _componentsToRerender[id] = _componentsToRerender[id].filter(
         (listener) => listener !== setRender,
       )
     }
@@ -90,25 +90,25 @@ export function withGlobal<T>(
   { persist = false }: UseGlobalOptions = {},
 ): [T, (value: SetValue<T> | null) => void] {
   // Initialize this global if it doesn't exist.
-  if (globals[id] === undefined) globals[id] = initialValue
+  if (_globals[id] === undefined) _globals[id] = initialValue
 
-  return [globals[id] as T, buildSetValue(id, persist)]
+  return [_globals[id] as T, buildSetValue(id, persist)]
 }
 
 function buildSetValue<T>(id: string, persist: boolean) {
   return (value: SetValue<T> | null) => {
     // Call the setter function if it's a function.
-    if (typeof value === "function") value = (value as SetValueFn<T>)(globals[id] as T)
+    if (typeof value === "function") value = (value as SetValueFn<T>)(_globals[id] as T)
     if (value === null) {
-      delete globals[id]
-      if (persist) delete persisted_globals[id]
+      delete _globals[id]
+      if (persist) delete _persistedGlobals[id]
     } else {
-      globals[id] = value
-      if (persist) persisted_globals[id] = value
+      _globals[id] = value
+      if (persist) _persistedGlobals[id] = value
     }
-    if (persist) debounce_persist(300)
-    components_to_rerender[id] ||= []
-    components_to_rerender[id].forEach((rerender) => rerender([]))
+    if (persist) debouncePersist(300)
+    _componentsToRerender[id] ||= []
+    _componentsToRerender[id].forEach((rerender) => rerender([]))
   }
 }
 
@@ -118,10 +118,10 @@ function buildSetValue<T>(id: string, persist: boolean) {
  */
 export function clearGlobals(rerender: boolean = true): void {
   storage.delete(PERSISTED_KEY)
-  Object.keys(globals).forEach((key) => delete globals[key])
+  Object.keys(_globals).forEach((key) => delete _globals[key])
   if (rerender) {
-    Object.keys(components_to_rerender).forEach((key) => {
-      components_to_rerender[key].forEach((rerender) => rerender([]))
+    Object.keys(_componentsToRerender).forEach((key) => {
+      _componentsToRerender[key].forEach((rerender) => rerender([]))
     })
   }
 }
