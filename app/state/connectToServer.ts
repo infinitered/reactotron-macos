@@ -1,6 +1,7 @@
 import { getUUID } from "../utils/random/getUUID"
-import { StateSubscription, TimelineItem } from "../types"
 import { deleteGlobal, withGlobal } from "./useGlobal"
+import { CommandType } from "reactotron-core-contract"
+import type { StateSubscription, TimelineItem } from "../types"
 import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void
@@ -93,12 +94,12 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     }
 
     if (data.type === "command" && data.cmd) {
-      if (data.cmd.type === "clear") setTimelineItems([])
+      if (data.cmd.type === CommandType.Clear) setTimelineItems([])
 
       if (
-        data.cmd.type === "log" ||
-        data.cmd.type === "api.response" ||
-        data.cmd.type === "display"
+        data.cmd.type === CommandType.Log ||
+        data.cmd.type === CommandType.ApiResponse ||
+        data.cmd.type === CommandType.Display
       ) {
         // Add a unique ID to the timeline item
         data.cmd.id = `${data.cmd.clientId}-${data.cmd.messageId}`
@@ -113,7 +114,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       } else {
         console.tron.log("unknown command", data.cmd)
       }
-      if (data.cmd.type === "state.values.change") {
+      if (data.cmd.type === CommandType.StateValuesChange) {
         data.cmd.payload.changes.forEach((change: StateSubscription) => {
           if (!isSafeKey(data.cmd.clientId) || !isSafeKey(change.path)) {
             console.warn(

@@ -26,7 +26,8 @@
     "react": "19.0.0",
     "react-native-macos": "^0.78.2",
     "react-native-windows": "^0.78.5",
-    "react-native-mmkv": "^3.3.0"
+    "react-native-mmkv": "^3.3.0",
+    "reactotron-core-contract": "^0.2.5"
   },
   "overrides": {
     "react-native": "npm:react-native-macos@0.78.3"
