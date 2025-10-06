@@ -1,5 +1,5 @@
 // Import types from the official Reactotron contract package
-import { CommandType } from "reactotron-core-contract"
+import { CommandType, CommandMap } from "reactotron-core-contract"
 import type {
   ErrorStackFrame,
   ErrorLogPayload,
@@ -107,20 +107,6 @@ export interface NetworkPayload {
   error?: string
 }
 
-export interface BenchmarkStep {
-  title: string
-  time: number
-  delta: number
-}
-
-export interface BenchmarkPayload {
-  type: "benchmark.report"
-  payload: {
-    title: string
-    steps: BenchmarkStep[]
-  }
-}
-
 /**
  * TimelineItem types are app-specific representations of commands received from reactotron-core-server.
  * While they share similarities with the Command type from reactotron-core-contract, they are
@@ -144,8 +130,8 @@ export type TimelineItemLog = TimelineItemBase & {
 }
 
 export type TimelineItemBenchmark = TimelineItemBase & {
-  type: "benchmark.report"
-  payload: BenchmarkPayload
+  type: typeof CommandType.Benchmark
+  payload: CommandMap[typeof CommandType.Benchmark]
 }
 
 export type TimelineItemNetwork = TimelineItemBase & {

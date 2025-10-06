@@ -1,4 +1,4 @@
-import { TimelineItemBenchmark } from "../types"
+import { CommandType, TimelineItemBenchmark } from "../types"
 import { TimelineItem } from "./TimelineItem"
 
 type TimelineBenchmarkItemProps = {
@@ -8,7 +8,7 @@ type TimelineBenchmarkItemProps = {
 }
 
 /**
- * A single log item in the timeline.
+ * A single benchmark item in the timeline.
  */
 export function TimelineBenchmmarkItem({
   item,
@@ -16,19 +16,17 @@ export function TimelineBenchmmarkItem({
   onSelect,
 }: TimelineBenchmarkItemProps) {
   const { payload, date, deltaTime, important } = item
-  //
-  // // Type guard to ensure this is a log item
-  if (item.type !== "benchmark.report") return null
-  //
-  const title = payload.type
-  const preview = JSON.stringify(payload)
-  //
+
+  if (item.type !== CommandType.Benchmark) return null
+
+  const { title } = payload
+
   return (
     <TimelineItem
-      title={title}
+      title={"Benchmark"}
       date={new Date(date)}
       deltaTime={deltaTime}
-      preview={preview}
+      preview={title}
       isImportant={important}
       isTagged={important}
       isSelected={isSelected}

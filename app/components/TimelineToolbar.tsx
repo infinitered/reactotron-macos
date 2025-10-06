@@ -5,8 +5,7 @@ export type FilterType =
   | typeof CommandType.Log
   | typeof CommandType.Display
   | typeof CommandType.ApiResponse
-  | "api.request"
-  | "benchmark.report"
+  | typeof CommandType.Benchmark
 // export type LogLevel = "all" | "debug" | "warn" | "error"
 // export type SortBy = "time-newest" | "time-oldest" | "type" | "level"
 

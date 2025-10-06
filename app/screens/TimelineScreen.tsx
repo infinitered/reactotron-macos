@@ -48,7 +48,7 @@ const TimelineItemRenderer = ({
   if (item.type === CommandType.ApiResponse) {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
-  if (item.type === "benchmark.report") {
+  if (item.type === CommandType.Benchmark) {
     return (
       <TimelineBenchmmarkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
     )
@@ -62,11 +62,11 @@ function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
     case "logs":
       return [CommandType.Log, CommandType.Display]
     case "network":
-      return [CommandType.ApiResponse, "api.request"]
+      return [CommandType.ApiResponse]
     case "performance":
-      return ["benchmark.report"]
+      return [CommandType.Benchmark]
     default:
-      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse, "benchmark.report"]
+      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse, CommandType.Benchmark]
   }
 }
 

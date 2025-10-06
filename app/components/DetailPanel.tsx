@@ -49,7 +49,7 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return "Log Details"
       case CommandType.Display:
         return "Display Details"
-      case "benchmark.report":
+      case CommandType.Benchmark:
         return "Benchmark Details"
       default:
         return "Network Details"
@@ -62,9 +62,8 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return <LogDetailContent item={selectedItem} />
       case CommandType.Display:
         return <DisplayDetailContent item={selectedItem} />
-      case "benchmark.report":
+      case CommandType.Benchmark:
         return <BenchmarkDetailContent item={selectedItem} />
-      case "api.request":
       case CommandType.ApiResponse:
         return <NetworkDetailContent item={selectedItem} />
       default:
@@ -194,8 +193,29 @@ function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
 
   return (
     <View style={$detailContent()}>
-      <DetailSection title="Benchmark Report">
-        <Text style={$valueText()}>{payload.type}</Text>
+      {payload.steps.map((step, index) => {
+        return (
+          <DetailSection key={`${step.title}-${index}`} title={`Step: ${step.title}`}>
+            <Text style={$valueText()}>Time: {step.time}</Text>
+            <Text style={$valueText()}>Delta: {step.delta}</Text>
+          </DetailSection>
+        )
+      })}
+      <DetailSection title="Payload">
+        <TreeViewWithProvider data={payload} />
+      </DetailSection>
+      <DetailSection title="Metadata">
+        <TreeViewWithProvider
+          data={{
+            id: item.id,
+            clientId: item.clientId,
+            connectionId: item.connectionId,
+            messageId: item.messageId,
+            important: item.important,
+            date: item.date,
+            deltaTime: item.deltaTime,
+          }}
+        />
       </DetailSection>
     </View>
   )

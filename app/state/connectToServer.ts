@@ -93,7 +93,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         data.cmd.type === CommandType.Log ||
         data.cmd.type === CommandType.ApiResponse ||
         data.cmd.type === CommandType.Display ||
-        data.cmd.type === "benchmark.report"
+        data.cmd.type === CommandType.Benchmark
       ) {
         // Add a unique ID to the timeline item
         data.cmd.id = `${data.cmd.clientId}-${data.cmd.messageId}`
