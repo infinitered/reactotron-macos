@@ -128,7 +128,7 @@ function StateActionDetailContent({
   return (
     <View style={$detailContent()}>
       <DetailSection title="Type">
-        <Text>{action.type}</Text>
+        <Text style={$valueText()}>{action.type}</Text>
       </DetailSection>
       <DetailSection title="Payload">
         <TreeViewWithProvider data={action.payload} />
