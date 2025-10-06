@@ -51,8 +51,10 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return "Display Details"
       case CommandType.Benchmark:
         return "Benchmark Details"
-      default:
+      case CommandType.ApiResponse:
         return "Network Details"
+      default:
+        return "Unknown"
     }
   }
 
