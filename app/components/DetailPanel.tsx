@@ -123,12 +123,12 @@ function StateActionDetailContent({
   item: TimelineItem & { type: typeof CommandType.StateActionComplete }
 }) {
   const {
-    payload: { action },
+    payload: { action, name },
   } = item
   return (
     <View style={$detailContent()}>
       <DetailSection title="Type">
-        <Text style={$valueText()}>{action.type}</Text>
+        <Text style={$valueText()}>{name}</Text>
       </DetailSection>
       <DetailSection title="Payload">
         <TreeViewWithProvider data={action.payload} />
