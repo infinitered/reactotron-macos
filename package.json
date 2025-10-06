@@ -27,7 +27,7 @@
     "react-native-macos": "^0.78.2",
     "react-native-windows": "^0.78.5",
     "react-native-mmkv": "^3.3.0",
-    "reactotron-core-contract": "^0.2.5"
+    "reactotron-core-contract": "^0.3.2"
   },
   "overrides": {
     "react-native": "npm:react-native-macos@0.78.3"
@@ -52,7 +52,7 @@
     "jest": "^29.7.0",
     "patch-package": "^8.0.0",
     "prettier": "2.8.8",
-    "reactotron-core-client": "^2.9.7",
+    "reactotron-core-client": "^2.9.9",
     "@rnx-kit/jest-preset": "^0.1.17",
     "reactotron-core-server": "^3.2.0",
     "reactotron-react-native": "^5.1.14",

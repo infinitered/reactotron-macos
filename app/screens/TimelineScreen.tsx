@@ -4,6 +4,7 @@ import type { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
+import { TimelineBenchmmarkItem } from "../components/TimelineBenchmarkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
@@ -47,6 +48,11 @@ const TimelineItemRenderer = ({
   if (item.type === CommandType.ApiResponse) {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
+  if (item.type === CommandType.Benchmark) {
+    return (
+      <TimelineBenchmmarkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+    )
+  }
   console.tron.log("Unknown item", item)
   return null
 }
@@ -57,8 +63,10 @@ function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
       return [CommandType.Log, CommandType.Display]
     case "network":
       return [CommandType.ApiResponse]
+    case "performance":
+      return [CommandType.Benchmark]
     default:
-      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse]
+      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse, CommandType.Benchmark]
   }
 }
 
