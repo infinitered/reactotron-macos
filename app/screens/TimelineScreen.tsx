@@ -4,7 +4,7 @@ import type { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
-import { TimelineBenchmmarkItem } from "../components//TimelineBenchmarkItem"
+import { TimelineBenchmmarkItem } from "../components/TimelineBenchmarkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
@@ -93,7 +93,6 @@ export function TimelineScreen() {
     // Toggle selection: if clicking the same item, deselect it
     setSelectedItemId((prev) => (prev === item.id ? null : item.id))
   }
-  console.log("hello")
 
   return (
     <View style={[$flex, $row]}>
