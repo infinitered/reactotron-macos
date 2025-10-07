@@ -12,9 +12,7 @@ export function ClearLogsButton() {
   })
 
   // Using withGlobal so we don't rerender when the logs change
-  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
-    persist: true,
-  })
+  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
   const [activeClientId] = useGlobal("activeClientId", "")
   const clearLogs = useCallback(() => {
     setTimelineItems((prev) => prev.filter((item) => item.clientId !== activeClientId))

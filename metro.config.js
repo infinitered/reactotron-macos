@@ -40,4 +40,6 @@ const config = {
   },
 }
 
+require("./standalone-server").startReactotronServer({ port: 9292 })
+
 module.exports = mergeConfig(getDefaultConfig(__dirname), config)
