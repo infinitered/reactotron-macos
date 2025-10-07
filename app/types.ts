@@ -1,5 +1,5 @@
 // Import types from the official Reactotron contract package
-import { CommandType } from "reactotron-core-contract"
+import { CommandType, CommandMap } from "reactotron-core-contract"
 import type {
   ErrorStackFrame,
   ErrorLogPayload,
@@ -113,6 +113,8 @@ export interface NetworkPayload {
  * While they share similarities with the Command type from reactotron-core-contract, they are
  * tailored for this macOS app's UI needs (e.g., date as string for serialization, additional id field).
  */
+
+// Unified timeline item type
 export type TimelineItemBase = {
   id: string
   important: boolean
@@ -126,6 +128,11 @@ export type TimelineItemBase = {
 export type TimelineItemLog = TimelineItemBase & {
   type: typeof CommandType.Log
   payload: LogPayload
+}
+
+export type TimelineItemBenchmark = TimelineItemBase & {
+  type: typeof CommandType.Benchmark
+  payload: CommandMap[typeof CommandType.Benchmark]
 }
 
 export type TimelineItemNetwork = TimelineItemBase & {
@@ -148,6 +155,7 @@ export type TimelineItem =
   | TimelineItemNetwork
   | TimelineItemDisplay
   | TimelineItemStateActionComplete
+  | TimelineItemBenchmark
 
 // StateSubscription represents a single state path/value pair tracked by the app
 // This is derived from the contract's StateValuesChangePayload structure

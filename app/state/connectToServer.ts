@@ -1,7 +1,7 @@
 import { getUUID } from "../utils/random/getUUID"
+import { deleteGlobal, withGlobal } from "./useGlobal"
 import { CommandType } from "reactotron-core-contract"
 import type { StateSubscription, TimelineItem } from "../types"
-import { withGlobal } from "./useGlobal"
 import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void
@@ -33,9 +33,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
   const [, setActiveClientId] = withGlobal("activeClientId", "")
-  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
-    persist: true,
-  })
+  const [_timelineItems, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
   const [_stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = withGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
@@ -77,13 +75,22 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     }
 
     if (data.type === "connectedClients") {
+      let newestClientId = ""
       data.clients.forEach((client: any) => {
         // Store the client data in global state
         const clientId = client.clientId
         const [_, setClientData] = withGlobal(`client-${clientId}`, {})
         setClientData(client)
+        if (!clientIds.includes(clientId)) {
+          newestClientId = clientId
+        }
       })
       setClientIds(data.clients.map((client: any) => client.clientId))
+
+      if (newestClientId) {
+        // Set the active client to the newest client
+        setActiveClientId(newestClientId)
+      }
     }
 
     if (data.type === "command" && data.cmd) {
@@ -92,7 +99,8 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         data.cmd.type === CommandType.Log ||
         data.cmd.type === CommandType.ApiResponse ||
         data.cmd.type === CommandType.Display ||
-        data.cmd.type === CommandType.StateActionComplete
+        data.cmd.type === CommandType.StateActionComplete ||
+        data.cmd.type === CommandType.Benchmark
       ) {
         // Add a unique ID to the timeline item
         data.cmd.id = `${data.cmd.clientId}-${data.cmd.messageId}`
@@ -147,14 +155,23 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       }
     }
 
-    console.tron.log(data)
+    console.log(data)
   }
 
   // Clean up after disconnect
   ws.socket.onclose = () => {
     console.tron.log("Reactotron server disconnected")
-    setIsConnected(false)
+    // Clear individual client data
+    clientIds.forEach((clientId) => {
+      const [_, setClientData] = withGlobal(`client-${clientId}`, {})
+      setClientData({})
+    })
+    deleteGlobal("clientIds")
     setClientIds([])
+    setIsConnected(false)
+    setActiveClientId("")
+    setTimelineItems([])
+    setStateSubscriptionsByClientId({})
   }
 
   // Send a message to the server (which will be forwarded to the client)

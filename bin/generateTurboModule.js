@@ -117,7 +117,8 @@ import { TurboModuleRegistry } from "react-native"
 export interface Spec extends TurboModule {
   ${fullSignature}
 }
-export default TurboModuleRegistry.getEnforcing<Spec>("${moduleName}")`
+export default TurboModuleRegistry.getEnforcing<Spec>("${moduleName}")
+`
 
   fs.writeFileSync(nativeTsFile, tsTemplate)
   printSuccess(`Generated ${nativeTsFile}`)

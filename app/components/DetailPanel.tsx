@@ -11,7 +11,7 @@ import {
 } from "react-native"
 import { themed } from "../theme/theme"
 import { CommandType } from "reactotron-core-contract"
-import type { TimelineItem } from "../types"
+import { TimelineItem, TimelineItemBenchmark } from "../types"
 import { TreeViewWithProvider } from "./TreeView"
 import ActionButton from "./ActionButton"
 import { Tooltip } from "./Tooltip"
@@ -51,8 +51,12 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return "Log Details"
       case CommandType.Display:
         return "Display Details"
-      default:
+      case CommandType.Benchmark:
+        return "Benchmark Details"
+      case CommandType.ApiResponse:
         return "Network Details"
+      default:
+        return "Unknown"
     }
   }
 
@@ -64,6 +68,8 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
         return <LogDetailContent item={selectedItem} />
       case CommandType.Display:
         return <DisplayDetailContent item={selectedItem} />
+      case CommandType.Benchmark:
+        return <BenchmarkDetailContent item={selectedItem} />
       case CommandType.ApiResponse:
         return <NetworkDetailContent item={selectedItem} />
       default:
@@ -190,6 +196,39 @@ function DisplayDetailContent({
       {renderImage()}
       <DetailSection title="Full Payload">
         <TreeViewWithProvider data={rest} />
+      </DetailSection>
+      <DetailSection title="Metadata">
+        <TreeViewWithProvider
+          data={{
+            id: item.id,
+            clientId: item.clientId,
+            connectionId: item.connectionId,
+            messageId: item.messageId,
+            important: item.important,
+            date: item.date,
+            deltaTime: item.deltaTime,
+          }}
+        />
+      </DetailSection>
+    </View>
+  )
+}
+
+function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
+  const { payload } = item
+
+  return (
+    <View style={$detailContent()}>
+      {payload.steps.map((step, index) => {
+        return (
+          <DetailSection key={`${step.title}-${index}`} title={`Step: ${step.title}`}>
+            <Text style={$valueText()}>Time: {step.time}</Text>
+            <Text style={$valueText()}>Delta: {step.delta}</Text>
+          </DetailSection>
+        )
+      })}
+      <DetailSection title="Payload">
+        <TreeViewWithProvider data={payload} />
       </DetailSection>
       <DetailSection title="Metadata">
         <TreeViewWithProvider
