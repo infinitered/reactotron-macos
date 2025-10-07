@@ -18,6 +18,7 @@ import { MenuItemId } from "app/components/Sidebar/SidebarMenu"
 import { useEffect } from "react"
 import { FilterType } from "../components/TimelineToolbar"
 import { ClearLogsButton } from "../components/ClearLogsButton"
+import { TimelineStateActionItem } from "../components/TimelineStateActionItem"
 
 /**
  * Renders the correct component for each timeline item.
@@ -48,6 +49,11 @@ const TimelineItemRenderer = ({
   if (item.type === CommandType.ApiResponse) {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
+  if (item.type === CommandType.StateActionComplete) {
+    return (
+      <TimelineStateActionItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+    )
+  }
   if (item.type === CommandType.Benchmark) {
     return (
       <TimelineBenchmmarkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
@@ -60,13 +66,19 @@ const TimelineItemRenderer = ({
 function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
   switch (activeItem) {
     case "logs":
-      return [CommandType.Log, CommandType.Display]
+      return [CommandType.Log, CommandType.Display, CommandType.StateActionComplete]
     case "network":
       return [CommandType.ApiResponse]
     case "performance":
       return [CommandType.Benchmark]
     default:
-      return [CommandType.Log, CommandType.Display, CommandType.ApiResponse, CommandType.Benchmark]
+      return [
+        CommandType.Log,
+        CommandType.Display,
+        CommandType.ApiResponse,
+        CommandType.Benchmark,
+        CommandType.StateActionComplete,
+      ]
   }
 }
 
