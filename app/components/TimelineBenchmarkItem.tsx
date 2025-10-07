@@ -18,14 +18,14 @@ export function TimelineBenchmmarkItem({
 
   if (item.type !== CommandType.Benchmark) return null
 
-  const { title } = payload
+  const totalDuration = payload.steps[payload.steps.length - 1].time
 
   return (
     <TimelineItem
-      title={"Benchmark"}
+      title={"BENCHMARK"}
       date={new Date(date)}
       deltaTime={deltaTime}
-      preview={title}
+      preview={`${payload.title} in ${totalDuration.toFixed(3)}ms`}
       isImportant={important}
       isTagged={important}
       isSelected={isSelected}
