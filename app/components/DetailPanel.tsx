@@ -217,16 +217,26 @@ function DisplayDetailContent({
 function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
   const { payload } = item
 
+  const totalDuration = payload.steps[payload.steps.length - 1].time
+
   return (
     <View style={$detailContent()}>
-      {payload.steps.map((step, index) => {
-        return (
-          <DetailSection key={`${step.title}-${index}`} title={`Step: ${step.title}`}>
-            <Text style={$valueText()}>Time: {step.time}</Text>
-            <Text style={$valueText()}>Delta: {step.delta}</Text>
-          </DetailSection>
-        )
-      })}
+      <DetailSection title="Benchmark Data">
+        {payload.steps.map((step, index) => {
+          if (index === 0) return
+          const startPercent = Number((((step.time - step.delta) / totalDuration) * 100).toFixed(0))
+          const endPercent = 100 - Number(((step.time / totalDuration) * 100).toFixed(0))
+          return (
+            <View key={index} style={$benchmarkRow()}>
+              <View
+                style={[$benchmarkRowStep(), { left: `${startPercent}%`, right: `${endPercent}%` }]}
+              ></View>
+              <Text style={$valueText()}>{step.title}</Text>
+              <Text style={$valueText()}>{step.delta.toFixed(3)}ms</Text>
+            </View>
+          )
+        })}
+      </DetailSection>
       <DetailSection title="Payload">
         <TreeViewWithProvider data={payload} />
       </DetailSection>
@@ -483,6 +493,20 @@ const $sectionHeader = themed<ViewStyle>(({ colors, spacing }) => ({
   paddingHorizontal: spacing.md,
   borderBottomWidth: 1,
   borderBottomColor: colors.border,
+}))
+
+const $benchmarkRow = themed<ViewStyle>(() => ({
+  display: "flex",
+  alignItems: "center",
+  flexDirection: "row",
+  justifyContent: "space-between",
+}))
+
+const $benchmarkRowStep = themed<ViewStyle>(({ colors }) => ({
+  position: "absolute",
+  top: 0,
+  bottom: 0,
+  backgroundColor: colors.border,
 }))
 
 const $sectionTitle = themed<TextStyle>(({ colors, typography }) => ({
