@@ -7,7 +7,7 @@
 import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar/Titlebar"
@@ -19,6 +19,7 @@ import { HelpScreen } from "./screens/HelpScreen"
 import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
+import { AboutModal } from "./components/AboutModal"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -31,11 +32,19 @@ function App(): React.JSX.Element {
   const { toggleSidebar } = useSidebar()
   const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
   const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
+  const [aboutVisible, setAboutVisible] = useState(false)
 
   const menuConfig = useMemo(
     () => ({
-      remove: ["File", "Edit", "Format"],
+      remove: ["File", "Edit", "Format", "Reactotron > About Reactotron"],
       items: {
+        Reactotron: [
+          {
+            label: "About Reactotron",
+            position: 0,
+            action: () => setAboutVisible(true),
+          },
+        ],
         View: [
           {
             label: "Toggle Sidebar",
@@ -93,7 +102,7 @@ function App(): React.JSX.Element {
         ],
       },
     }),
-    [toggleSidebar],
+    [toggleSidebar, setActiveItem],
   )
 
   useMenuItem(menuConfig)
@@ -131,6 +140,7 @@ function App(): React.JSX.Element {
         <View style={$contentContainer}>{renderActiveItem()}</View>
       </View>
       <PortalHost />
+      <AboutModal visible={aboutVisible} onClose={() => setAboutVisible(false)} />
     </View>
   )
 }
