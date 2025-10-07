@@ -231,8 +231,8 @@ function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
               <View
                 style={[$benchmarkRowStep(), { left: `${startPercent}%`, right: `${endPercent}%` }]}
               ></View>
-              <Text style={[$valueText(), { textAlight: "left" }]}>{step.title}</Text>
-              <Text style={[$valueText(), { textAlign: "right" }]}>{step.delta.toFixed(3)}ms</Text>
+              <Text style={$valueText()}>{step.title}</Text>
+              <Text style={$valueText()}>{step.delta.toFixed(3)}ms</Text>
             </View>
           )
         })}
