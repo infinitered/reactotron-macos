@@ -9,7 +9,7 @@ const MENU_ITEMS = [
   { id: "state", label: "State", icon: "clipboard" },
   { id: "performance", label: "Performance", icon: "circleGauge" },
   { id: "plugins", label: "Plugins", icon: "plug" },
-  { id: "customCommands", label: "Custom Commands", icon: "plug" },
+  { id: "customCommands", label: "Custom Commands", icon: "wandSparkles" },
   { id: "help", label: "Help", icon: "questionMark" },
 ] as const
 
