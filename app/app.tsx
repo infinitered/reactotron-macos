@@ -73,8 +73,13 @@ function App(): React.JSX.Element {
             action: () => setActiveItem("plugins"),
           },
           {
-            label: "Help Tab",
+            label: "Custom Commands Tab",
             shortcut: "cmd+5",
+            action: () => setActiveItem("customCommands"),
+          },
+          {
+            label: "Help Tab",
+            shortcut: "cmd+6",
             action: () => setActiveItem("help"),
           },
           ...(__DEV__
