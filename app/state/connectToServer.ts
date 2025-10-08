@@ -1,7 +1,8 @@
 import { getUUID } from "../utils/random/getUUID"
 import { deleteGlobal, withGlobal } from "./useGlobal"
 import { CommandType } from "reactotron-core-contract"
-import type { StateSubscription, TimelineItem } from "../types"
+import type { StateSubscription, TimelineItem, CustomCommand } from "../types"
+import { withGlobal } from "./useGlobal"
 import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void
@@ -37,6 +38,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = withGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
+  const [_customCommands, setCustomCommands] = withGlobal<CustomCommand[]>("custom-commands", [], {
+    persist: true,
+  })
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -153,6 +157,40 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         })
         return
       }
+
+      if (data.cmd.type === CommandType.CustomCommandRegister) {
+        console.log("custom.command.register", data.cmd.payload)
+        const payload = data.cmd.payload
+        const customCommand: CustomCommand = {
+          id: `${data.cmd.clientId}-${payload.id}`,
+          command: payload.command,
+          title: payload.title,
+          description: payload.description,
+          args: payload.args,
+          clientId: data.cmd.clientId,
+        }
+        setCustomCommands((prev) => {
+          // Check if command already exists for this client
+          const existingIndex = prev.findIndex((cmd) => cmd.id === customCommand.id)
+          if (existingIndex !== -1) {
+            // Update existing command
+            const updated = [...prev]
+            updated[existingIndex] = customCommand
+            return updated
+          }
+          // Add new command
+          return [...prev, customCommand]
+        })
+        return
+      }
+
+      if (data.cmd.type === CommandType.CustomCommandUnregister) {
+        console.log("custom.command.unregister", data.cmd)
+        const payload = data.cmd.payload
+        const commandId = `${data.cmd.clientId}-${payload.id}`
+        setCustomCommands((prev) => prev.filter((cmd) => cmd.id !== commandId))
+        return
+      }
     }
 
     console.log(data)
@@ -172,6 +210,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     setActiveClientId("")
     setTimelineItems([])
     setStateSubscriptionsByClientId({})
+    setCustomCommands([])
   }
 
   // Send a message to the server (which will be forwarded to the client)

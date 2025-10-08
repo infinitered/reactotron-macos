@@ -2,7 +2,7 @@ import { Text, ViewStyle, ScrollView, TextStyle, View, Pressable } from "react-n
 import { themed } from "../theme/theme"
 import { useGlobal } from "../state/useGlobal"
 import type { CustomCommand } from "../types"
-import { sendToCore } from "../state/connectToServer"
+import { sendToClient } from "../state/connectToServer"
 
 export function CustomCommandsScreen() {
   // Persist custom commands across app restarts
@@ -23,10 +23,15 @@ export function CustomCommandsScreen() {
     if (!command.clientId) return
 
     // Send the custom command to the client
-    sendToCore("custom.command", {
-      command: command.command,
-      clientId: command.clientId,
-    })
+    // The client will receive this as a custom command execution
+    sendToClient(
+      "custom.command",
+      {
+        command: command.command,
+        // TODO: Add support for args when we implement argument input
+      },
+      command.clientId,
+    )
   }
 
   return (
@@ -47,7 +52,14 @@ export function CustomCommandsScreen() {
           <View key={cmd.id} style={$commandItem()}>
             <View style={$commandInfo()}>
               <Text style={$commandTitle()}>{cmd.title || cmd.command}</Text>
-              {cmd.description && <Text style={$commandDescription()}>{cmd.description}</Text>}
+              <Text style={$commandDescription()}>
+                {cmd.description || `Command: ${cmd.command}`}
+                {cmd.args && cmd.args.length > 0 && (
+                  <Text style={$commandArgs()}>
+                    {"\n"}Args: {cmd.args.map((arg) => `${arg.name} (${arg.type})`).join(", ")}
+                  </Text>
+                )}
+              </Text>
               <Pressable style={$sendButton()} onPress={() => sendCommand(cmd)}>
                 <Text style={$sendButtonText()}>Send Command</Text>
               </Pressable>
@@ -170,4 +182,10 @@ const $sendButtonText = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.body,
   fontWeight: "600",
+}))
+
+const $commandArgs = themed<TextStyle>(({ colors, typography }) => ({
+  color: colors.primary,
+  fontSize: typography.small,
+  fontFamily: typography.code.normal,
 }))
