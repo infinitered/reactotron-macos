@@ -10,6 +10,8 @@ export function CustomCommandsScreen() {
     persist: true,
   })
 
+  console.log("customCommands", customCommands)
+
   // Get client data to show client names
   const [clientIds] = useGlobal<string[]>("clientIds", [])
 
@@ -108,31 +110,21 @@ const $commandItem = themed<ViewStyle>(({ colors, spacing }) => ({
 }))
 
 const $commandInfo = themed<ViewStyle>(({ spacing }) => ({
-  flex: 1,
-  gap: spacing.sm,
+  // flex: 1,
+  // gap: spacing.sm,
 }))
 
-const $commandTitle = themed<TextStyle>(({ colors, typography }) => ({
+const $commandTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.mainText,
   fontSize: typography.subheading,
+  marginBottom: spacing.sm,
   fontWeight: "600",
 }))
 
-const $commandCommand = themed<TextStyle>(({ colors, typography }) => ({
-  color: colors.primary,
-  fontSize: typography.body,
-  fontFamily: typography.code.normal,
-}))
-
-const $commandDescription = themed<TextStyle>(({ colors, typography }) => ({
+const $commandDescription = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.neutral,
   fontSize: typography.body,
-}))
-
-const $subtitle = themed<TextStyle>(({ typography, colors, spacing }) => ({
-  fontSize: typography.body,
-  color: colors.neutral,
-  marginTop: spacing.xs,
+  marginBottom: spacing.sm,
 }))
 
 const $commandHeader = themed<ViewStyle>(({ spacing }) => ({

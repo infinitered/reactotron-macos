@@ -164,19 +164,15 @@ export type StateSubscription = StateValuesChangePayload["changes"][number]
 // ArgType represents the possible types for custom command arguments
 export type ArgType = "string" | "number" | "boolean"
 
-// CommandArg represents an argument definition for a custom command
-export interface CommandArg {
-  name: string
-  type: ArgType
-}
-
 // CustomCommand represents a user-defined command that can be sent to connected clients
 // This matches the CustomCommandRegisterPayload from reactotron-core-contract
 export type CustomCommand = {
-  id: string
+  id: number
   command: string
   title?: string
   description?: string
-  args?: CommandArg[]
-  clientId?: string
+  args?: Array<{
+    name: string
+    type: string
+  }>
 }

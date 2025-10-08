@@ -159,15 +159,13 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       }
 
       if (data.cmd.type === CommandType.CustomCommandRegister) {
-        console.log("custom.command.register", data.cmd.payload)
         const payload = data.cmd.payload
         const customCommand: CustomCommand = {
-          id: `${data.cmd.clientId}-${payload.id}`,
+          id: payload.id,
           command: payload.command,
           title: payload.title,
           description: payload.description,
           args: payload.args,
-          clientId: data.cmd.clientId,
         }
         setCustomCommands((prev) => {
           // Check if command already exists for this client
@@ -187,7 +185,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       if (data.cmd.type === CommandType.CustomCommandUnregister) {
         console.log("custom.command.unregister", data.cmd)
         const payload = data.cmd.payload
-        const commandId = `${data.cmd.clientId}-${payload.id}`
+        const commandId = payload.id
         setCustomCommands((prev) => prev.filter((cmd) => cmd.id !== commandId))
         return
       }
