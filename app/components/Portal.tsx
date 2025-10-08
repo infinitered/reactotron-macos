@@ -46,7 +46,9 @@ export function PortalHost() {
     // Listen for portal changes and force re-render when they occur
     const listener = () => forceUpdate({})
     listeners.add(listener)
-    return () => listeners.delete(listener)
+    return () => {
+      listeners.delete(listener)
+    }
   }, [])
 
   return (

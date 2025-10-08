@@ -20,7 +20,6 @@ export const Sidebar = () => {
     inputRange: [0, 1],
     outputRange: [COLLAPSED_WIDTH, EXPANDED_WIDTH],
   })
-  console.log("progress", progress)
 
   return (
     <Animated.View style={[{ width: animatedWidth }, $overflowHidden]}>
