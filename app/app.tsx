@@ -20,6 +20,7 @@ import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
 import { AboutModal } from "./components/AboutModal"
+import { CustomCommandsScreen } from "./screens/CustomCommandsScreen"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -126,6 +127,8 @@ function App(): React.JSX.Element {
         return <HelpScreen />
       case "state":
         return <StateScreen />
+      case "customCommands":
+        return <CustomCommandsScreen />
       default:
         return <TimelineScreen />
     }
