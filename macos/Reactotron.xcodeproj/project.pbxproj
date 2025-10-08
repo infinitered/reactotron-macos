@@ -17,6 +17,7 @@
 		781C0A510276619A3FA0F1B5 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF5D9503835923B7F2C9630F /* libPods-Reactotron-macOS.a */; };
 		831983FBC55C0EF9C65DB4A6 /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F3799E74F7D2A242D38CF99 /* ProcessUtils.c */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
+		E94E8A202DA73755008B52A7 /* standalone-server.bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1F2DA73755008B52A7 /* standalone-server.bundle.js */; };
 		EBA23295D3FDE3328174ADF1 /* BuildFile in Headers */ = {isa = PBXBuildFile; };
 		FF4C4719434907CDFF48ECE7 /* ProcessUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B174B7FD8393A730D51E178 /* ProcessUtils.h */; };
 /* End PBXBuildFile section */
@@ -37,6 +38,7 @@
 		8B174B7FD8393A730D51E178 /* ProcessUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../../app/native/ProcessUtils/ProcessUtils.h; sourceTree = "<group>"; };
 		AF5D9503835923B7F2C9630F /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
+		E94E8A1F2DA73755008B52A7 /* standalone-server.bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "standalone-server.bundle.js"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -80,6 +82,7 @@
 				514201562437B4B40078DB4F /* Info.plist */,
 				514201572437B4B40078DB4F /* main.m */,
 				514201592437B4B40078DB4F /* Reactotron.entitlements */,
+				E94E8A1F2DA73755008B52A7 /* standalone-server.bundle.js */,
 				9E90342DBE1B396F592DF34B /* Colocated */,
 			);
 			path = "Reactotron-macOS";
@@ -204,6 +207,7 @@
 				514201552437B4B40078DB4F /* Main.storyboard in Resources */,
 				1BCAFE1EAF4275451E5A2CA2 /* PrivacyInfo.xcprivacy in Resources */,
 				E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */,
+				E94E8A202DA73755008B52A7 /* standalone-server.bundle.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
