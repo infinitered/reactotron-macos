@@ -175,4 +175,5 @@ export type CustomCommand = {
     name: string
     type: string
   }>
+  clientId?: string
 }

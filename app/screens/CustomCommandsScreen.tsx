@@ -27,7 +27,7 @@ export function CustomCommandsScreen() {
     // Send the custom command to the client
     // The client will receive this as a custom command execution
     sendToClient(
-      "custom.command",
+      "custom",
       {
         command: command.command,
         // TODO: Add support for args when we implement argument input

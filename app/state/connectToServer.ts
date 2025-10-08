@@ -166,6 +166,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
           title: payload.title,
           description: payload.description,
           args: payload.args,
+          clientId: data.cmd.clientId,
         }
         setCustomCommands((prev) => {
           // Check if command already exists for this client
