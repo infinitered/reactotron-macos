@@ -113,7 +113,7 @@ function buildSetValue<T>(id: string, persist: boolean) {
 }
 
 export function deleteGlobal(id: string): void {
-  delete globals[id]
+  delete _globals[id]
 }
 
 /**

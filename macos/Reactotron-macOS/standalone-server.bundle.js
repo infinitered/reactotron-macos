@@ -4294,6 +4294,7 @@ var require_dist = __commonJS({
       return "object" === _typeof(a) ? void b(a) : a;
     }
     var mitt = (init_mitt(), __toCommonJS(mitt_exports));
+    mitt = mitt.default || mitt;
     var DEFAULTS = { port: 9090 };
     function createGuid() {
       function a() {

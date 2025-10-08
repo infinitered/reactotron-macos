@@ -20,7 +20,7 @@
     "test": "jest",
     "postinstall": "ln -sf $(pwd)/node_modules/react-native-macos $(pwd)/node_modules/react-native && patch-package",
     "node-process": "node -e \"require('./standalone-server').startReactotronServer({ port: 9292 })\"",
-    "bundle-server": "npx esbuild standalone-server-entry.js --bundle --platform=node --target=node18 --outfile=macos/Reactotron-macOS/standalone-server.bundle.js"
+    "bundle-server": "npx esbuild standalone-server-entry.js --bundle --platform=node --target=node18 --format=cjs --packages=bundle --outfile=macos/Reactotron-macOS/standalone-server.bundle.js"
   },
   "dependencies": {
     "@expo-google-fonts/space-grotesk": "^0.3.0",

@@ -16,11 +16,17 @@ export const getReactotronAppId = () => {
   return reactotronAppId
 }
 
+let reconnectAttempts = 0
+let reconnectTimeout: NodeJS.Timeout | null = null
+const MAX_RECONNECT_ATTEMPTS = 10
+const INITIAL_RECONNECT_DELAY = 1000 // 1 second
+
 /**
  * Connects to the reactotron-core-server via websocket.
  *
  * Populates the following global state:
  * - isConnected: boolean
+ * - connectionStatus: string (Connecting, Connected, Disconnected, Retrying...)
  * - error: Error | null
  * - clientIds: string[]
  * - timelineItems: TimelineItem[]
@@ -30,6 +36,7 @@ export const getReactotronAppId = () => {
 export function connectToServer(props: { port: number } = { port: 9292 }): UnsubscribeFn {
   const reactotronAppId = getReactotronAppId()
   const [_c, setIsConnected] = withGlobal("isConnected", false)
+  const [_cs, setConnectionStatus] = withGlobal<string>("connectionStatus", "Connecting...")
   const [_e, setError] = withGlobal<Error | null>("error", null)
   const [clientIds, setClientIds] = withGlobal<string[]>("clientIds", [])
   const [, setActiveClientId] = withGlobal("activeClientId", "")
@@ -38,11 +45,36 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
 
-  ws.socket = new WebSocket(`ws://localhost:${props.port}`)
-  if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
+  // Clear any existing reconnect timeout
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout)
+    reconnectTimeout = null
+  }
+
+  setConnectionStatus("Connecting...")
+  setError(null)
+
+  try {
+    ws.socket = new WebSocket(`ws://localhost:${props.port}`)
+  } catch (error) {
+    setError(error as Error)
+    setConnectionStatus("Failed to connect")
+    scheduleReconnect(props)
+    return () => {}
+  }
+
+  if (!ws.socket) {
+    setError(new Error("Failed to create WebSocket"))
+    setConnectionStatus("Failed to connect")
+    scheduleReconnect(props)
+    return () => {}
+  }
 
   // Tell the server we are a Reactotron app, not a React client.
   ws.socket.onopen = () => {
+    reconnectAttempts = 0 // Reset on successful connection
+    setConnectionStatus("Connected")
+    setError(null)
     ws.socket?.send(
       JSON.stringify({
         type: "reactotron.subscribe",
@@ -54,16 +86,25 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   }
 
   // Handle errors
-  ws.socket.onerror = (event) => setError(new Error(`WebSocket error: ${event.message}`))
+  ws.socket.onerror = (event) => {
+    const errorMsg = event.message || "Connection failed"
+    setError(new Error(`WebSocket error: ${errorMsg}`))
+    setConnectionStatus(`Error: ${errorMsg}`)
+  }
 
   // Handle messages coming from the server, intended to be sent to the client or Reactotron app.
   ws.socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
+    console.tron.log("Received message from server:", data.type)
 
-    if (data.type === "reactotron.connected") setIsConnected(true)
+    if (data.type === "reactotron.connected") {
+      console.tron.log("Reactotron app marked as connected")
+      setIsConnected(true)
+    }
 
     if (data.type === "connectionEstablished") {
       const clientId = data?.conn?.clientId
+      console.tron.log("connectionEstablished event for client:", clientId)
       if (!clientIds.includes(clientId)) {
         setClientIds((prev) => [...prev, clientId])
         setActiveClientId(clientId)
@@ -75,6 +116,12 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     }
 
     if (data.type === "connectedClients") {
+      console.tron.log(
+        "connectedClients event. Count:",
+        data.clients?.length,
+        "Clients:",
+        data.clients,
+      )
       let newestClientId = ""
       data.clients.forEach((client: any) => {
         // Store the client data in global state
@@ -89,6 +136,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 
       if (newestClientId) {
         // Set the active client to the newest client
+        console.tron.log("Setting active client to:", newestClientId)
         setActiveClientId(newestClientId)
       }
     }
@@ -159,8 +207,9 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   }
 
   // Clean up after disconnect
-  ws.socket.onclose = () => {
-    console.tron.log("Reactotron server disconnected")
+  ws.socket.onclose = (event) => {
+    console.tron.log("Reactotron server disconnected", event.code, event.reason)
+
     // Clear individual client data
     clientIds.forEach((clientId) => {
       const [_, setClientData] = withGlobal(`client-${clientId}`, {})
@@ -172,6 +221,14 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
     setActiveClientId("")
     setTimelineItems([])
     setStateSubscriptionsByClientId({})
+
+    // Only attempt reconnect if it wasn't a normal close
+    if (event.code !== 1000) {
+      setConnectionStatus("Disconnected")
+      scheduleReconnect(props)
+    } else {
+      setConnectionStatus("Disconnected")
+    }
   }
 
   // Send a message to the server (which will be forwarded to the client)
@@ -181,9 +238,47 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   }
 
   return () => {
-    ws.socket?.close()
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout)
+      reconnectTimeout = null
+    }
+    reconnectAttempts = 0
+    ws.socket?.close(1000) // Normal closure
     ws.socket = null
   }
+}
+
+function scheduleReconnect(props: { port: number }) {
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+    const [_, setConnectionStatus] = withGlobal<string>("connectionStatus", "")
+    setConnectionStatus(`Failed after ${MAX_RECONNECT_ATTEMPTS} attempts`)
+    return
+  }
+
+  reconnectAttempts++
+  const delay = Math.min(INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttempts - 1), 30000)
+  const [_, setConnectionStatus] = withGlobal<string>("connectionStatus", "")
+  setConnectionStatus(
+    `Retrying in ${Math.round(delay / 1000)}s... (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`,
+  )
+
+  reconnectTimeout = setTimeout(() => {
+    console.tron.log(`Reconnecting... attempt ${reconnectAttempts}`)
+    connectToServer(props)
+  }, delay)
+}
+
+export function manualReconnect() {
+  reconnectAttempts = 0
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout)
+    reconnectTimeout = null
+  }
+  if (ws.socket) {
+    ws.socket.close(1000)
+    ws.socket = null
+  }
+  connectToServer()
 }
 
 export function sendToClient(message: string | object, payload?: object, clientId?: string) {

@@ -4,38 +4,69 @@
 #import <React/RCTDevloadingViewSetEnabled.h>
 #import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 #import "WindowSetup.h"
+#import <pwd.h>
 
 @implementation AppDelegate {
   NSTask *_reactotronTask;
 }
 
-#pragma mark - Reactotron Server Management
+#pragma mark - Shell Utilities
 
-- (NSString *)findNodeBinary
+- (NSString *)getUserShell
 {
-  // Use login shell approach to honor nvm/asdf/etc.
-  NSTask *which = [[NSTask alloc] init];
-  which.launchPath = @"/usr/bin/env";
-  which.arguments = @[ @"bash", @"-lc", @"command -v node || true" ];
-
-  NSPipe *pipe = [NSPipe pipe];
-  which.standardOutput = pipe;
-
-  [which launch];
-  [which waitUntilExit];
-
-  NSData *data = [[pipe fileHandleForReading] readDataToEndOfFile];
-  NSString *path = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]
-                    stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-  if (path.length > 0) {
-    NSLog(@"Found node at: %@", path);
-    return path;
+  // Get user's default shell from system
+  struct passwd *pw = getpwuid(getuid());
+  if (pw && pw->pw_shell) {
+    return [NSString stringWithUTF8String:pw->pw_shell];
   }
   
-  NSLog(@"Node not found in shell path, using /usr/bin/env as fallback");
-  return @"/usr/bin/env"; // fallback; will run "env node" below
+  // Fallback to zsh (macOS default)
+  return @"/bin/zsh";
 }
+
+- (void)runCommandInUserShell:(NSString *)command
+{
+  NSString *shellPath = [self getUserShell];
+  
+  NSTask *task = [[NSTask alloc] init];
+  [task setLaunchPath:shellPath];
+  
+  // Use login (-l) and interactive (-i) flags to load user's shell configuration
+  // This ensures we get PATH from ~/.zprofile, ~/.zshrc, etc.
+  [task setArguments:@[@"-l", @"-i", @"-c", command]];
+  
+  // Capture output
+  NSPipe *outputPipe = [NSPipe pipe];
+  NSPipe *errorPipe = [NSPipe pipe];
+  [task setStandardOutput:outputPipe];
+  [task setStandardError:errorPipe];
+  
+  NSLog(@"Running command with shell (%@): %@", shellPath, command);
+  
+  @try {
+    [task launch];
+    [task waitUntilExit];
+    
+    // Read output
+    NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
+    NSData *errorData = [[errorPipe fileHandleForReading] readDataToEndOfFile];
+    
+    NSString *output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+    NSString *error = [[NSString alloc] initWithData:errorData encoding:NSUTF8StringEncoding];
+    
+    int status = [task terminationStatus];
+    
+    if (status == 0 && output.length > 0) {
+      NSLog(@"Command output: %@", [output stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]);
+    } else if (error.length > 0) {
+      NSLog(@"Command error: %@", error);
+    }
+  } @catch (NSException *exception) {
+    NSLog(@"Error running command: %@", exception.reason);
+  }
+}
+
+#pragma mark - Reactotron Server Management
 
 - (void)startReactotronServerWithPort:(NSString *)port
 {
@@ -43,8 +74,6 @@
     NSLog(@"Reactotron server already running");
     return;
   }
-
-  NSString *node = [self findNodeBinary];
 
   NSURL *scriptURL =
     [[NSBundle mainBundle] URLForResource:@"standalone-server.bundle" withExtension:@"js"];
@@ -55,16 +84,17 @@
 
   NSLog(@"Found server script at: %@", scriptURL.path);
 
-  _reactotronTask = [[NSTask alloc] init];
+  // Get user's shell to properly load their environment (nvm, asdf, etc.)
+  NSString *shellPath = [self getUserShell];
+  NSString *serverPort = port ?: @"9292";
   
-  // Launch node directly with arguments (avoid shell -c for security)
-  if ([node isEqualToString:@"/usr/bin/env"]) {
-    _reactotronTask.launchPath = node;
-    _reactotronTask.arguments = @[ @"node", scriptURL.path, @"--port", port ?: @"9292" ];
-  } else {
-    _reactotronTask.launchPath = node;
-    _reactotronTask.arguments = @[ scriptURL.path, @"--port", port ?: @"9292" ];
-  }
+  // Build the command to run through the user's shell
+  // Using login (-l) and interactive (-i) flags ensures PATH is loaded from shell config
+  NSString *command = [NSString stringWithFormat:@"node '%@' --port %@", scriptURL.path, serverPort];
+  
+  _reactotronTask = [[NSTask alloc] init];
+  [_reactotronTask setLaunchPath:shellPath];
+  [_reactotronTask setArguments:@[@"-l", @"-i", @"-c", command]];
 
   // Give the script a sane CWD (app bundle directory)
   _reactotronTask.currentDirectoryPath = [[[NSBundle mainBundle] bundleURL] path];
@@ -103,7 +133,7 @@
 
   @try {
     [_reactotronTask launch];
-    NSLog(@"✅ Reactotron server started on port %@", port ?: @"9292");
+    NSLog(@"✅ Reactotron server starting with shell (%@) on port %@", shellPath, serverPort);
   } @catch (NSException *exception) {
     NSLog(@"❌ Failed to start Reactotron server: %@", exception.reason);
     _reactotronTask = nil;
