@@ -1,36 +1,37 @@
-import { Text, ViewStyle, ScrollView, TextStyle, View, Pressable } from "react-native"
+import { Text, ViewStyle, ScrollView, TextStyle, View, Pressable, TextInput } from "react-native"
 import { themed } from "../theme/theme"
 import { useGlobal } from "../state/useGlobal"
 import type { CustomCommand } from "../types"
 import { sendToClient } from "../state/connectToServer"
+import { useState } from "react"
 
 export function CustomCommandsScreen() {
   // Persist custom commands across app restarts
   const [customCommands] = useGlobal<CustomCommand[]>("custom-commands", [], {
     persist: true,
   })
+  const [argInput, setArgInput] = useState<Record<number, Record<string, string>>>({})
 
-  console.log("customCommands", customCommands)
-
-  // Get client data to show client names
-  const [clientIds] = useGlobal<string[]>("clientIds", [])
-
-  const getClientName = (clientId?: string) => {
-    if (!clientId) return "Unknown Client"
-    const [clientData] = useGlobal<any>(`client-${clientId}`, {})
-    return clientData?.name || clientId
+  const updateArgValue = (commandId: number, argName: string, value: string) => {
+    setArgInput((prev) => ({
+      ...prev,
+      [commandId]: {
+        ...prev[commandId],
+        [argName]: value,
+      },
+    }))
   }
 
   const sendCommand = (command: CustomCommand) => {
     if (!command.clientId) return
 
-    // Send the custom command to the client
-    // The client will receive this as a custom command execution
+    const args = argInput[command.id] || {}
+
     sendToClient(
       "custom",
       {
         command: command.command,
-        // TODO: Add support for args when we implement argument input
+        args: args,
       },
       command.clientId,
     )
@@ -52,20 +53,18 @@ export function CustomCommandsScreen() {
         </Text>
         {customCommands.map((cmd) => (
           <View key={cmd.id} style={$commandItem()}>
-            <View style={$commandInfo()}>
-              <Text style={$commandTitle()}>{cmd.title || cmd.command}</Text>
-              <Text style={$commandDescription()}>
-                {cmd.description || `Command: ${cmd.command}`}
-                {cmd.args && cmd.args.length > 0 && (
-                  <Text style={$commandArgs()}>
-                    {"\n"}Args: {cmd.args.map((arg) => `${arg.name} (${arg.type})`).join(", ")}
-                  </Text>
-                )}
+            <Text style={$commandTitle()}>{cmd.title || cmd.command}</Text>
+            <Text style={$commandDescription()}>
+              {cmd.description || `Command: ${cmd.command}`}
+            </Text>
+            {cmd.args && cmd.args.length > 0 && (
+              <Text style={$commandArgs()}>
+                {"\n"}Args: {cmd.args.map((arg) => `${arg.name} (${arg.type})`).join(", ")}
               </Text>
-              <Pressable style={$sendButton()} onPress={() => sendCommand(cmd)}>
-                <Text style={$sendButtonText()}>Send Command</Text>
-              </Pressable>
-            </View>
+            )}
+            <Pressable style={$sendButton()} onPress={() => sendCommand(cmd)}>
+              <Text style={$sendButtonText()}>Send Command</Text>
+            </Pressable>
           </View>
         ))}
       </View>
@@ -94,53 +93,24 @@ const $commandsList = themed<ViewStyle>(({ spacing }) => ({
   gap: spacing.md,
 }))
 
-const $emptyText = themed<TextStyle>(({ colors, spacing, typography }) => ({
-  color: colors.neutral,
-  textAlign: "center",
-  marginTop: spacing.xl,
-  fontSize: typography.subheading,
-}))
-
 const $commandItem = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.cardBackground,
   padding: spacing.lg,
+  gap: spacing.md,
   borderRadius: 8,
   borderWidth: 1,
   borderColor: colors.border,
 }))
 
-const $commandInfo = themed<ViewStyle>(({ spacing }) => ({
-  // flex: 1,
-  // gap: spacing.sm,
-}))
-
 const $commandTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.mainText,
   fontSize: typography.subheading,
-  marginBottom: spacing.sm,
   fontWeight: "600",
 }))
 
 const $commandDescription = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.neutral,
   fontSize: typography.body,
-  marginBottom: spacing.sm,
-}))
-
-const $commandHeader = themed<ViewStyle>(({ spacing }) => ({
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: spacing.xs,
-}))
-
-const $commandClient = themed<TextStyle>(({ colors, typography, spacing }) => ({
-  fontSize: typography.small,
-  color: colors.primary,
-  paddingHorizontal: spacing.sm,
-  paddingVertical: spacing.xxs,
-  backgroundColor: colors.neutralVery,
-  borderRadius: 4,
 }))
 
 const $argsContainer = themed<ViewStyle>(({ spacing }) => ({
@@ -159,6 +129,26 @@ const $argItem = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.neutral,
   fontFamily: typography.code.normal,
   marginLeft: spacing.sm,
+}))
+
+const $argInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  fontSize: typography.small,
+  color: colors.mainText,
+  fontFamily: typography.code.normal,
+  backgroundColor: colors.neutralVery,
+  paddingHorizontal: spacing.sm,
+  paddingVertical: spacing.xs,
+  borderRadius: 4,
+  borderWidth: 1,
+  borderColor: colors.border,
+  flex: 1,
+}))
+
+const $argInputContainer = themed<ViewStyle>(({ spacing }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  gap: spacing.sm,
+  marginTop: spacing.xs,
 }))
 
 const $sendButton = themed<ViewStyle>(({ colors, spacing }) => ({
