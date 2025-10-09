@@ -114,27 +114,27 @@ static NSString *const kReactotronServerBundleName = @"standalone-server.bundle"
   // Log server output
   outputPipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *file) {
     NSData *data = [file availableData];
-    if (data.length > 0) {
-      NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-      NSLog(@"[Reactotron Server] %@", [output stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]);
-    }
+    if (data.length == 0) return;
+    
+    NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"[Reactotron Server] %@", [output stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]);
   };
 
   errorPipe.fileHandleForReading.readabilityHandler = ^(NSFileHandle *file) {
     NSData *data = [file availableData];
-    if (data.length > 0) {
-      NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-      NSLog(@"[Reactotron Server Error] %@", [output stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]);
-    }
+    if (data.length == 0) return;
+    
+    NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"[Reactotron Server Error] %@", [output stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]);
   };
 
   __weak __typeof__(self) weakSelf = self;
   _reactotronTask.terminationHandler = ^(NSTask *task) {
     NSLog(@"Reactotron server exited with status: %d", task.terminationStatus);
     __typeof__(self) strongSelf = weakSelf;
-    if (strongSelf) {
-      strongSelf->_reactotronTask = nil;
-    }
+    if (!strongSelf) return;
+    
+    strongSelf->_reactotronTask = nil;
   };
 
   @try {
