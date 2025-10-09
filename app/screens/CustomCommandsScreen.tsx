@@ -1,5 +1,5 @@
 import { Text, ViewStyle, ScrollView, TextStyle, View, Pressable, TextInput } from "react-native"
-import { themed } from "../theme/theme"
+import { themed, useTheme } from "../theme/theme"
 import { useGlobal } from "../state/useGlobal"
 import type { CustomCommand } from "../types"
 import { sendToClient } from "../state/connectToServer"
@@ -13,6 +13,7 @@ export function CustomCommandsScreen() {
   const [argumentValues, setArgumentValues] = useState<Record<number, Record<string, string>>>({})
   const [searchQuery, setSearchQuery] = useState("")
   const [searchVisible, setSearchVisible] = useState(false)
+  const theme = useTheme()
 
   const updateArgValue = (commandId: number, argName: string, value: string) => {
     setArgumentValues((prev) => ({
@@ -65,7 +66,7 @@ export function CustomCommandsScreen() {
         <View style={$headerRow()}>
           <Text style={$title()}>Custom Commands</Text>
           <Pressable onPress={toggleSearch} style={$searchButton()}>
-            <Icon icon="search" size={20} />
+            <Icon icon="search" size={20} color={theme.colors.neutral} />
           </Pressable>
         </View>
         {searchVisible && (
@@ -80,7 +81,7 @@ export function CustomCommandsScreen() {
       </View>
 
       <View style={$commandsList()}>
-        <Text>
+        <Text style={$commandsListTitle()}>
           {customCommands.length === 0
             ? "When your app registers a custom command it will show here!"
             : `${filteredCommands.length} of ${customCommands.length} ${
@@ -123,7 +124,6 @@ export function CustomCommandsScreen() {
 
 const $container = themed<ViewStyle>(({ spacing }) => ({
   padding: spacing.xl,
-  flex: 1,
 }))
 
 const $header = themed<ViewStyle>(({ spacing }) => ({
@@ -137,9 +137,10 @@ const $headerRow = themed<ViewStyle>(() => ({
   justifyContent: "space-between",
 }))
 
-const $searchButton = themed<ViewStyle>(({ spacing }) => ({
+const $searchButton = themed<ViewStyle>(({ spacing, colors }) => ({
   padding: spacing.xs,
   cursor: "pointer",
+  color: colors.mainText,
 }))
 
 const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
@@ -164,6 +165,12 @@ const $title = themed<TextStyle>(({ colors, typography, spacing }) => ({
 
 const $commandsList = themed<ViewStyle>(({ spacing }) => ({
   gap: spacing.md,
+}))
+
+const $commandsListTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  fontSize: typography.body,
+  fontWeight: "600",
+  color: colors.mainText,
 }))
 
 const $commandItem = themed<ViewStyle>(({ colors, spacing }) => ({
