@@ -6,12 +6,14 @@ type ResizableDividerProps = {
   onResize: (width: number) => void
   minWidth?: number
   maxWidth?: number
+  currentWidth?: number
 }
 
 export function ResizableDivider({
   onResize,
   minWidth = 300,
   maxWidth = 800,
+  currentWidth = 300,
 }: ResizableDividerProps) {
   const [isDragging, setIsDragging] = useState(false)
 
@@ -24,7 +26,13 @@ export function ResizableDivider({
       },
       onPanResponderMove: (evt, gestureState) => {
         // Calculate new width based on gesture
-        const newWidth = Math.max(minWidth, Math.min(maxWidth, gestureState.moveX))
+        let newWidth = currentWidth + gestureState.dx
+        if (newWidth < minWidth) {
+          newWidth = minWidth
+        }
+        if (newWidth > maxWidth) {
+          newWidth = maxWidth
+        }
         onResize(newWidth)
       },
       onPanResponderRelease: () => {
