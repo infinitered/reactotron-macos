@@ -17,10 +17,13 @@
   // Get user's default shell from system
   struct passwd *pw = getpwuid(getuid());
   if (pw && pw->pw_shell) {
-    return [NSString stringWithUTF8String:pw->pw_shell];
+    NSString *detectedShell = [NSString stringWithUTF8String:pw->pw_shell];
+    NSLog(@"✓ Detected user shell from passwd: %@", detectedShell);
+    return detectedShell;
   }
   
   // Fallback to zsh (macOS default)
+  NSLog(@"⚠️ Failed to detect user shell, falling back to /bin/zsh");
   return @"/bin/zsh";
 }
 
