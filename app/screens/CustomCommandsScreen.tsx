@@ -6,14 +6,13 @@ import { sendToClient } from "../state/connectToServer"
 import { useState } from "react"
 
 export function CustomCommandsScreen() {
-  // Persist custom commands across app restarts
   const [customCommands] = useGlobal<CustomCommand[]>("custom-commands", [], {
     persist: true,
   })
-  const [argInput, setArgInput] = useState<Record<number, Record<string, string>>>({})
+  const [argumentValues, setArgumentValues] = useState<Record<number, Record<string, string>>>({})
 
   const updateArgValue = (commandId: number, argName: string, value: string) => {
-    setArgInput((prev) => ({
+    setArgumentValues((prev) => ({
       ...prev,
       [commandId]: {
         ...prev[commandId],
@@ -25,7 +24,7 @@ export function CustomCommandsScreen() {
   const sendCommand = (command: CustomCommand) => {
     if (!command.clientId) return
 
-    const args = argInput[command.id] || {}
+    const args = argumentValues[command.id] || {}
 
     sendToClient(
       "custom",
@@ -58,9 +57,22 @@ export function CustomCommandsScreen() {
               {cmd.description || `Command: ${cmd.command}`}
             </Text>
             {cmd.args && cmd.args.length > 0 && (
-              <Text style={$commandArgs()}>
-                {"\n"}Args: {cmd.args.map((arg) => `${arg.name} (${arg.type})`).join(", ")}
-              </Text>
+              <View>
+                <Text style={$argsLabel()}>Arguments:</Text>
+                {cmd.args.map((arg) => (
+                  <View key={arg.name} style={$argInputContainer()}>
+                    <Text style={$commandArgs()}>
+                      {arg.name} ({arg.type}):
+                    </Text>
+                    <TextInput
+                      value={argumentValues[cmd.id]?.[arg.name] || ""}
+                      onChangeText={(value) => updateArgValue(cmd.id, arg.name, value)}
+                      placeholder={`Enter ${arg.name} value`}
+                      style={$argInput()}
+                    />
+                  </View>
+                ))}
+              </View>
             )}
             <Pressable style={$sendButton()} onPress={() => sendCommand(cmd)}>
               <Text style={$sendButtonText()}>Send Command</Text>
@@ -104,35 +116,23 @@ const $commandItem = themed<ViewStyle>(({ colors, spacing }) => ({
 
 const $commandTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.mainText,
-  fontSize: typography.subheading,
+  fontSize: typography.heading,
   fontWeight: "600",
 }))
 
 const $commandDescription = themed<TextStyle>(({ colors, typography, spacing }) => ({
   color: colors.neutral,
-  fontSize: typography.body,
-}))
-
-const $argsContainer = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.sm,
-  gap: spacing.xxs,
+  fontSize: typography.subheading,
 }))
 
 const $argsLabel = themed<TextStyle>(({ colors, typography }) => ({
-  fontSize: typography.small,
+  fontSize: typography.body,
   color: colors.neutral,
   fontWeight: "600",
 }))
 
-const $argItem = themed<TextStyle>(({ colors, typography, spacing }) => ({
-  fontSize: typography.small,
-  color: colors.neutral,
-  fontFamily: typography.code.normal,
-  marginLeft: spacing.sm,
-}))
-
 const $argInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
-  fontSize: typography.small,
+  fontSize: typography.caption,
   color: colors.mainText,
   fontFamily: typography.code.normal,
   backgroundColor: colors.neutralVery,
@@ -168,6 +168,6 @@ const $sendButtonText = themed<TextStyle>(({ colors, typography }) => ({
 
 const $commandArgs = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.primary,
-  fontSize: typography.small,
+  fontSize: typography.body,
   fontFamily: typography.code.normal,
 }))
