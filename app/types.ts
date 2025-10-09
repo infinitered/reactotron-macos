@@ -161,9 +161,6 @@ export type TimelineItem =
 // This is derived from the contract's StateValuesChangePayload structure
 export type StateSubscription = StateValuesChangePayload["changes"][number]
 
-// ArgType represents the possible types for custom command arguments
-export type ArgType = "string" | "number" | "boolean"
-
 // CustomCommand represents a user-defined command that can be sent to connected clients
 // This matches the CustomCommandRegisterPayload from reactotron-core-contract
 export type CustomCommand = {

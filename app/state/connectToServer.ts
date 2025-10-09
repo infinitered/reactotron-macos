@@ -184,7 +184,6 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       }
 
       if (data.cmd.type === CommandType.CustomCommandUnregister) {
-        console.log("custom.command.unregister", data.cmd)
         const payload = data.cmd.payload
         const commandId = payload.id
         setCustomCommands((prev) => prev.filter((cmd) => cmd.id !== commandId))
