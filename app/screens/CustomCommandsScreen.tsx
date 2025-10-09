@@ -7,7 +7,7 @@ import { useState, useMemo } from "react"
 import { Icon } from "../components/Icon"
 
 export function CustomCommandsScreen() {
-  const [customCommands] = useGlobal<CustomCommand[]>("custom-commands", [], {
+  const [customCommands] = useGlobal<CustomCommand[]>("customCommands", [], {
     persist: true,
   })
   const [argumentValues, setArgumentValues] = useState<Record<number, Record<string, string>>>({})

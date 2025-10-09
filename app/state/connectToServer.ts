@@ -37,7 +37,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = withGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
-  const [_customCommands, setCustomCommands] = withGlobal<CustomCommand[]>("custom-commands", [], {
+  const [_customCommands, setCustomCommands] = withGlobal<CustomCommand[]>("customCommands", [], {
     persist: true,
   })
 
