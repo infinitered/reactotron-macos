@@ -18,6 +18,9 @@ import { Tooltip } from "./Tooltip"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import { $flex } from "../theme/basics"
 import { formatTime } from "../utils/formatTime"
+import { StackFrameRow } from "./StackFrameRow"
+import { isErrorStackFrameArray } from "../utils/stackFrames"
+import { sendCommand } from "../state/sendCommand"
 
 type DetailPanelProps = {
   selectedItem: TimelineItem | null
@@ -263,6 +266,11 @@ function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
 function LogDetailContent({ item }: { item: TimelineItem & { type: typeof CommandType.Log } }) {
   const { payload } = item
 
+  const openInEditor = (file: string, lineNumber: number) => {
+    if (!file) return
+    sendCommand("editor.open", { file, lineNumber: String(lineNumber) })
+  }
+
   return (
     <View style={$detailContent()}>
       <DetailSection title="Log Level">
@@ -280,7 +288,30 @@ function LogDetailContent({ item }: { item: TimelineItem & { type: typeof Comman
       {/* Show stack trace only for error level logs that have stack data */}
       {payload.level === "error" && "stack" in payload && (
         <DetailSection title="Stack Trace">
-          <TreeViewWithProvider data={payload.stack} />
+          {isErrorStackFrameArray(payload.stack) ? (
+            <View>
+              <View style={$stackTableHeader()}>
+                <View style={$stackHeaderFunction()}>
+                  <Text style={$stackHeaderText()}>Function</Text>
+                </View>
+                <View style={$stackHeaderFile()}>
+                  <Text style={$stackHeaderText()}>File</Text>
+                </View>
+                <View style={$stackHeaderLine()}>
+                  <Text style={$stackHeaderText()}>Line</Text>
+                </View>
+              </View>
+              {payload.stack.map((stackFrame, index) => (
+                <StackFrameRow
+                  key={`stack-${index}`}
+                  stackFrame={stackFrame}
+                  onPress={openInEditor}
+                />
+              ))}
+            </View>
+          ) : (
+            <TreeViewWithProvider data={payload.stack} />
+          )}
         </DetailSection>
       )}
 
@@ -551,4 +582,35 @@ const $copyButton = themed<ViewStyle>(({ spacing }) => ({
 
 const $copyButtonText = themed<TextStyle>(() => ({
   fontSize: 20,
+}))
+
+const $stackTableHeader = themed<ViewStyle>(({ colors, spacing }) => ({
+  flexDirection: "row",
+  paddingVertical: spacing.xs,
+  paddingHorizontal: spacing.sm,
+  borderBottomWidth: 1,
+  borderBottomColor: colors.border,
+  marginBottom: spacing.xs,
+}))
+
+const $stackHeaderFunction = themed<ViewStyle>(() => ({
+  flex: 1,
+  marginRight: 8,
+}))
+
+const $stackHeaderFile = themed<ViewStyle>(() => ({
+  flex: 1,
+  marginRight: 8,
+}))
+
+const $stackHeaderLine = themed<ViewStyle>(() => ({
+  width: 60,
+  alignItems: "flex-end",
+}))
+
+const $stackHeaderText = themed<TextStyle>(({ colors, typography }) => ({
+  color: colors.neutral,
+  fontSize: typography.caption,
+  fontFamily: typography.primary.semiBold,
+  textTransform: "uppercase",
 }))

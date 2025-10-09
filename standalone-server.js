@@ -9,18 +9,34 @@
 const connectedReactotrons = []
 const connectedClients = []
 
+/**
+ * Safely sends a message to a WebSocket, checking if it's open first
+ */
+function safeSend(socket, message) {
+  try {
+    if (socket.readyState === 1) {
+      // 1 = OPEN
+      socket.send(message)
+      return true
+    }
+  } catch (error) {
+    console.error("Error sending message:", error.message)
+  }
+  return false
+}
+
 function addReactotronApp(socket) {
   // Add the Reactotron app to the list of connected Reactotron apps
   connectedReactotrons.push(socket)
 
   // Send a message back to the Reactotron app to let it know it's connected
-  socket.send(JSON.stringify({ type: "reactotron.connected" }))
+  safeSend(socket, JSON.stringify({ type: "reactotron.connected" }))
   console.log("Reactotron app connected: ", socket.id)
 
   // Send the updated list of connected clients to all connected Reactotron apps
   const clients = connectedClients.map((c) => ({ clientId: c.clientId, name: c.name }))
   connectedReactotrons.forEach((reactotronApp) => {
-    reactotronApp.send(JSON.stringify({ type: "connectedClients", clients }))
+    safeSend(reactotronApp, JSON.stringify({ type: "connectedClients", clients }))
   })
 }
 
@@ -36,7 +52,8 @@ function interceptMessage(incoming, socket, server) {
     const { type, ...actualPayload } = payload
     server.wss.clients.forEach((wssClient) => {
       if (wssClient.clientId === payload.clientId) {
-        wssClient.send(
+        safeSend(
+          wssClient,
           JSON.stringify({
             type,
             payload: actualPayload,
@@ -64,6 +81,26 @@ function startReactotronServer(opts = {}) {
   server.wss.on("connection", (socket, _request) => {
     // Intercept messages sent to this socket to check for Reactotron apps
     socket.on("message", (m) => interceptMessage(m, socket, server))
+
+    // Handle socket errors to prevent crashes
+    socket.on("error", (error) => {
+      console.error("WebSocket error:", error.message)
+      // Remove from connected Reactotrons if present
+      const index = connectedReactotrons.indexOf(socket)
+      if (index !== -1) {
+        connectedReactotrons.splice(index, 1)
+        console.log("Reactotron app removed due to error")
+      }
+    })
+
+    // Clean up when socket closes
+    socket.on("close", () => {
+      const index = connectedReactotrons.indexOf(socket)
+      if (index !== -1) {
+        connectedReactotrons.splice(index, 1)
+        console.log("Reactotron app disconnected")
+      }
+    })
   })
 
   // The server has started.
@@ -82,7 +119,7 @@ function startReactotronServer(opts = {}) {
       // conn here is a ReactotronConnection object
       // We will forward this to all connected Reactotron apps.
       // https://github.com/infinitered/reactotron/blob/bba01082f882307773a01e4f90ccf25ccff76949/apps/reactotron-app/src/renderer/contexts/Standalone/useStandalone.ts#L18
-      reactotronApp.send(JSON.stringify({ type: "connectedClients", clients }))
+      safeSend(reactotronApp, JSON.stringify({ type: "connectedClients", clients }))
     })
   })
 
@@ -91,7 +128,7 @@ function startReactotronServer(opts = {}) {
     // send the command to all connected Reactotron apps
     connectedReactotrons.forEach((reactotronApp) => {
       console.log("Sending command to Reactotron app: ", cmd.type, reactotronApp.id)
-      reactotronApp.send(JSON.stringify({ type: "command", cmd }))
+      safeSend(reactotronApp, JSON.stringify({ type: "command", cmd }))
     })
   })
 
@@ -104,7 +141,7 @@ function startReactotronServer(opts = {}) {
       // conn here is a ReactotronConnection object
       // We will forward this to all connected Reactotron apps.
       // https://github.com/infinitered/reactotron/blob/bba01082f882307773a01e4f90ccf25ccff76949/apps/reactotron-app/src/renderer/contexts/Standalone/useStandalone.ts#L18
-      reactotronApp.send(JSON.stringify({ type: "disconnect", conn }))
+      safeSend(reactotronApp, JSON.stringify({ type: "disconnect", conn }))
     })
 
     // Remove the client from the list of connected clients
