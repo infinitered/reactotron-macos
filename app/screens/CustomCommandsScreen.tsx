@@ -3,13 +3,16 @@ import { themed } from "../theme/theme"
 import { useGlobal } from "../state/useGlobal"
 import type { CustomCommand } from "../types"
 import { sendToClient } from "../state/connectToServer"
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { Icon } from "../components/Icon"
 
 export function CustomCommandsScreen() {
   const [customCommands] = useGlobal<CustomCommand[]>("custom-commands", [], {
     persist: true,
   })
   const [argumentValues, setArgumentValues] = useState<Record<number, Record<string, string>>>({})
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchVisible, setSearchVisible] = useState(false)
 
   const updateArgValue = (commandId: number, argName: string, value: string) => {
     setArgumentValues((prev) => ({
@@ -20,6 +23,19 @@ export function CustomCommandsScreen() {
       },
     }))
   }
+
+  const filteredCommands = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return customCommands
+    }
+
+    const query = searchQuery.toLowerCase()
+    return customCommands.filter((cmd) => {
+      const title = (cmd.title || cmd.command).toLowerCase()
+      const description = (cmd.description || "").toLowerCase()
+      return title.includes(query) || description.includes(query)
+    })
+  }, [customCommands, searchQuery])
 
   const sendCommand = (command: CustomCommand) => {
     if (!command.clientId) return
@@ -36,21 +52,42 @@ export function CustomCommandsScreen() {
     )
   }
 
+  const toggleSearch = () => {
+    setSearchVisible(!searchVisible)
+    if (searchVisible) {
+      setSearchQuery("")
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={$container()}>
       <View style={$header()}>
-        <Text style={$title()}>Custom Commands</Text>
+        <View style={$headerRow()}>
+          <Text style={$title()}>Custom Commands</Text>
+          <Pressable onPress={toggleSearch} style={$searchButton()}>
+            <Icon icon="search" size={20} />
+          </Pressable>
+        </View>
+        {searchVisible && (
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search commands..."
+            style={$searchInput()}
+            autoFocus
+          />
+        )}
       </View>
 
       <View style={$commandsList()}>
         <Text>
           {customCommands.length === 0
             ? "When your app registers a custom command it will show here!"
-            : `${customCommands.length} ${
+            : `${filteredCommands.length} of ${customCommands.length} ${
                 customCommands.length === 1 ? "command" : "commands"
-              } registered`}
+              }${searchQuery ? " matching search" : ""}`}
         </Text>
-        {customCommands.map((cmd) => (
+        {filteredCommands.map((cmd) => (
           <View key={cmd.id} style={$commandItem()}>
             <Text style={$commandTitle()}>{cmd.title || cmd.command}</Text>
             <Text style={$commandDescription()}>
@@ -91,6 +128,30 @@ const $container = themed<ViewStyle>(({ spacing }) => ({
 
 const $header = themed<ViewStyle>(({ spacing }) => ({
   marginBottom: spacing.md,
+  gap: spacing.sm,
+}))
+
+const $headerRow = themed<ViewStyle>(() => ({
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+}))
+
+const $searchButton = themed<ViewStyle>(({ spacing }) => ({
+  padding: spacing.xs,
+  cursor: "pointer",
+}))
+
+const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  fontSize: typography.body,
+  color: colors.mainText,
+  fontFamily: typography.code.normal,
+  backgroundColor: colors.neutralVery,
+  paddingHorizontal: spacing.md,
+  paddingVertical: spacing.sm,
+  borderRadius: 6,
+  borderWidth: 1,
+  borderColor: colors.border,
 }))
 
 const $title = themed<TextStyle>(({ colors, typography, spacing }) => ({

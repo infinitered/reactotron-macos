@@ -76,6 +76,7 @@ export const iconRegistry = {
   plug: require("../../assets/icons/plug.png"),
   questionMark: require("../../assets/icons/questionMark.png"),
   scrollText: require("../../assets/icons/scrollText.png"),
+  search: require("../../assets/icons/search.png"),
   squirrel: require("../../assets/icons/squirrel.png"),
   trash: require("../../assets/icons/trash.png"),
   wandSparkles: require("../../assets/icons/wandSparkles.png"),
