@@ -15,10 +15,16 @@ function addReactotronApp(socket) {
 
   // Send a message back to the Reactotron app to let it know it's connected
   socket.send(JSON.stringify({ type: "reactotron.connected" }))
-  console.log("Reactotron app connected: ", socket.id)
+  console.log(
+    "Reactotron app connected:",
+    socket.id,
+    "Total Reactotron apps:",
+    connectedReactotrons.length,
+  )
 
   // Send the updated list of connected clients to all connected Reactotron apps
   const clients = connectedClients.map((c) => ({ clientId: c.clientId, name: c.name }))
+  console.log("Sending initial client list to new Reactotron app:", clients.length, "clients")
   connectedReactotrons.forEach((reactotronApp) => {
     reactotronApp.send(JSON.stringify({ type: "connectedClients", clients }))
   })
@@ -61,7 +67,9 @@ function startReactotronServer(opts = {}) {
 
   server.start()
 
-  server.wss.on("connection", (socket, _request) => {
+  server.wss.on("connection", (socket, request) => {
+    const clientIp = request.socket.remoteAddress
+    console.log("WebSocket connection from:", clientIp)
     // Intercept messages sent to this socket to check for Reactotron apps
     socket.on("message", (m) => interceptMessage(m, socket, server))
   })
@@ -70,14 +78,24 @@ function startReactotronServer(opts = {}) {
   server.on("start", () => console.log("Reactotron started"))
 
   // A client has connected, but we don't know who it is yet.
-  // server.on("connect", (conn) => console.log("Connected", conn))
+  server.on("connect", (conn) => console.log("Client attempting connection:", conn.id))
 
   // A client has connected and provided us the initial detail we want.
   server.on("connectionEstablished", (conn) => {
+    console.log("Client fully connected:", conn.clientId, conn.name)
     // Add the client to the list of connected clients if it's not already in the list
-    if (!connectedClients.find((c) => c.clientId === conn.clientId)) connectedClients.push(conn)
+    if (!connectedClients.find((c) => c.clientId === conn.clientId)) {
+      connectedClients.push(conn)
+      console.log("Added to connectedClients. Total clients:", connectedClients.length)
+    }
 
     const clients = connectedClients
+    console.log(
+      "Forwarding to",
+      connectedReactotrons.length,
+      "Reactotron apps. Client list:",
+      clients.map((c) => c.clientId),
+    )
     connectedReactotrons.forEach((reactotronApp) => {
       // conn here is a ReactotronConnection object
       // We will forward this to all connected Reactotron apps.

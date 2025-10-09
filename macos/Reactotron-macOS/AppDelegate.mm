@@ -7,6 +7,8 @@
 
 @implementation AppDelegate
 
+#pragma mark - Application Lifecycle
+
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
   self.moduleName = @"Reactotron";

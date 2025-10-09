@@ -1,6 +1,7 @@
 import { Animated, View, ViewStyle, Pressable, TextStyle, Text } from "react-native"
 import { themed, useTheme, useThemeName } from "../../theme/theme"
 import { useGlobal } from "../../state/useGlobal"
+import { manualReconnect } from "../../state/connectToServer"
 import { Icon } from "../Icon"
 
 const MENU_ITEMS = [
@@ -24,6 +25,8 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
   const theme = useTheme()
   const [themeName, setTheme] = useThemeName()
   const [isConnected] = useGlobal("isConnected", false)
+  const [connectionStatus] = useGlobal<string>("connectionStatus", "Disconnected")
+  const [clientIds] = useGlobal<string[]>("clientIds", [])
   const [error] = useGlobal("error", null)
   const arch = (global as any)?.nativeFabricUIManager ? "Fabric" : "Paper"
 
@@ -92,7 +95,12 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
         })}
       </View>
       <View>
-        <View style={[$menuItem(), $statusItemContainer]}>
+        <Pressable
+          style={({ pressed }) => [$menuItem(), $statusItemContainer, pressed && $menuItemPressed]}
+          onPress={manualReconnect}
+          accessibilityRole="button"
+          accessibilityLabel={`Connection status: ${connectionStatus}. Tap to retry.`}
+        >
           <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
             <View
               style={[
@@ -104,17 +112,22 @@ export const SidebarMenu = ({ progress, mounted, collapsedWidth }: SidebarMenuPr
           </View>
 
           {mounted && (
-            <Animated.Text
-              style={[$menuItemText(), { opacity: labelOpacity }]}
-              numberOfLines={1}
-              ellipsizeMode="clip"
-              accessibilityElementsHidden={!mounted}
-              importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
-            >
-              Connection
-            </Animated.Text>
+            <Animated.View style={[$connectionContainer, { opacity: labelOpacity }]}>
+              <Animated.Text
+                style={[$menuItemText(), $connectionStatusText()]}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                accessibilityElementsHidden={!mounted}
+                importantForAccessibility={mounted ? "auto" : "no-hide-descendants"}
+              >
+                {connectionStatus}
+              </Animated.Text>
+              {isConnected && clientIds.length === 0 && (
+                <Text style={[$menuItemText(), $helpText()]}>Port 9292</Text>
+              )}
+            </Animated.View>
           )}
-        </View>
+        </Pressable>
         <View style={[$menuItem(), $statusItemContainer]}>
           <View style={[{ width: iconColumnWidth }, $iconColumn()]}>
             <View
@@ -218,4 +231,15 @@ const $statusText = themed<TextStyle>(({ colors }) => ({
   fontWeight: "600",
   marginLeft: -4,
 }))
-const $statusItemContainer: ViewStyle = { cursor: "default", height: 32 }
+const $connectionStatusText = themed<TextStyle>(() => ({
+  fontSize: 11,
+  lineHeight: 14,
+}))
+const $helpText = themed<TextStyle>(({ colors }) => ({
+  fontSize: 10,
+  lineHeight: 12,
+  color: colors.neutral,
+  marginTop: 2,
+}))
+const $connectionContainer: ViewStyle = { flex: 1 }
+const $statusItemContainer: ViewStyle = { cursor: "pointer", minHeight: 32 }
