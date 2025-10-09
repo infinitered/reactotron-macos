@@ -2,7 +2,6 @@ import { getUUID } from "../utils/random/getUUID"
 import { deleteGlobal, withGlobal } from "./useGlobal"
 import { CommandType } from "reactotron-core-contract"
 import type { StateSubscription, TimelineItem, CustomCommand } from "../types"
-import { withGlobal } from "./useGlobal"
 import { isSafeKey, sanitizeValue } from "../utils/sanitize"
 
 type UnsubscribeFn = () => void

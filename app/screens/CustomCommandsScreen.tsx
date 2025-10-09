@@ -167,7 +167,7 @@ const $commandsList = themed<ViewStyle>(({ spacing }) => ({
   gap: spacing.md,
 }))
 
-const $commandsListTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
+const $commandsListTitle = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.body,
   fontWeight: "600",
   color: colors.mainText,
@@ -182,13 +182,13 @@ const $commandItem = themed<ViewStyle>(({ colors, spacing }) => ({
   borderColor: colors.border,
 }))
 
-const $commandTitle = themed<TextStyle>(({ colors, typography, spacing }) => ({
+const $commandTitle = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.mainText,
   fontSize: typography.heading,
   fontWeight: "600",
 }))
 
-const $commandDescription = themed<TextStyle>(({ colors, typography, spacing }) => ({
+const $commandDescription = themed<TextStyle>(({ colors, typography }) => ({
   color: colors.neutral,
   fontSize: typography.subheading,
 }))
