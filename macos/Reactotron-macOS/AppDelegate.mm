@@ -10,6 +10,9 @@
   NSTask *_reactotronTask;
 }
 
+// Constants
+static NSString *const kReactotronServerBundleName = @"standalone-server.bundle";
+
 #pragma mark - Shell Utilities
 
 - (NSString *)getUserShell
@@ -79,7 +82,7 @@
   }
 
   NSURL *scriptURL =
-    [[NSBundle mainBundle] URLForResource:@"standalone-server.bundle" withExtension:@"js"];
+    [[NSBundle mainBundle] URLForResource:kReactotronServerBundleName withExtension:@"js"];
   if (!scriptURL) {
     NSLog(@"⚠️  standalone-server.bundle.js not found in bundle. Run 'npm run bundle-server' to generate it.");
     return;
