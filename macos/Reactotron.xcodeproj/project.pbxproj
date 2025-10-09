@@ -14,8 +14,8 @@
 		514201522437B4B40078DB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 514201512437B4B40078DB4F /* Assets.xcassets */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		514201582437B4B40078DB4F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 514201572437B4B40078DB4F /* main.m */; };
-		781C0A510276619A3FA0F1B5 /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF5D9503835923B7F2C9630F /* libPods-Reactotron-macOS.a */; };
 		831983FBC55C0EF9C65DB4A6 /* ProcessUtils.c in Sources */ = {isa = PBXBuildFile; fileRef = 4F3799E74F7D2A242D38CF99 /* ProcessUtils.c */; };
+		A16BBB38FBD733FC371D90DF /* libPods-Reactotron-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FAF9DE22431FDACC74ADF95 /* libPods-Reactotron-macOS.a */; };
 		E94E8A1F2DA73754008B52A6 /* SpaceGrotesk.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */; };
 		E94E8A202DA73755008B52A7 /* standalone-server.bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = E94E8A1F2DA73755008B52A7 /* standalone-server.bundle.js */; };
 		EBA23295D3FDE3328174ADF1 /* BuildFile in Headers */ = {isa = PBXBuildFile; };
@@ -23,8 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2AC32FEAB6C823D7FAA18BFE /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
-		417D988DC189149043CB9C6B /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		1FAF9DE22431FDACC74ADF95 /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		47A42CF6633046900B11F32D /* Pods-Reactotron-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.release.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		4F3799E74F7D2A242D38CF99 /* ProcessUtils.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ProcessUtils.c; path = ../../app/native/ProcessUtils/ProcessUtils.c; sourceTree = "<group>"; };
 		5030E1330EE236E4CA991AFD /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		514201492437B4B30078DB4F /* Reactotron.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reactotron.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,8 +35,8 @@
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201572437B4B40078DB4F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* Reactotron.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Reactotron.entitlements; sourceTree = "<group>"; };
+		705D90618A898C40370E48F0 /* Pods-Reactotron-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Reactotron-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		8B174B7FD8393A730D51E178 /* ProcessUtils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ProcessUtils.h; path = ../../app/native/ProcessUtils/ProcessUtils.h; sourceTree = "<group>"; };
-		AF5D9503835923B7F2C9630F /* libPods-Reactotron-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Reactotron-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E94E8A1E2DA73754008B52A6 /* SpaceGrotesk.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpaceGrotesk.ttf; path = ../assets/fonts/SpaceGrotesk.ttf; sourceTree = SOURCE_ROOT; };
 		E94E8A1F2DA73755008B52A7 /* standalone-server.bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "standalone-server.bundle.js"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -47,7 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				781C0A510276619A3FA0F1B5 /* libPods-Reactotron-macOS.a in Frameworks */,
+				A16BBB38FBD733FC371D90DF /* libPods-Reactotron-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,8 +57,8 @@
 		01D19913288DA74FEB538384 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				417D988DC189149043CB9C6B /* Pods-Reactotron-macOS.debug.xcconfig */,
-				2AC32FEAB6C823D7FAA18BFE /* Pods-Reactotron-macOS.release.xcconfig */,
+				705D90618A898C40370E48F0 /* Pods-Reactotron-macOS.debug.xcconfig */,
+				47A42CF6633046900B11F32D /* Pods-Reactotron-macOS.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -67,7 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				AF5D9503835923B7F2C9630F /* libPods-Reactotron-macOS.a */,
+				1FAF9DE22431FDACC74ADF95 /* libPods-Reactotron-macOS.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -147,14 +147,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5142015A2437B4B40078DB4F /* Build configuration list for PBXNativeTarget "Reactotron-macOS" */;
 			buildPhases = (
-				D379D3EECB71C1F9751C49E8 /* [CP] Check Pods Manifest.lock */,
+				2B1BC0B6349015C268719145 /* [CP] Check Pods Manifest.lock */,
 				514201452437B4B30078DB4F /* Sources */,
 				514201462437B4B30078DB4F /* Frameworks */,
 				514201472437B4B30078DB4F /* Resources */,
 				381D8A6E24576A4E00465D17 /* Bundle React Native code and images */,
 				614A44CF57166CA8B6AD60B6 /* Headers */,
-				83FF77371CEFDD8B5ECB691C /* [CP] Embed Pods Frameworks */,
-				A107699AF4EC552473C5FA0B /* [CP] Copy Pods Resources */,
+				04D27436C2E4759745F6B86C /* [CP] Embed Pods Frameworks */,
+				1F47EDCEA18AFDD32CA79889 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -214,25 +214,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		381D8A6E24576A4E00465D17 /* Bundle React Native code and images */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Bundle React Native code and images";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native-macos/scripts/react-native-xcode.sh\n";
-		};
-		83FF77371CEFDD8B5ECB691C /* [CP] Embed Pods Frameworks */ = {
+		04D27436C2E4759745F6B86C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -250,7 +232,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A107699AF4EC552473C5FA0B /* [CP] Copy Pods Resources */ = {
+		1F47EDCEA18AFDD32CA79889 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -276,7 +258,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Reactotron-macOS/Pods-Reactotron-macOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D379D3EECB71C1F9751C49E8 /* [CP] Check Pods Manifest.lock */ = {
+		2B1BC0B6349015C268719145 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -297,6 +279,24 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		381D8A6E24576A4E00465D17 /* Bundle React Native code and images */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle React Native code and images";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export NODE_BINARY=node\n../node_modules/react-native-macos/scripts/react-native-xcode.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -329,7 +329,7 @@
 /* Begin XCBuildConfiguration section */
 		5142015B2437B4B40078DB4F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 417D988DC189149043CB9C6B /* Pods-Reactotron-macOS.debug.xcconfig */;
+			baseConfigurationReference = 705D90618A898C40370E48F0 /* Pods-Reactotron-macOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -356,7 +356,7 @@
 		};
 		5142015C2437B4B40078DB4F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2AC32FEAB6C823D7FAA18BFE /* Pods-Reactotron-macOS.release.xcconfig */;
+			baseConfigurationReference = 47A42CF6633046900B11F32D /* Pods-Reactotron-macOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

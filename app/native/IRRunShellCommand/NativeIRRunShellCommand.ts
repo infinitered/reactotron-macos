@@ -16,10 +16,22 @@ export interface ShellCommandCompleteEvent {
 export interface Spec extends TurboModule {
   appPath(): string
   appPID(): number
+  getUserShell(): string
   runAsync(command: string): Promise<string>
   runSync(command: string): string
   runCommandOnShutdown(command: string): void
-  runTaskWithCommand(command: string, args: string[], taskId: string): void
+  runTaskWithCommand(
+    command: string,
+    args: string[],
+    options: {
+      /** Shell to execute the command with. */
+      shell?: string
+      /** Arguments to pass to the shell like -l and -i. */
+      shellArgs?: string[]
+      /** ID of the task. */
+      taskId: string
+    },
+  ): void
   getRunningTaskIds(): ReadonlyArray<string>
   killTaskWithId(taskId: string): boolean
   killAllTasks(): void

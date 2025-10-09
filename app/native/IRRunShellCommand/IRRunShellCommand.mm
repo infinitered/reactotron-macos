@@ -7,6 +7,8 @@
 
 #import "IRRunShellCommand.h"
 #import <objc/runtime.h>
+#import <pwd.h>
+#import <AppSpec/AppSpec.h>
 
 @interface IRRunShellCommand ()
 
@@ -45,6 +47,23 @@
 }
 
 /**
+ * Returns the user's default shell from system.
+ */
+- (NSString *)getUserShell {
+  // Get user's default shell from system
+  struct passwd *pw = getpwuid(getuid());
+  if (pw && pw->pw_shell) {
+    NSString *detectedShell = [NSString stringWithUTF8String:pw->pw_shell];
+    NSLog(@"✓ Detected user shell from passwd: %@", detectedShell);
+    return detectedShell;
+  }
+  
+  // Fallback to zsh (macOS default)
+  NSLog(@"⚠️ Failed to detect user shell, falling back to /bin/zsh");
+  return @"/bin/zsh";
+}
+
+/**
  * This method runs a command and returns the output as a string.
  * It's async, so use it for long-running commands.
  */
@@ -67,17 +86,65 @@
 /*
  * Executes a shell command asynchronously on a background queue.
  * Captures both stdout and stderr streams, and emits events with their output and completion status.
+ * 
+ * If options.shell is provided, wraps the command in a shell with optional shellArgs.
  */
 
 - (void)runTaskWithCommand:(NSString *)command
                       args:(NSArray<NSString *> *)args
-                    taskId:(NSString *)taskId {
+                   options:(JS::NativeIRRunShellCommand::SpecRunTaskWithCommandOptions &)options {
+  NSString *taskId = options.taskId();
+  NSString *shell = options.shell();
+  NSArray<NSString *> *shellArgs = nil;
+  auto optionalShellArgs = options.shellArgs();
+  if (optionalShellArgs.has_value()) {
+    auto lazyVector = optionalShellArgs.value();
+    NSMutableArray<NSString *> *tempArray = [NSMutableArray array];
+    for (size_t i = 0; i < lazyVector.size(); i++) {
+      [tempArray addObject:lazyVector[i]];
+    }
+    shellArgs = [tempArray copy];
+  }
+  
   dispatch_async(
     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       @autoreleasepool {
         NSTask *task = [NSTask new];
-        task.executableURL = [NSURL fileURLWithPath:command];
-        task.arguments = args;
+        
+        // If shell is provided, wrap the command execution
+        if (shell && shell.length > 0) {
+          // Build the command string by joining command with args
+          NSMutableArray *commandParts = [NSMutableArray arrayWithObject:command];
+          [commandParts addObjectsFromArray:args];
+          
+          // Properly escape and quote arguments
+          NSMutableArray *quotedParts = [NSMutableArray array];
+          for (NSString *part in commandParts) {
+            // Escape single quotes and wrap in single quotes
+            NSString *escaped = [part stringByReplacingOccurrencesOfString:@"'" withString:@"'\\''"];
+            [quotedParts addObject:[NSString stringWithFormat:@"'%@'", escaped]];
+          }
+          NSString *commandString = [quotedParts componentsJoinedByString:@" "];
+          
+          // Set the shell as the executable
+          task.executableURL = [NSURL fileURLWithPath:shell];
+          
+          // Combine shellArgs with -c and the command string
+          NSMutableArray *finalArgs = [NSMutableArray array];
+          if (shellArgs) {
+            [finalArgs addObjectsFromArray:shellArgs];
+          }
+          [finalArgs addObject:@"-c"];
+          [finalArgs addObject:commandString];
+          
+          task.arguments = finalArgs;
+          
+          NSLog(@"Running command with shell (%@): %@ %@", shell, [shellArgs componentsJoinedByString:@" "], commandString);
+        } else {
+          // Direct execution without shell
+          task.executableURL = [NSURL fileURLWithPath:command];
+          task.arguments = args;
+        }
 
         [self.tasksLock lock];
         self.runningTasks[taskId] = task;

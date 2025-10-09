@@ -20,6 +20,7 @@ import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
 import { AboutModal } from "./components/AboutModal"
+import { useReactotronServer } from "./state/useReactotronServer"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -106,6 +107,9 @@ function App(): React.JSX.Element {
   )
 
   useMenuItem(menuConfig)
+
+  // Start the bundled Reactotron server
+  useReactotronServer()
 
   setTimeout(() => {
     fetch("https://www.google.com")
