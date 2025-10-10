@@ -76,6 +76,7 @@ export function CustomCommandsScreen() {
             placeholder="Search commands..."
             style={$searchInput()}
             autoFocus
+            placeholderTextColor={theme.colors.neutral}
           />
         )}
       </View>
@@ -107,6 +108,7 @@ export function CustomCommandsScreen() {
                       onChangeText={(value) => updateArgValue(cmd.id, arg.name, value)}
                       placeholder={`Enter ${arg.name} value`}
                       style={$argInput()}
+                      placeholderTextColor={theme.colors.neutral}
                     />
                   </View>
                 ))}
