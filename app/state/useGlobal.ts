@@ -1,19 +1,18 @@
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react"
-import { MMKV } from "react-native-mmkv"
+import IRFileStorage from "../native/IRFileStorage/NativeIRFileStorage"
 
 type UseGlobalOptions = { persist?: boolean }
 
-const PERSISTED_KEY = "global-state"
-export const storage = new MMKV({
-  // TODO: figure out if we can access "~/Library/Application Support/Reactotron/mmkv"?
-  path: "/tmp/reactotron/mmkv/",
-  id: "reactotron",
-})
+const PERSISTED_KEY = "global-state.json"
+const STORAGE_DIR = "/tmp/reactotron/filestorage/"
+const STORAGE_PATH = `${STORAGE_DIR}${PERSISTED_KEY}`
+IRFileStorage.ensureDir(STORAGE_DIR)
 
-// Load the globals from MMKV.
+// Load the globals from file storage.
 let _loadGlobals: any = {}
 try {
-  _loadGlobals = JSON.parse(storage.getString(PERSISTED_KEY) || "{}")
+  const contents = IRFileStorage.read(STORAGE_PATH)
+  _loadGlobals = JSON.parse(contents || "{}")
 } catch (e) {
   console.error("Error loading globals", e)
 }
@@ -24,7 +23,7 @@ const _componentsToRerender: Record<string, Dispatch<SetStateAction<never[]>>[]>
 
 let _saveInitiatedAt: number = 0
 function saveGlobals() {
-  storage.set(PERSISTED_KEY, JSON.stringify(_persistedGlobals))
+  IRFileStorage.write(STORAGE_PATH, JSON.stringify(_persistedGlobals))
   console.tron.log("saved globals", _persistedGlobals)
   _saveInitiatedAt = 0
 }
@@ -113,7 +112,7 @@ function buildSetValue<T>(id: string, persist: boolean) {
 }
 
 export function deleteGlobal(id: string): void {
-  delete globals[id]
+  delete _globals[id]
 }
 
 /**
@@ -121,7 +120,7 @@ export function deleteGlobal(id: string): void {
  * Optionally rerender all components that use useGlobal.
  */
 export function clearGlobals(rerender: boolean = true): void {
-  storage.delete(PERSISTED_KEY)
+  IRFileStorage.remove(STORAGE_PATH)
   Object.keys(_globals).forEach((key) => delete _globals[key])
   if (rerender) {
     Object.keys(_componentsToRerender).forEach((key) => {
