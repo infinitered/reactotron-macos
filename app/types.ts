@@ -160,3 +160,17 @@ export type TimelineItem =
 // StateSubscription represents a single state path/value pair tracked by the app
 // This is derived from the contract's StateValuesChangePayload structure
 export type StateSubscription = StateValuesChangePayload["changes"][number]
+
+// CustomCommand represents a user-defined command that can be sent to connected clients
+// This matches the CustomCommandRegisterPayload from reactotron-core-contract
+export type CustomCommand = {
+  id: number
+  command: string
+  title?: string
+  description?: string
+  args?: Array<{
+    name: string
+    type: string
+  }>
+  clientId?: string
+}
