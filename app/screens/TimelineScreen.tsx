@@ -139,7 +139,12 @@ export function TimelineScreen() {
           ItemSeparatorComponent={Separator}
         />
       </View>
-      <ResizableDivider onResize={setTimelineWidth} minWidth={300} maxWidth={800} />
+      <ResizableDivider
+        currentWidth={timelineWidth}
+        onResize={setTimelineWidth}
+        minWidth={300}
+        maxWidth={800}
+      />
       <View style={$flex}>
         <DetailPanel selectedItem={selectedItem} onClose={() => setSelectedItemId(null)} />
       </View>
