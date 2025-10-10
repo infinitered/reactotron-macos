@@ -1,6 +1,6 @@
 import { View, PanResponder, type ViewStyle } from "react-native"
 import { themed } from "../theme/theme"
-import { useRef, useState } from "react"
+import { useMemo, useState } from "react"
 
 type ResizableDividerProps = {
   onResize: (width: number) => void
@@ -17,32 +17,34 @@ export function ResizableDivider({
 }: ResizableDividerProps) {
   const [isDragging, setIsDragging] = useState(false)
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponderCapture: () => true,
-      onPanResponderGrant: () => {
-        setIsDragging(true)
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        // Calculate new width based on gesture
-        let newWidth = currentWidth + gestureState.dx
-        if (newWidth < minWidth) {
-          newWidth = minWidth
-        }
-        if (newWidth > maxWidth) {
-          newWidth = maxWidth
-        }
-        onResize(newWidth)
-      },
-      onPanResponderRelease: () => {
-        setIsDragging(false)
-      },
-      onPanResponderTerminate: () => {
-        setIsDragging(false)
-      },
-    }),
-  ).current
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponderCapture: () => true,
+        onPanResponderGrant: () => {
+          setIsDragging(true)
+        },
+        onPanResponderMove: (evt, gestureState) => {
+          // Calculate new width based on gesture relative to the current width
+          let newWidth = currentWidth + gestureState.dx
+          if (newWidth < minWidth) {
+            newWidth = minWidth
+          }
+          if (newWidth > maxWidth) {
+            newWidth = maxWidth
+          }
+          onResize(newWidth)
+        },
+        onPanResponderRelease: () => {
+          setIsDragging(false)
+        },
+        onPanResponderTerminate: () => {
+          setIsDragging(false)
+        },
+      }),
+    [currentWidth, minWidth, maxWidth, onResize],
+  )
 
   return <View {...panResponder.panHandlers} style={$divider(isDragging)} />
 }
