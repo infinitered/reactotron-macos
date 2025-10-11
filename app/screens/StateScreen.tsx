@@ -9,6 +9,7 @@ import { useKeyboardEvents } from "../utils/system"
 import type { StateSubscription } from "app/types"
 import { Icon } from "../components/Icon"
 import { Tab } from "../components/Tab"
+import { EmptyState } from "../components/EmptyState"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
@@ -131,9 +132,11 @@ export function StateScreen() {
             )}
           </>
         ) : (
-          <View>
-            <Text>Snapshots will be displayed here</Text>
-          </View>
+          <EmptyState
+            icon="arrowDownUp"
+            title="No Snapshots"
+            description="To take a snapshot of your current redux or mobx-state-tree store, press the Download button in the top right corner of this window."
+          />
         )}
       </View>
     </ScrollView>
