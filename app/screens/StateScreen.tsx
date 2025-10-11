@@ -8,9 +8,13 @@ import { Divider } from "../components/Divider"
 import { useKeyboardEvents } from "../utils/system"
 import type { StateSubscription } from "app/types"
 import { Icon } from "../components/Icon"
+import { Tab } from "../components/Tab"
+
+type StateTab = "Subscriptions" | "Snapshots"
 
 export function StateScreen() {
   const [showAddSubscription, setShowAddSubscription] = useState(false)
+  const [activeStateTab, setActiveStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
 
   const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
     [clientId: string]: StateSubscription[]
@@ -52,49 +56,84 @@ export function StateScreen() {
     <ScrollView contentContainerStyle={$container()}>
       <View style={$header()}>
         <Text style={$title()}>State</Text>
-        <View style={$buttonsContainer()}>
-          <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
-            <Text>Add Subscription</Text>
-          </Pressable>
-          <Pressable
-            style={$button()}
-            onPress={() => {
-              setStateSubscriptionsByClientId((prev) => ({
-                ...prev,
-                [activeTab]: [],
-              }))
-              sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
-              setActiveTab("")
-            }}
-          >
-            <Text>Clear State</Text>
-          </Pressable>
-        </View>
+        {activeStateTab === "Subscriptions" ? (
+          <View style={$buttonsContainer()}>
+            <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
+              <Text>Add Subscription</Text>
+            </Pressable>
+            <Pressable
+              style={$button()}
+              onPress={() => {
+                setStateSubscriptionsByClientId((prev) => ({
+                  ...prev,
+                  [activeTab]: [],
+                }))
+                sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
+                setActiveTab("")
+              }}
+            >
+              <Text>Clear State</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={$buttonsContainer()}>
+            <Pressable
+              style={$button()}
+              onPress={() => {
+                // TODO: Implement copy all snapshots to clipboard
+                console.log("Copy all snapshots to clipboard")
+              }}
+            >
+              <Text>Copy All Snapshots</Text>
+            </Pressable>
+            <Pressable
+              style={$button()}
+              onPress={() => {
+                // TODO: Implement add snapshot
+                console.log("Add snapshot")
+              }}
+            >
+              <Text>Add Snapshot</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+      <View style={$tabsContainer()}>
+        <Tab id="subscriptions" label="Subscriptions" tabgroup="activeStateTab" />
+        <Tab id="snapshots" label="Snapshots" tabgroup="activeStateTab" />
       </View>
       <View style={$stateContainer()}>
-        {clientStateSubscriptions.length > 0 ? (
+        {activeStateTab === "Subscriptions" ? (
           <>
-            {clientStateSubscriptions.map((subscription, index) => (
-              <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
-                <Text style={$pathText()}>
-                  {subscription.path ? subscription.path : "Full State"}
-                </Text>
-                <View style={$treeViewContainer()}>
-                  <View style={$treeViewInnerContainer()}>
-                    <TreeViewWithProvider data={subscription.value} />
+            {clientStateSubscriptions.length > 0 ? (
+              <>
+                {clientStateSubscriptions.map((subscription, index) => (
+                  <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
+                    <Text style={$pathText()}>
+                      {subscription.path ? subscription.path : "Full State"}
+                    </Text>
+                    <View style={$treeViewContainer()}>
+                      <View style={$treeViewInnerContainer()}>
+                        <TreeViewWithProvider data={subscription.value} />
+                      </View>
+                      <Pressable onPress={() => removeSubscription(subscription.path)}>
+                        <Icon icon="trash" size={20} />
+                      </Pressable>
+                    </View>
+                    {index < clientStateSubscriptions.length - 1 && (
+                      <Divider extraStyles={$stateDivider()} />
+                    )}
                   </View>
-                  <Pressable onPress={() => removeSubscription(subscription.path)}>
-                    <Icon icon="trash" size={20} />
-                  </Pressable>
-                </View>
-                {index < clientStateSubscriptions.length - 1 && (
-                  <Divider extraStyles={$stateDivider()} />
-                )}
-              </View>
-            ))}
+                ))}
+              </>
+            ) : (
+              <Text>State is empty</Text>
+            )}
           </>
         ) : (
-          <Text>State is empty</Text>
+          <View>
+            <Text>Snapshots will be displayed here</Text>
+          </View>
         )}
       </View>
     </ScrollView>
@@ -201,6 +240,12 @@ const $title = themed<TextStyle>(({ colors, spacing, typography }) => ({
   color: colors.mainText,
   fontFamily: typography.code.normal,
   marginTop: spacing.xl,
+}))
+
+const $tabsContainer = themed<ViewStyle>(({ spacing }) => ({
+  flexDirection: "row",
+  marginTop: spacing.lg,
+  marginBottom: spacing.md,
 }))
 
 const $stateItemContainer = themed<ViewStyle>(({ spacing }) => ({
