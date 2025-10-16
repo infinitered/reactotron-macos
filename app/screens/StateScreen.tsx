@@ -6,10 +6,12 @@ import { TreeViewWithProvider } from "../components/TreeView"
 import { useState } from "react"
 import { Divider } from "../components/Divider"
 import { useKeyboardEvents } from "../utils/system"
-import type { StateSubscription } from "app/types"
+import type { StateSubscription, Snapshot, Command, CommandType } from "app/types"
 import { Icon } from "../components/Icon"
 import { Tab } from "../components/Tab"
 import { EmptyState } from "../components/EmptyState"
+import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
+import IRRunShellCommand from "../native/IRRunShellCommand/NativeIRRunShellCommand"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
@@ -21,6 +23,8 @@ export function StateScreen() {
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
   const [activeTab, setActiveTab] = useGlobal("activeClientId", "")
+  const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
 
@@ -42,6 +46,86 @@ export function StateScreen() {
       ...prev,
       [activeTab]: newStateSubscriptions,
     }))
+  }
+
+  const createSnapshot = () => {
+    if (!activeTab) {
+      console.log("No active client to create snapshot from")
+      return
+    }
+    sendToCore("state.backup.request", { clientId: activeTab })
+  }
+
+  const copySnapshotToClipboard = (snapshot: Snapshot) => {
+    try {
+      IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
+      console.log("Snapshot copied to clipboard")
+    } catch (error) {
+      console.error("Failed to copy snapshot to clipboard:", error)
+    }
+  }
+
+  const copyAllSnapshotsToClipboard = () => {
+    try {
+      console.log("Copying all snapshots to clipboard", snapshots)
+      IRClipboard.setString(JSON.stringify(snapshots, null, 2))
+      console.log("All snapshots copied to clipboard")
+    } catch (error) {
+      console.error("Failed to copy snapshots to clipboard:", error)
+    }
+  }
+
+  const downloadSnapshot = async (snapshot: Snapshot) => {
+    try {
+      const homeDir = IRRunShellCommand.runSync("echo $HOME").trim()
+      const downloadDir = `${homeDir}/Downloads`
+      const filename = `snapshot-${snapshot.name.replace(/\s+/g, "-")}-${Date.now()}.json`
+      const data = JSON.stringify(snapshot.state, null, 2)
+
+      // Create a temporary file with the data using echo and output redirection
+      // We need to escape special characters for shell
+      const escapedData = data.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\$/g, "\\$")
+      const command = `echo "${escapedData}" > "${downloadDir}/${filename}"`
+
+      IRRunShellCommand.runSync(command)
+      console.log(`Snapshot downloaded to ${downloadDir}/${filename}`)
+    } catch (error) {
+      console.error("Failed to download snapshot:", error)
+    }
+  }
+
+  const downloadAllSnapshots = async () => {
+    try {
+      const homeDir = IRRunShellCommand.runSync("echo $HOME").trim()
+      const downloadDir = `${homeDir}/Downloads`
+      const filename = `snapshots-all-${Date.now()}.json`
+      const data = JSON.stringify(snapshots, null, 2)
+
+      // Create a temporary file with the data
+      const escapedData = data.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\$/g, "\\$")
+      const command = `echo "${escapedData}" > "${downloadDir}/${filename}"`
+
+      IRRunShellCommand.runSync(command)
+      console.log(`All snapshots downloaded to ${downloadDir}/${filename}`)
+    } catch (error) {
+      console.error("Failed to download snapshots:", error)
+    }
+  }
+
+  const deleteSnapshot = (snapshotId: string) => {
+    setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
+  }
+
+  const toggleSnapshotExpanded = (snapshotId: string) => {
+    setExpandedSnapshotIds((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(snapshotId)) {
+        newSet.delete(snapshotId)
+      } else {
+        newSet.add(snapshotId)
+      }
+      return newSet
+    })
   }
 
   if (showAddSubscription) {
@@ -78,23 +162,14 @@ export function StateScreen() {
           </View>
         ) : (
           <View style={$buttonsContainer()}>
-            <Pressable
-              style={$button()}
-              onPress={() => {
-                // TODO: Implement copy all snapshots to clipboard
-                console.log("Copy all snapshots to clipboard")
-              }}
-            >
-              <Text>Copy All Snapshots</Text>
+            <Pressable style={$button()} onPress={copyAllSnapshotsToClipboard}>
+              <Text>Copy All</Text>
             </Pressable>
-            <Pressable
-              style={$button()}
-              onPress={() => {
-                // TODO: Implement add snapshot
-                console.log("Add snapshot")
-              }}
-            >
-              <Text>Add Snapshot</Text>
+            <Pressable style={$button()} onPress={downloadAllSnapshots}>
+              <Text>Download All</Text>
+            </Pressable>
+            <Pressable style={$button()} onPress={createSnapshot}>
+              <Text>Create Snapshot</Text>
             </Pressable>
           </View>
         )}
@@ -132,11 +207,65 @@ export function StateScreen() {
             )}
           </>
         ) : (
-          <EmptyState
-            icon="arrowDownUp"
-            title="No Snapshots"
-            description="To take a snapshot of your current redux or mobx-state-tree store, press the Download button in the top right corner of this window."
-          />
+          <>
+            {snapshots.length > 0 ? (
+              <>
+                {snapshots.map((snapshot, index) => (
+                  <View key={snapshot.id} style={$snapshotItemContainer()}>
+                    <Pressable
+                      style={$snapshotHeader()}
+                      onPress={() => toggleSnapshotExpanded(snapshot.id)}
+                    >
+                      <View style={$snapshotInfo()}>
+                        <Text style={$snapshotName()}>{snapshot.name}</Text>
+                      </View>
+                      <View style={$snapshotActions()}>
+                        <Pressable
+                          style={$iconButton()}
+                          onPress={(e) => {
+                            e.stopPropagation()
+                            copySnapshotToClipboard(snapshot)
+                          }}
+                        >
+                          <Icon icon="clipboard" size={18} />
+                        </Pressable>
+                        <Pressable
+                          style={$iconButton()}
+                          onPress={(e) => {
+                            e.stopPropagation()
+                            downloadSnapshot(snapshot)
+                          }}
+                        >
+                          <Icon icon="arrowDownUp" size={18} />
+                        </Pressable>
+                        <Pressable
+                          style={$iconButton()}
+                          onPress={(e) => {
+                            e.stopPropagation()
+                            deleteSnapshot(snapshot.id)
+                          }}
+                        >
+                          <Icon icon="trash" size={18} />
+                        </Pressable>
+                      </View>
+                    </Pressable>
+                    {expandedSnapshotIds.has(snapshot.id) && (
+                      <View style={$snapshotContent()}>
+                        <TreeViewWithProvider data={snapshot.state} />
+                      </View>
+                    )}
+                    {index < snapshots.length - 1 && <Divider extraStyles={$snapshotDivider()} />}
+                  </View>
+                ))}
+              </>
+            ) : (
+              <EmptyState
+                icon="arrowDownUp"
+                title="No Snapshots"
+                description="To take a snapshot of your current redux or mobx-state-tree store, press the Create Snapshot button in the top right corner of this window."
+              />
+            )}
+          </>
         )}
       </View>
     </ScrollView>
@@ -353,4 +482,53 @@ const $subscriptionButton = themed<ViewStyle>(({ colors, spacing }) => ({
 
 const $stateDivider = themed<ViewStyle>(({ spacing }) => ({
   marginTop: spacing.lg,
+}))
+
+const $snapshotItemContainer = themed<ViewStyle>(({ spacing }) => ({
+  marginTop: spacing.md,
+}))
+
+const $snapshotHeader = themed<ViewStyle>(({ spacing, colors }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: spacing.sm,
+  backgroundColor: colors.cardBackground,
+  borderRadius: 8,
+  cursor: "pointer",
+}))
+
+const $snapshotInfo = themed<ViewStyle>(() => ({
+  flex: 1,
+}))
+
+const $snapshotName = themed<TextStyle>(({ colors, typography }) => ({
+  fontSize: typography.body,
+  fontWeight: "600",
+  color: colors.mainText,
+  fontFamily: typography.code.normal,
+}))
+
+const $snapshotActions = themed<ViewStyle>(({ spacing }) => ({
+  flexDirection: "row",
+  gap: spacing.xs,
+  alignItems: "center",
+}))
+
+const $iconButton = themed<ViewStyle>(({ spacing, colors }) => ({
+  padding: spacing.xs,
+  borderRadius: 4,
+  cursor: "pointer",
+  backgroundColor: colors.neutralVery,
+}))
+
+const $snapshotContent = themed<ViewStyle>(({ spacing, colors }) => ({
+  marginTop: spacing.sm,
+  padding: spacing.md,
+  backgroundColor: colors.background,
+  borderRadius: 8,
+}))
+
+const $snapshotDivider = themed<ViewStyle>(({ spacing }) => ({
+  marginTop: spacing.md,
 }))

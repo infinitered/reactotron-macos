@@ -174,3 +174,12 @@ export type CustomCommand = {
   }>
   clientId?: string
 }
+
+// Snapshot represents a captured state snapshot that can be saved, restored, or exported
+export type Snapshot = {
+  id: string
+  name: string
+  date: Date
+  state: Record<string, any> // The actual state data (must be JSON-serializable)
+  clientId?: string
+}
