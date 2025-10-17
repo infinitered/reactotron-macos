@@ -9,7 +9,6 @@ import { useKeyboardEvents } from "../utils/system"
 import type { StateSubscription, Snapshot, Command, CommandType } from "app/types"
 import { Icon } from "../components/Icon"
 import { Tab } from "../components/Tab"
-import { EmptyState } from "../components/EmptyState"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import IRRunShellCommand from "../native/IRRunShellCommand/NativeIRRunShellCommand"
 import { Tooltip } from "../components/Tooltip"
@@ -264,7 +263,7 @@ export function StateScreen() {
                               startRenaming(snapshot)
                             }}
                           >
-                            <Icon icon="wandSparkles" size={18} />
+                            <Icon icon="pen" size={18} />
                           </Pressable>
                         </Tooltip>
                         <Tooltip label="Download Snapshot">
@@ -312,11 +311,10 @@ export function StateScreen() {
                 ))}
               </>
             ) : (
-              <EmptyState
-                icon="arrowDownUp"
-                title="No Snapshots"
-                description="To take a snapshot of your current redux or mobx-state-tree store, press the Create Snapshot button in the top right corner of this window."
-              />
+              <Text>
+                To take a snapshot of your current redux or mobx-state-tree store, press the Create
+                Snapshot button in the top right corner of this window.
+              </Text>
             )}
           </>
         )}
