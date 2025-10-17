@@ -224,89 +224,91 @@ export function StateScreen() {
             {snapshots.length > 0 ? (
               <>
                 {snapshots.map((snapshot, index) => (
-                  <View key={snapshot.id} style={$snapshotItemContainer()}>
-                    <Pressable
-                      style={$snapshotHeader()}
-                      onPress={() => toggleSnapshotExpanded(snapshot.id)}
-                    >
-                      <View style={$snapshotInfo()}>
-                        {renamingSnapshotId === snapshot.id ? (
-                          <TextInput
-                            style={$renameInput()}
-                            value={renameValue}
-                            onChangeText={setRenameValue}
-                            autoFocus
-                            onBlur={() => {
-                              if (renameValue.trim()) {
-                                renameSnapshot(snapshot.id, renameValue.trim())
-                              } else {
-                                setRenamingSnapshotId(null)
-                                setRenameValue("")
-                              }
-                            }}
-                            onSubmitEditing={() => {
-                              if (renameValue.trim()) {
-                                renameSnapshot(snapshot.id, renameValue.trim())
-                              }
-                            }}
-                          />
-                        ) : (
-                          <Text style={$snapshotName()}>{snapshot.name}</Text>
-                        )}
-                      </View>
-                      <View style={$snapshotActions()}>
-                        <Tooltip label="Rename Snapshot">
-                          <Pressable
-                            style={$iconButton()}
-                            onPress={(e) => {
-                              e.stopPropagation()
-                              startRenaming(snapshot)
-                            }}
-                          >
-                            <Icon icon="pen" size={18} />
-                          </Pressable>
-                        </Tooltip>
-                        <Tooltip label="Download Snapshot">
-                          <Pressable
-                            style={$iconButton()}
-                            onPress={(e) => {
-                              e.stopPropagation()
-                              downloadSnapshot(snapshot)
-                            }}
-                          >
-                            <Icon icon="arrowDownUp" size={18} />
-                          </Pressable>
-                        </Tooltip>
-                        <Tooltip label="Copy Snapshot">
-                          <Pressable
-                            style={$iconButton()}
-                            onPress={(e) => {
-                              e.stopPropagation()
-                              copySnapshotToClipboard(snapshot)
-                            }}
-                          >
-                            <Icon icon="clipboard" size={18} />
-                          </Pressable>
-                        </Tooltip>
-                        <Tooltip label="Delete Snapshot">
-                          <Pressable
-                            style={$iconButton()}
-                            onPress={(e) => {
-                              e.stopPropagation()
-                              deleteSnapshot(snapshot.id)
-                            }}
-                          >
-                            <Icon icon="trash" size={18} />
-                          </Pressable>
-                        </Tooltip>
-                      </View>
-                    </Pressable>
-                    {expandedSnapshotIds.has(snapshot.id) && (
-                      <View style={$snapshotContent()}>
-                        <TreeViewWithProvider data={snapshot.state} />
-                      </View>
-                    )}
-                    {index < snapshots.length - 1 && <Divider extraStyles={$snapshotDivider()} />}
+                  <View key={snapshot.id}>
+                    <View style={$snapshotCard(expandedSnapshotIds.has(snapshot.id))()}>
+                      <Pressable
+                        style={$snapshotHeader(expandedSnapshotIds.has(snapshot.id))()}
+                        onPress={() => toggleSnapshotExpanded(snapshot.id)}
+                      >
+                        <View style={$snapshotInfo()}>
+                          {renamingSnapshotId === snapshot.id ? (
+                            <TextInput
+                              style={$renameInput()}
+                              value={renameValue}
+                              onChangeText={setRenameValue}
+                              autoFocus
+                              onBlur={() => {
+                                if (renameValue.trim()) {
+                                  renameSnapshot(snapshot.id, renameValue.trim())
+                                } else {
+                                  setRenamingSnapshotId(null)
+                                  setRenameValue("")
+                                }
+                              }}
+                              onSubmitEditing={() => {
+                                if (renameValue.trim()) {
+                                  renameSnapshot(snapshot.id, renameValue.trim())
+                                }
+                              }}
+                            />
+                          ) : (
+                            <Text style={$snapshotName()}>{snapshot.name}</Text>
+                          )}
+                        </View>
+                        <View style={$snapshotActions()}>
+                          <Tooltip label="Rename Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                startRenaming(snapshot)
+                              }}
+                            >
+                              <Icon icon="pen" size={18} />
+                            </Pressable>
+                          </Tooltip>
+                          <Tooltip label="Download Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                downloadSnapshot(snapshot)
+                              }}
+                            >
+                              <Icon icon="arrowDownUp" size={18} />
+                            </Pressable>
+                          </Tooltip>
+                          <Tooltip label="Copy Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                copySnapshotToClipboard(snapshot)
+                              }}
+                            >
+                              <Icon icon="clipboard" size={18} />
+                            </Pressable>
+                          </Tooltip>
+                          <Tooltip label="Delete Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                deleteSnapshot(snapshot.id)
+                              }}
+                            >
+                              <Icon icon="trash" size={18} />
+                            </Pressable>
+                          </Tooltip>
+                        </View>
+                      </Pressable>
+                      {expandedSnapshotIds.has(snapshot.id) && (
+                        <View style={$snapshotContent()}>
+                          <TreeViewWithProvider data={snapshot.state} />
+                        </View>
+                      )}
+                    </View>
+                    <Divider />
                   </View>
                 ))}
               </>
@@ -535,19 +537,21 @@ const $stateDivider = themed<ViewStyle>(({ spacing }) => ({
   marginTop: spacing.lg,
 }))
 
-const $snapshotItemContainer = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.md,
-}))
+const $snapshotCard = (isExpanded: boolean) =>
+  themed<ViewStyle>(({ colors }) => ({
+    backgroundColor: colors.cardBackground,
+    overflow: "hidden",
+  }))
 
-const $snapshotHeader = themed<ViewStyle>(({ spacing, colors }) => ({
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: spacing.sm,
-  backgroundColor: colors.cardBackground,
-  borderRadius: 8,
-  cursor: "pointer",
-}))
+const $snapshotHeader = (isExpanded: boolean) =>
+  themed<ViewStyle>(({ spacing, colors }) => ({
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: spacing.sm,
+    backgroundColor: colors.cardBackground,
+    cursor: "pointer",
+  }))
 
 const $snapshotInfo = themed<ViewStyle>(() => ({
   flex: 1,
@@ -574,14 +578,8 @@ const $iconButton = themed<ViewStyle>(({ spacing, colors }) => ({
 }))
 
 const $snapshotContent = themed<ViewStyle>(({ spacing, colors }) => ({
-  marginTop: spacing.sm,
   padding: spacing.md,
-  backgroundColor: colors.background,
-  borderRadius: 8,
-}))
-
-const $snapshotDivider = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.md,
+  backgroundColor: colors.cardBackground,
 }))
 
 const $renameInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
