@@ -1,5 +1,5 @@
 import { Text, ViewStyle, ScrollView, TextStyle, Pressable, View, TextInput } from "react-native"
-import { themed } from "../theme/theme"
+import { themed, useTheme } from "../theme/theme"
 import { sendToCore } from "../state/connectToServer"
 import { useGlobal } from "../state/useGlobal"
 import { TreeViewWithProvider } from "../components/TreeView"
@@ -10,12 +10,12 @@ import type { StateSubscription, Snapshot, Command, CommandType } from "app/type
 import { Icon } from "../components/Icon"
 import { Tab } from "../components/Tab"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
-import IRRunShellCommand from "../native/IRRunShellCommand/NativeIRRunShellCommand"
 import { Tooltip } from "../components/Tooltip"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
 export function StateScreen() {
+  const theme = useTheme()
   const [showAddSubscription, setShowAddSubscription] = useState(false)
   const [activeStateTab, setActiveStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
 
@@ -29,6 +29,7 @@ export function StateScreen() {
   const [renameValue, setRenameValue] = useState("")
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
+  const iconColor = theme.colors.mainText
 
   const saveSubscription = (path: string) => {
     if (clientStateSubscriptions.some((s) => s.path === path)) return
@@ -77,43 +78,6 @@ export function StateScreen() {
     }
   }
 
-  const downloadSnapshot = async (snapshot: Snapshot) => {
-    try {
-      const homeDir = IRRunShellCommand.runSync("echo $HOME").trim()
-      const downloadDir = `${homeDir}/Downloads`
-      const filename = `snapshot-${snapshot.name.replace(/\s+/g, "-")}-${Date.now()}.json`
-      const data = JSON.stringify(snapshot.state, null, 2)
-
-      // Create a temporary file with the data using echo and output redirection
-      // We need to escape special characters for shell
-      const escapedData = data.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\$/g, "\\$")
-      const command = `echo "${escapedData}" > "${downloadDir}/${filename}"`
-
-      IRRunShellCommand.runSync(command)
-      console.log(`Snapshot downloaded to ${downloadDir}/${filename}`)
-    } catch (error) {
-      console.error("Failed to download snapshot:", error)
-    }
-  }
-
-  const downloadAllSnapshots = async () => {
-    try {
-      const homeDir = IRRunShellCommand.runSync("echo $HOME").trim()
-      const downloadDir = `${homeDir}/Downloads`
-      const filename = `snapshots-all-${Date.now()}.json`
-      const data = JSON.stringify(snapshots, null, 2)
-
-      // Create a temporary file with the data
-      const escapedData = data.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\$/g, "\\$")
-      const command = `echo "${escapedData}" > "${downloadDir}/${filename}"`
-
-      IRRunShellCommand.runSync(command)
-      console.log(`All snapshots downloaded to ${downloadDir}/${filename}`)
-    } catch (error) {
-      console.error("Failed to download snapshots:", error)
-    }
-  }
-
   const deleteSnapshot = (snapshotId: string) => {
     setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
   }
@@ -157,7 +121,7 @@ export function StateScreen() {
         {activeStateTab === "Subscriptions" ? (
           <View style={$buttonsContainer()}>
             <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
-              <Text>Add Subscription</Text>
+              <Text style={$buttonText()}>Add Subscription</Text>
             </Pressable>
             <Pressable
               style={$button()}
@@ -170,19 +134,16 @@ export function StateScreen() {
                 setActiveTab("")
               }}
             >
-              <Text>Clear State</Text>
+              <Text style={$buttonText()}>Clear State</Text>
             </Pressable>
           </View>
         ) : (
           <View style={$buttonsContainer()}>
             <Pressable style={$button()} onPress={copyAllSnapshotsToClipboard}>
-              <Text>Copy All</Text>
-            </Pressable>
-            <Pressable style={$button()} onPress={downloadAllSnapshots}>
-              <Text>Download All</Text>
+              <Text style={$buttonText()}>Copy All</Text>
             </Pressable>
             <Pressable style={$button()} onPress={createSnapshot}>
-              <Text>Create Snapshot</Text>
+              <Text style={$buttonText()}>Create Snapshot</Text>
             </Pressable>
           </View>
         )}
@@ -264,18 +225,7 @@ export function StateScreen() {
                                 startRenaming(snapshot)
                               }}
                             >
-                              <Icon icon="pen" size={18} />
-                            </Pressable>
-                          </Tooltip>
-                          <Tooltip label="Download Snapshot">
-                            <Pressable
-                              style={$iconButton()}
-                              onPress={(e) => {
-                                e.stopPropagation()
-                                downloadSnapshot(snapshot)
-                              }}
-                            >
-                              <Icon icon="arrowDownUp" size={18} />
+                              <Icon icon="pen" size={18} color={iconColor} />
                             </Pressable>
                           </Tooltip>
                           <Tooltip label="Copy Snapshot">
@@ -286,7 +236,7 @@ export function StateScreen() {
                                 copySnapshotToClipboard(snapshot)
                               }}
                             >
-                              <Icon icon="clipboard" size={18} />
+                              <Icon icon="clipboard" size={18} color={iconColor} />
                             </Pressable>
                           </Tooltip>
                           <Tooltip label="Delete Snapshot">
@@ -297,7 +247,7 @@ export function StateScreen() {
                                 deleteSnapshot(snapshot.id)
                               }}
                             >
-                              <Icon icon="trash" size={18} />
+                              <Icon icon="trash" size={18} color={iconColor} />
                             </Pressable>
                           </Tooltip>
                         </View>
@@ -461,6 +411,10 @@ const $button = themed<ViewStyle>(({ colors, spacing }) => ({
   borderRadius: 8,
   marginTop: spacing.xl,
   cursor: "pointer",
+}))
+
+const $buttonText = themed<TextStyle>(({ colors }) => ({
+  color: colors.mainText,
 }))
 
 const $addSubscriptionOuterContainer = themed<ViewStyle>(({ spacing }) => ({
