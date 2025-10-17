@@ -105,6 +105,29 @@ export function StateScreen() {
     })
   }
 
+  const restoreSnapshot = (snapshot: Snapshot) => {
+    if (!snapshot || !snapshot.state) {
+      console.error("Invalid snapshot: missing state data")
+      return
+    }
+
+    // Use the snapshot's clientId if available, otherwise fall back to the active client
+    const targetClientId = snapshot.clientId || activeTab
+
+    if (!targetClientId) {
+      console.error("Cannot restore snapshot: no client available")
+      return
+    }
+
+    // Send the restore command to the client
+    sendToCore("state.restore.request", {
+      clientId: targetClientId,
+      state: snapshot.state,
+    })
+
+    console.log(`Restoring snapshot "${snapshot.name}" to client ${targetClientId}`)
+  }
+
   if (showAddSubscription) {
     return (
       <AddSubscription
@@ -217,17 +240,6 @@ export function StateScreen() {
                           )}
                         </View>
                         <View style={$snapshotActions()}>
-                          <Tooltip label="Rename Snapshot">
-                            <Pressable
-                              style={$iconButton()}
-                              onPress={(e) => {
-                                e.stopPropagation()
-                                startRenaming(snapshot)
-                              }}
-                            >
-                              <Icon icon="pen" size={18} color={iconColor} />
-                            </Pressable>
-                          </Tooltip>
                           <Tooltip label="Copy Snapshot">
                             <Pressable
                               style={$iconButton()}
@@ -239,6 +251,29 @@ export function StateScreen() {
                               <Icon icon="clipboard" size={18} color={iconColor} />
                             </Pressable>
                           </Tooltip>
+                          <Tooltip label="Restore Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                restoreSnapshot(snapshot)
+                              }}
+                            >
+                              <Icon icon="arrowUpFromLine" size={18} color={iconColor} />
+                            </Pressable>
+                          </Tooltip>
+                          <Tooltip label="Rename Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                startRenaming(snapshot)
+                              }}
+                            >
+                              <Icon icon="pen" size={18} color={iconColor} />
+                            </Pressable>
+                          </Tooltip>
+
                           <Tooltip label="Delete Snapshot">
                             <Pressable
                               style={$iconButton()}
