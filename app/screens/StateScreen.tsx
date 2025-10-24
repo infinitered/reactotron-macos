@@ -197,9 +197,9 @@ export function StateScreen() {
                 <>
                   {snapshots.map((snapshot, index) => (
                     <View key={snapshot.id}>
-                      <View style={$snapshotCard(expandedSnapshotIds.has(snapshot.id))()}>
+                      <View style={$snapshotCard()}>
                         <Pressable
-                          style={$snapshotHeader(expandedSnapshotIds.has(snapshot.id))()}
+                          style={$snapshotHeader()}
                           onPress={() => toggleSnapshotExpanded(snapshot.id)}
                         >
                           <View style={$snapshotInfo()}>
@@ -479,21 +479,19 @@ const $stateDivider = themed<ViewStyle>(({ spacing }) => ({
   marginTop: spacing.lg,
 }))
 
-const $snapshotCard = () =>
-  themed<ViewStyle>(({ colors }) => ({
-    backgroundColor: colors.cardBackground,
-    overflow: "hidden",
-  }))
+const $snapshotCard = themed<ViewStyle>(({ colors }) => ({
+  backgroundColor: colors.cardBackground,
+  overflow: "hidden",
+}))
 
-const $snapshotHeader = () =>
-  themed<ViewStyle>(({ spacing, colors }) => ({
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: spacing.sm,
-    backgroundColor: colors.cardBackground,
-    cursor: "pointer",
-  }))
+const $snapshotHeader = themed<ViewStyle>(({ spacing, colors }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: spacing.sm,
+  backgroundColor: colors.cardBackground,
+  cursor: "pointer",
+}))
 
 const $snapshotInfo = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
