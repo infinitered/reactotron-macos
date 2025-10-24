@@ -66,7 +66,6 @@ export function Icon(props: IconProps) {
 }
 
 export const iconRegistry = {
-  arrowDownUp: require("../../assets/icons/arrowDownUp.png"),
   arrowUpFromLine: require("../../assets/icons/arrowUpFromLine.png"),
   chevronsLeftRightEllipsis: require("../../assets/icons/chevronsLeftRightEllipsis.png"),
   circleGauge: require("../../assets/icons/circleGauge.png"),
