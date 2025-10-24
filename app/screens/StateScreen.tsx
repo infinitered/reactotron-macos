@@ -28,7 +28,6 @@ export function StateScreen() {
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
-  const iconColor = theme.colors.mainText
 
   const saveSubscription = (path: string) => {
     if (clientStateSubscriptions.some((s) => s.path === path)) return
@@ -51,10 +50,8 @@ export function StateScreen() {
   }
 
   const createSnapshot = () => {
-    if (!activeTab) {
-      console.log("No active client to create snapshot from")
-      return
-    }
+    if (!activeTab) return
+
     sendToCore("state.backup.request", { clientId: activeTab })
   }
 
@@ -94,10 +91,7 @@ export function StateScreen() {
   }
 
   const restoreSnapshot = (snapshot: Snapshot) => {
-    if (!snapshot || !snapshot.state) {
-      console.error("Invalid snapshot: missing state data")
-      return
-    }
+    if (!snapshot || !snapshot.state) return
 
     // Use the snapshot's clientId if available, otherwise fall back to the active client
     const targetClientId = snapshot.clientId || activeTab
@@ -112,8 +106,6 @@ export function StateScreen() {
       clientId: targetClientId,
       state: snapshot.state,
     })
-
-    console.log(`Restoring snapshot "${snapshot.name}" to client ${targetClientId}`)
   }
 
   if (showAddSubscription) {
