@@ -191,7 +191,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
       }
 
       // Handle state backup response
-      if (data.cmd.type === "state.backup.response") {
+      if (data.cmd.type === CommandType.StateBackupResponse) {
         setSnapshots((prev) => {
           // Use the server-provided date to check for duplicates
           const serverDate = data.cmd.date
