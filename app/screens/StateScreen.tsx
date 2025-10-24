@@ -25,8 +25,6 @@ export function StateScreen() {
   const [activeTab, setActiveTab] = useGlobal("activeClientId", "")
   const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
-  const [renamingSnapshotId, setRenamingSnapshotId] = useState<string | null>(null)
-  const [renameValue, setRenameValue] = useState("")
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
   const iconColor = theme.colors.mainText
@@ -80,30 +78,6 @@ export function StateScreen() {
 
   const deleteSnapshot = (snapshotId: string) => {
     setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
-  }
-
-  const renameSnapshot = (snapshotId: string, newName: string) => {
-    setSnapshots((prev) => prev.map((s) => (s.id === snapshotId ? { ...s, name: newName } : s)))
-    setRenamingSnapshotId(null)
-    setRenameValue("")
-  }
-
-  const startRenaming = (snapshot: Snapshot) => {
-    setRenamingSnapshotId(snapshot.id)
-    setRenameValue(snapshot.name)
-  }
-
-  const cancelRenaming = () => {
-    setRenamingSnapshotId(null)
-    setRenameValue("")
-  }
-
-  const handleRenameKeyPress = (snapshotId: string, key: string) => {
-    if (key === "Enter" && renameValue.trim()) {
-      renameSnapshot(snapshotId, renameValue.trim())
-    } else if (key === "Escape") {
-      cancelRenaming()
-    }
   }
 
   const toggleSnapshotExpanded = (snapshotId: string) => {
@@ -226,53 +200,10 @@ export function StateScreen() {
                       <View style={$snapshotCard(expandedSnapshotIds.has(snapshot.id))()}>
                         <Pressable
                           style={$snapshotHeader(expandedSnapshotIds.has(snapshot.id))()}
-                          onPress={() => {
-                            if (renamingSnapshotId !== snapshot.id) {
-                              toggleSnapshotExpanded(snapshot.id)
-                            }
-                          }}
+                          onPress={() => toggleSnapshotExpanded(snapshot.id)}
                         >
                           <View style={$snapshotInfo()}>
-                            {renamingSnapshotId === snapshot.id ? (
-                              <View style={$renameContainer()}>
-                                <TextInput
-                                  style={$renameInput()}
-                                  value={renameValue}
-                                  onChangeText={setRenameValue}
-                                  onKeyPress={(e) =>
-                                    handleRenameKeyPress(snapshot.id, e.nativeEvent.key)
-                                  }
-                                  onBlur={() => {
-                                    if (renameValue.trim()) {
-                                      renameSnapshot(snapshot.id, renameValue.trim())
-                                    } else {
-                                      cancelRenaming()
-                                    }
-                                  }}
-                                  autoFocus
-                                  selectTextOnFocus
-                                />
-                                <Tooltip label="Save (Enter)">
-                                  <Pressable
-                                    style={$renameButton()}
-                                    onPress={() => {
-                                      if (renameValue.trim()) {
-                                        renameSnapshot(snapshot.id, renameValue.trim())
-                                      }
-                                    }}
-                                  >
-                                    <Text>Save</Text>
-                                  </Pressable>
-                                </Tooltip>
-                                <Tooltip label="Cancel (Esc)">
-                                  <Pressable style={$renameButton()} onPress={cancelRenaming}>
-                                    <Text>Cancel</Text>
-                                  </Pressable>
-                                </Tooltip>
-                              </View>
-                            ) : (
-                              <Text style={$snapshotName()}>{snapshot.name}</Text>
-                            )}
+                            <Text style={$snapshotName()}>{snapshot.name}</Text>
                             <Tooltip label="Copy Snapshot">
                               <Pressable
                                 style={$iconButton()}
@@ -293,17 +224,6 @@ export function StateScreen() {
                                 }}
                               >
                                 <Icon icon="arrowUpFromLine" size={18} color={iconColor} />
-                              </Pressable>
-                            </Tooltip>
-                            <Tooltip label="Rename Snapshot">
-                              <Pressable
-                                style={$iconButton()}
-                                onPress={(e) => {
-                                  e.stopPropagation()
-                                  startRenaming(snapshot)
-                                }}
-                              >
-                                <Icon icon="pen" size={18} color={iconColor} />
                               </Pressable>
                             </Tooltip>
                             <Tooltip label="Delete Snapshot">
@@ -599,31 +519,4 @@ const $iconButton = themed<ViewStyle>(({ spacing, colors }) => ({
 const $snapshotContent = themed<ViewStyle>(({ spacing, colors }) => ({
   padding: spacing.md,
   backgroundColor: colors.cardBackground,
-}))
-
-const $renameContainer = themed<ViewStyle>(({ spacing }) => ({
-  flexDirection: "row",
-  alignItems: "center",
-  gap: spacing.md,
-  flex: 1,
-}))
-
-const $renameInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
-  fontSize: typography.body,
-  fontWeight: "600",
-  color: colors.mainText,
-  fontFamily: typography.code.normal,
-  padding: spacing.xs,
-  backgroundColor: colors.background,
-  borderRadius: 4,
-  borderWidth: 1,
-  borderColor: colors.primary,
-  flex: 1,
-}))
-
-const $renameButton = themed<ViewStyle>(({ colors, spacing }) => ({
-  padding: spacing.xxs,
-  borderRadius: 4,
-  backgroundColor: colors.neutralVery,
-  cursor: "pointer",
 }))
