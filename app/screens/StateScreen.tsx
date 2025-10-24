@@ -1,5 +1,5 @@
 import { Text, ViewStyle, ScrollView, TextStyle, Pressable, View, TextInput } from "react-native"
-import { themed, useTheme } from "../theme/theme"
+import { themed, useTheme, useThemeName } from "../theme/theme"
 import { sendToCore } from "../state/connectToServer"
 import { useGlobal } from "../state/useGlobal"
 import { TreeViewWithProvider } from "../components/TreeView"
@@ -16,6 +16,7 @@ type StateTab = "Subscriptions" | "Snapshots"
 
 export function StateScreen() {
   const theme = useTheme()
+  const [themeName] = useThemeName()
   const [showAddSubscription, setShowAddSubscription] = useState(false)
   const [activeStateTab, setActiveStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
 
@@ -178,7 +179,12 @@ export function StateScreen() {
                           <TreeViewWithProvider data={subscription.value} />
                         </View>
                         <Pressable onPress={() => removeSubscription(subscription.path)}>
-                          <Icon icon="trash" size={20} />
+                          <Icon
+                            icon="trash"
+                            size={20}
+                            color={theme.colors.mainText}
+                            key={`trash-${themeName}`}
+                          />
                         </Pressable>
                       </View>
                       {index < clientStateSubscriptions.length - 1 && (
@@ -212,7 +218,12 @@ export function StateScreen() {
                                   copySnapshotToClipboard(snapshot)
                                 }}
                               >
-                                <Icon icon="clipboard" size={18} color={iconColor} />
+                                <Icon
+                                  icon="clipboard"
+                                  size={18}
+                                  color={theme.colors.mainText}
+                                  key={`clipboard-${themeName}`}
+                                />
                               </Pressable>
                             </Tooltip>
                             <Tooltip label="Restore Snapshot">
@@ -223,7 +234,12 @@ export function StateScreen() {
                                   restoreSnapshot(snapshot)
                                 }}
                               >
-                                <Icon icon="arrowUpFromLine" size={18} color={iconColor} />
+                                <Icon
+                                  icon="arrowUpFromLine"
+                                  size={18}
+                                  color={theme.colors.mainText}
+                                  key={`restore-${themeName}`}
+                                />
                               </Pressable>
                             </Tooltip>
                             <Tooltip label="Delete Snapshot">
@@ -234,7 +250,12 @@ export function StateScreen() {
                                   deleteSnapshot(snapshot.id)
                                 }}
                               >
-                                <Icon icon="trash" size={18} color={iconColor} />
+                                <Icon
+                                  icon="trash"
+                                  size={18}
+                                  color={theme.colors.mainText}
+                                  key={`delete-${themeName}`}
+                                />
                               </Pressable>
                             </Tooltip>
                           </View>
