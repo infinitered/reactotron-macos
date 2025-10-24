@@ -115,161 +115,159 @@ export function StateScreen() {
   }
 
   return (
-    <>
-      <ScrollView contentContainerStyle={$container()}>
-        <View style={$header()}>
-          <Text style={$title()}>State</Text>
-          {activeStateTab === "Subscriptions" ? (
-            <View style={$buttonsContainer()}>
-              <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
-                <Text style={$buttonText()}>Add Subscription</Text>
-              </Pressable>
-              <Pressable
-                style={$button()}
-                onPress={() => {
-                  setStateSubscriptionsByClientId((prev) => ({
-                    ...prev,
-                    [activeTab]: [],
-                  }))
-                  sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
-                  setActiveTab("")
-                }}
-              >
-                <Text style={$buttonText()}>Clear State</Text>
-              </Pressable>
-            </View>
-          ) : (
-            <View style={$buttonsContainer()}>
-              <Pressable style={$button()} onPress={copyAllSnapshotsToClipboard}>
-                <Text style={$buttonText()}>Copy All</Text>
-              </Pressable>
-              <Pressable style={$button()} onPress={createSnapshot}>
-                <Text style={$buttonText()}>Create Snapshot</Text>
-              </Pressable>
-            </View>
-          )}
-        </View>
-        <View style={$tabsContainer()}>
-          <Tab id="subscriptions" label="Subscriptions" tabgroup="activeStateTab" />
-          <Tab id="snapshots" label="Snapshots" tabgroup="activeStateTab" />
-        </View>
-        <View style={$stateContainer()}>
-          {activeStateTab === "Subscriptions" ? (
-            <>
-              {clientStateSubscriptions.length > 0 ? (
-                <>
-                  {clientStateSubscriptions.map((subscription, index) => (
-                    <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
-                      <Text style={$pathText()}>
-                        {subscription.path ? subscription.path : "Full State"}
-                      </Text>
-                      <View style={$treeViewContainer()}>
-                        <View style={$treeViewInnerContainer()}>
-                          <TreeViewWithProvider data={subscription.value} />
-                        </View>
-                        <Pressable onPress={() => removeSubscription(subscription.path)}>
-                          <Icon
-                            icon="trash"
-                            size={20}
-                            color={theme.colors.mainText}
-                            key={`trash-${themeName}`}
-                          />
-                        </Pressable>
+    <ScrollView contentContainerStyle={$container()}>
+      <View style={$header()}>
+        <Text style={$title()}>State</Text>
+        {activeStateTab === "Subscriptions" ? (
+          <View style={$buttonsContainer()}>
+            <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
+              <Text style={$buttonText()}>Add Subscription</Text>
+            </Pressable>
+            <Pressable
+              style={$button()}
+              onPress={() => {
+                setStateSubscriptionsByClientId((prev) => ({
+                  ...prev,
+                  [activeTab]: [],
+                }))
+                sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
+                setActiveTab("")
+              }}
+            >
+              <Text style={$buttonText()}>Clear State</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={$buttonsContainer()}>
+            <Pressable style={$button()} onPress={copyAllSnapshotsToClipboard}>
+              <Text style={$buttonText()}>Copy All</Text>
+            </Pressable>
+            <Pressable style={$button()} onPress={createSnapshot}>
+              <Text style={$buttonText()}>Create Snapshot</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+      <View style={$tabsContainer()}>
+        <Tab id="subscriptions" label="Subscriptions" tabgroup="activeStateTab" />
+        <Tab id="snapshots" label="Snapshots" tabgroup="activeStateTab" />
+      </View>
+      <View style={$stateContainer()}>
+        {activeStateTab === "Subscriptions" ? (
+          <>
+            {clientStateSubscriptions.length > 0 ? (
+              <>
+                {clientStateSubscriptions.map((subscription, index) => (
+                  <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
+                    <Text style={$pathText()}>
+                      {subscription.path ? subscription.path : "Full State"}
+                    </Text>
+                    <View style={$treeViewContainer()}>
+                      <View style={$treeViewInnerContainer()}>
+                        <TreeViewWithProvider data={subscription.value} />
                       </View>
-                      {index < clientStateSubscriptions.length - 1 && (
-                        <Divider extraStyles={$stateDivider()} />
+                      <Pressable onPress={() => removeSubscription(subscription.path)}>
+                        <Icon
+                          icon="trash"
+                          size={20}
+                          color={theme.colors.mainText}
+                          key={`trash-${themeName}`}
+                        />
+                      </Pressable>
+                    </View>
+                    {index < clientStateSubscriptions.length - 1 && (
+                      <Divider extraStyles={$stateDivider()} />
+                    )}
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text style={$emptyStateText()}>State is empty</Text>
+            )}
+          </>
+        ) : (
+          <>
+            {snapshots.length > 0 ? (
+              <>
+                {snapshots.map((snapshot, index) => (
+                  <View key={snapshot.id}>
+                    <View style={$snapshotCard()}>
+                      <Pressable
+                        style={$snapshotHeader()}
+                        onPress={() => toggleSnapshotExpanded(snapshot.id)}
+                      >
+                        <View style={$snapshotInfo()}>
+                          <Text style={$snapshotName()}>{snapshot.name}</Text>
+                          <Tooltip label="Copy Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                copySnapshotToClipboard(snapshot)
+                              }}
+                            >
+                              <Icon
+                                icon="clipboard"
+                                size={18}
+                                color={theme.colors.mainText}
+                                key={`clipboard-${themeName}`}
+                              />
+                            </Pressable>
+                          </Tooltip>
+                          <Tooltip label="Restore Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                restoreSnapshot(snapshot)
+                              }}
+                            >
+                              <Icon
+                                icon="arrowUpFromLine"
+                                size={18}
+                                color={theme.colors.mainText}
+                                key={`restore-${themeName}`}
+                              />
+                            </Pressable>
+                          </Tooltip>
+                          <Tooltip label="Delete Snapshot">
+                            <Pressable
+                              style={$iconButton()}
+                              onPress={(e) => {
+                                e.stopPropagation()
+                                deleteSnapshot(snapshot.id)
+                              }}
+                            >
+                              <Icon
+                                icon="trash"
+                                size={18}
+                                color={theme.colors.mainText}
+                                key={`delete-${themeName}`}
+                              />
+                            </Pressable>
+                          </Tooltip>
+                        </View>
+                      </Pressable>
+                      {expandedSnapshotIds.has(snapshot.id) && (
+                        <View style={$snapshotContent()}>
+                          <TreeViewWithProvider data={snapshot.state} />
+                        </View>
                       )}
                     </View>
-                  ))}
-                </>
-              ) : (
-                <Text style={$emptyStateText()}>State is empty</Text>
-              )}
-            </>
-          ) : (
-            <>
-              {snapshots.length > 0 ? (
-                <>
-                  {snapshots.map((snapshot, index) => (
-                    <View key={snapshot.id}>
-                      <View style={$snapshotCard()}>
-                        <Pressable
-                          style={$snapshotHeader()}
-                          onPress={() => toggleSnapshotExpanded(snapshot.id)}
-                        >
-                          <View style={$snapshotInfo()}>
-                            <Text style={$snapshotName()}>{snapshot.name}</Text>
-                            <Tooltip label="Copy Snapshot">
-                              <Pressable
-                                style={$iconButton()}
-                                onPress={(e) => {
-                                  e.stopPropagation()
-                                  copySnapshotToClipboard(snapshot)
-                                }}
-                              >
-                                <Icon
-                                  icon="clipboard"
-                                  size={18}
-                                  color={theme.colors.mainText}
-                                  key={`clipboard-${themeName}`}
-                                />
-                              </Pressable>
-                            </Tooltip>
-                            <Tooltip label="Restore Snapshot">
-                              <Pressable
-                                style={$iconButton()}
-                                onPress={(e) => {
-                                  e.stopPropagation()
-                                  restoreSnapshot(snapshot)
-                                }}
-                              >
-                                <Icon
-                                  icon="arrowUpFromLine"
-                                  size={18}
-                                  color={theme.colors.mainText}
-                                  key={`restore-${themeName}`}
-                                />
-                              </Pressable>
-                            </Tooltip>
-                            <Tooltip label="Delete Snapshot">
-                              <Pressable
-                                style={$iconButton()}
-                                onPress={(e) => {
-                                  e.stopPropagation()
-                                  deleteSnapshot(snapshot.id)
-                                }}
-                              >
-                                <Icon
-                                  icon="trash"
-                                  size={18}
-                                  color={theme.colors.mainText}
-                                  key={`delete-${themeName}`}
-                                />
-                              </Pressable>
-                            </Tooltip>
-                          </View>
-                        </Pressable>
-                        {expandedSnapshotIds.has(snapshot.id) && (
-                          <View style={$snapshotContent()}>
-                            <TreeViewWithProvider data={snapshot.state} />
-                          </View>
-                        )}
-                      </View>
-                      <Divider />
-                    </View>
-                  ))}
-                </>
-              ) : (
-                <Text style={$emptyStateText()}>
-                  To take a snapshot of your current redux or mobx-state-tree store, press the
-                  Create Snapshot button in the top right corner of this window.
-                </Text>
-              )}
-            </>
-          )}
-        </View>
-      </ScrollView>
-    </>
+                    <Divider />
+                  </View>
+                ))}
+              </>
+            ) : (
+              <Text style={$emptyStateText()}>
+                To take a snapshot of your current redux or mobx-state-tree store, press the Create
+                Snapshot button in the top right corner of this window.
+              </Text>
+            )}
+          </>
+        )}
+      </View>
+    </ScrollView>
   )
 }
 
