@@ -96,10 +96,7 @@ export function StateScreen() {
     // Use the snapshot's clientId if available, otherwise fall back to the active client
     const targetClientId = snapshot.clientId || activeTab
 
-    if (!targetClientId) {
-      console.error("Cannot restore snapshot: no client available")
-      return
-    }
+    if (!targetClientId) return
 
     // Send the restore command to the client
     sendToCore("state.restore.request", {
