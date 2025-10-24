@@ -188,7 +188,7 @@ export function StateScreen() {
                   ))}
                 </>
               ) : (
-                <Text>State is empty</Text>
+                <Text style={$emptyStateText()}>State is empty</Text>
               )}
             </>
           ) : (
@@ -250,7 +250,7 @@ export function StateScreen() {
                   ))}
                 </>
               ) : (
-                <Text>
+                <Text style={$emptyStateText()}>
                   To take a snapshot of your current redux or mobx-state-tree store, press the
                   Create Snapshot button in the top right corner of this window.
                 </Text>
@@ -519,4 +519,10 @@ const $iconButton = themed<ViewStyle>(({ spacing, colors }) => ({
 const $snapshotContent = themed<ViewStyle>(({ spacing, colors }) => ({
   padding: spacing.md,
   backgroundColor: colors.cardBackground,
+}))
+
+const $emptyStateText = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  fontSize: typography.body,
+  fontWeight: "400",
+  color: colors.mainText,
 }))
