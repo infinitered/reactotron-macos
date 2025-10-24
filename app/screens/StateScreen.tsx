@@ -479,13 +479,13 @@ const $stateDivider = themed<ViewStyle>(({ spacing }) => ({
   marginTop: spacing.lg,
 }))
 
-const $snapshotCard = (isExpanded: boolean) =>
+const $snapshotCard = () =>
   themed<ViewStyle>(({ colors }) => ({
     backgroundColor: colors.cardBackground,
     overflow: "hidden",
   }))
 
-const $snapshotHeader = (isExpanded: boolean) =>
+const $snapshotHeader = () =>
   themed<ViewStyle>(({ spacing, colors }) => ({
     flexDirection: "row",
     justifyContent: "space-between",
