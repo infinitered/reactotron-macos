@@ -1,5 +1,5 @@
 import { Text, ViewStyle, ScrollView, TextStyle, Pressable, View, TextInput } from "react-native"
-import { themed, useTheme, useThemeName } from "../theme/theme"
+import { themed, useTheme } from "../theme/theme"
 import { sendToCore } from "../state/connectToServer"
 import { useGlobal } from "../state/useGlobal"
 import { TreeViewWithProvider } from "../components/TreeView"
@@ -9,16 +9,16 @@ import { useKeyboardEvents } from "../utils/system"
 import type { StateSubscription, Snapshot } from "app/types"
 import { Icon } from "../components/Icon"
 import { Tab } from "../components/Tab"
-import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import { Tooltip } from "../components/Tooltip"
+import { StateSubscriptions } from "../components/State/StateSubscriptions"
+import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
 export function StateScreen() {
   const theme = useTheme()
-  const [themeName] = useThemeName()
   const [showAddSubscription, setShowAddSubscription] = useState(false)
-  const [activeStateTab, setActiveStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
+  const [activeStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
 
   const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
     [clientId: string]: StateSubscription[]
@@ -53,25 +53,6 @@ export function StateScreen() {
     if (!activeTab) return
 
     sendToCore("state.backup.request", { clientId: activeTab })
-  }
-
-  const copySnapshotToClipboard = (snapshot: Snapshot) => {
-    try {
-      IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
-      console.log("Snapshot copied to clipboard")
-    } catch (error) {
-      console.error("Failed to copy snapshot to clipboard:", error)
-    }
-  }
-
-  const copyAllSnapshotsToClipboard = () => {
-    try {
-      console.log("Copying all snapshots to clipboard", snapshots)
-      IRClipboard.setString(JSON.stringify(snapshots, null, 2))
-      console.log("All snapshots copied to clipboard")
-    } catch (error) {
-      console.error("Failed to copy snapshots to clipboard:", error)
-    }
   }
 
   const deleteSnapshot = (snapshotId: string) => {
@@ -139,7 +120,7 @@ export function StateScreen() {
           </View>
         ) : (
           <View style={$buttonsContainer()}>
-            <Pressable style={$button()} onPress={copyAllSnapshotsToClipboard}>
+            <Pressable style={$button()} onPress={() => copyAllSnapshotsToClipboard(snapshots)}>
               <Text style={$buttonText()}>Copy All</Text>
             </Pressable>
             <Pressable style={$button()} onPress={createSnapshot}>
@@ -154,42 +135,15 @@ export function StateScreen() {
       </View>
       <View style={$stateContainer()}>
         {activeStateTab === "Subscriptions" ? (
-          <>
-            {clientStateSubscriptions.length > 0 ? (
-              <>
-                {clientStateSubscriptions.map((subscription, index) => (
-                  <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
-                    <Text style={$pathText()}>
-                      {subscription.path ? subscription.path : "Full State"}
-                    </Text>
-                    <View style={$treeViewContainer()}>
-                      <View style={$treeViewInnerContainer()}>
-                        <TreeViewWithProvider data={subscription.value} />
-                      </View>
-                      <Pressable onPress={() => removeSubscription(subscription.path)}>
-                        <Icon
-                          icon="trash"
-                          size={20}
-                          color={theme.colors.mainText}
-                          key={`trash-${themeName}`}
-                        />
-                      </Pressable>
-                    </View>
-                    {index < clientStateSubscriptions.length - 1 && (
-                      <Divider extraStyles={$stateDivider()} />
-                    )}
-                  </View>
-                ))}
-              </>
-            ) : (
-              <Text style={$emptyStateText()}>State is empty</Text>
-            )}
-          </>
+          <StateSubscriptions
+            subscriptions={clientStateSubscriptions}
+            onRemoveSubscription={removeSubscription}
+          />
         ) : (
           <>
             {snapshots.length > 0 ? (
               <>
-                {snapshots.map((snapshot, index) => (
+                {snapshots.map((snapshot) => (
                   <View key={snapshot.id}>
                     <View style={$snapshotCard()}>
                       <Pressable
@@ -206,12 +160,7 @@ export function StateScreen() {
                                 copySnapshotToClipboard(snapshot)
                               }}
                             >
-                              <Icon
-                                icon="clipboard"
-                                size={18}
-                                color={theme.colors.mainText}
-                                key={`clipboard-${themeName}`}
-                              />
+                              <Icon icon="clipboard" size={18} color={theme.colors.mainText} />
                             </Pressable>
                           </Tooltip>
                           <Tooltip label="Restore Snapshot">
@@ -226,7 +175,6 @@ export function StateScreen() {
                                 icon="arrowUpFromLine"
                                 size={18}
                                 color={theme.colors.mainText}
-                                key={`restore-${themeName}`}
                               />
                             </Pressable>
                           </Tooltip>
@@ -238,12 +186,7 @@ export function StateScreen() {
                                 deleteSnapshot(snapshot.id)
                               }}
                             >
-                              <Icon
-                                icon="trash"
-                                size={18}
-                                color={theme.colors.mainText}
-                                key={`delete-${themeName}`}
-                              />
+                              <Icon icon="trash" size={18} color={theme.colors.mainText} />
                             </Pressable>
                           </Tooltip>
                         </View>
@@ -347,12 +290,24 @@ function AddSubscription({
   )
 }
 
-const $pathText = themed<TextStyle>(({ colors, typography, spacing }) => ({
-  fontSize: typography.body,
-  fontWeight: "400",
-  color: colors.mainText,
-  marginBottom: spacing.sm,
-}))
+function copyAllSnapshotsToClipboard(snapshots: Snapshot[]): void {
+  try {
+    console.log("Copying all snapshots to clipboard", snapshots)
+    IRClipboard.setString(JSON.stringify(snapshots, null, 2))
+    console.log("All snapshots copied to clipboard")
+  } catch (error) {
+    console.error("Failed to copy snapshots to clipboard:", error)
+  }
+}
+
+function copySnapshotToClipboard(snapshot: Snapshot): void {
+  try {
+    IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
+    console.log("Snapshot copied to clipboard")
+  } catch (error) {
+    console.error("Failed to copy snapshot to clipboard:", error)
+  }
+}
 
 const $container = themed<ViewStyle>(({ spacing }) => ({
   padding: spacing.xl,
@@ -377,19 +332,6 @@ const $tabsContainer = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
   marginTop: spacing.lg,
   marginBottom: spacing.md,
-}))
-
-const $stateItemContainer = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.xl,
-}))
-
-const $treeViewInnerContainer = themed<ViewStyle>(() => ({
-  flex: 1,
-}))
-
-const $treeViewContainer = themed<ViewStyle>(() => ({
-  flexDirection: "row",
-  justifyContent: "space-between",
 }))
 
 const $stateContainer = themed<ViewStyle>(({ spacing }) => ({
@@ -483,10 +425,6 @@ const $subscriptionButton = themed<ViewStyle>(({ colors, spacing }) => ({
   cursor: "pointer",
 }))
 
-const $stateDivider = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.lg,
-}))
-
 const $snapshotCard = themed<ViewStyle>(({ colors }) => ({
   backgroundColor: colors.cardBackground,
   overflow: "hidden",
@@ -527,7 +465,7 @@ const $snapshotContent = themed<ViewStyle>(({ spacing, colors }) => ({
   backgroundColor: colors.cardBackground,
 }))
 
-const $emptyStateText = themed<TextStyle>(({ colors, typography, spacing }) => ({
+const $emptyStateText = themed<TextStyle>(({ colors, typography }) => ({
   fontSize: typography.body,
   fontWeight: "400",
   color: colors.mainText,
