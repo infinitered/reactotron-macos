@@ -1,22 +1,19 @@
 import { Text, ViewStyle, ScrollView, TextStyle, Pressable, View, TextInput } from "react-native"
-import { themed, useTheme } from "../theme/theme"
+import { themed } from "../theme/theme"
 import { sendToCore } from "../state/connectToServer"
 import { useGlobal } from "../state/useGlobal"
-import { TreeViewWithProvider } from "../components/TreeView"
 import { useState } from "react"
 import { Divider } from "../components/Divider"
 import { useKeyboardEvents } from "../utils/system"
 import type { StateSubscription, Snapshot } from "app/types"
-import { Icon } from "../components/Icon"
 import { Tab } from "../components/Tab"
-import { Tooltip } from "../components/Tooltip"
 import { StateSubscriptions } from "../components/State/StateSubscriptions"
+import { StateSnapshots } from "../components/State/StateSnapshots"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
 export function StateScreen() {
-  const theme = useTheme()
   const [showAddSubscription, setShowAddSubscription] = useState(false)
   const [activeStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
 
@@ -25,7 +22,6 @@ export function StateScreen() {
   }>("stateSubscriptionsByClientId", {})
   const [activeTab, setActiveTab] = useGlobal("activeClientId", "")
   const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
-  const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
 
@@ -57,18 +53,6 @@ export function StateScreen() {
 
   const deleteSnapshot = (snapshotId: string) => {
     setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
-  }
-
-  const toggleSnapshotExpanded = (snapshotId: string) => {
-    setExpandedSnapshotIds((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(snapshotId)) {
-        newSet.delete(snapshotId)
-      } else {
-        newSet.add(snapshotId)
-      }
-      return newSet
-    })
   }
 
   const restoreSnapshot = (snapshot: Snapshot) => {
@@ -140,74 +124,12 @@ export function StateScreen() {
             onRemoveSubscription={removeSubscription}
           />
         ) : (
-          <>
-            {snapshots.length > 0 ? (
-              <>
-                {snapshots.map((snapshot) => (
-                  <View key={snapshot.id}>
-                    <View style={$snapshotCard()}>
-                      <Pressable
-                        style={$snapshotHeader()}
-                        onPress={() => toggleSnapshotExpanded(snapshot.id)}
-                      >
-                        <View style={$snapshotInfo()}>
-                          <Text style={$snapshotName()}>{snapshot.name}</Text>
-                          <Tooltip label="Copy Snapshot">
-                            <Pressable
-                              style={$iconButton()}
-                              onPress={(e) => {
-                                e.stopPropagation()
-                                copySnapshotToClipboard(snapshot)
-                              }}
-                            >
-                              <Icon icon="clipboard" size={18} color={theme.colors.mainText} />
-                            </Pressable>
-                          </Tooltip>
-                          <Tooltip label="Restore Snapshot">
-                            <Pressable
-                              style={$iconButton()}
-                              onPress={(e) => {
-                                e.stopPropagation()
-                                restoreSnapshot(snapshot)
-                              }}
-                            >
-                              <Icon
-                                icon="arrowUpFromLine"
-                                size={18}
-                                color={theme.colors.mainText}
-                              />
-                            </Pressable>
-                          </Tooltip>
-                          <Tooltip label="Delete Snapshot">
-                            <Pressable
-                              style={$iconButton()}
-                              onPress={(e) => {
-                                e.stopPropagation()
-                                deleteSnapshot(snapshot.id)
-                              }}
-                            >
-                              <Icon icon="trash" size={18} color={theme.colors.mainText} />
-                            </Pressable>
-                          </Tooltip>
-                        </View>
-                      </Pressable>
-                      {expandedSnapshotIds.has(snapshot.id) && (
-                        <View style={$snapshotContent()}>
-                          <TreeViewWithProvider data={snapshot.state} />
-                        </View>
-                      )}
-                    </View>
-                    <Divider />
-                  </View>
-                ))}
-              </>
-            ) : (
-              <Text style={$emptyStateText()}>
-                To take a snapshot of your current redux or mobx-state-tree store, press the Create
-                Snapshot button in the top right corner of this window.
-              </Text>
-            )}
-          </>
+          <StateSnapshots
+            snapshots={snapshots}
+            onCopySnapshot={copySnapshotToClipboard}
+            onRestoreSnapshot={restoreSnapshot}
+            onDeleteSnapshot={deleteSnapshot}
+          />
         )}
       </View>
     </ScrollView>
@@ -423,50 +345,4 @@ const $subscriptionButton = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.neutralVery,
   borderRadius: 8,
   cursor: "pointer",
-}))
-
-const $snapshotCard = themed<ViewStyle>(({ colors }) => ({
-  backgroundColor: colors.cardBackground,
-  overflow: "hidden",
-}))
-
-const $snapshotHeader = themed<ViewStyle>(({ spacing, colors }) => ({
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: spacing.sm,
-  backgroundColor: colors.cardBackground,
-  cursor: "pointer",
-}))
-
-const $snapshotInfo = themed<ViewStyle>(({ spacing }) => ({
-  flexDirection: "row",
-  alignItems: "center",
-  gap: spacing.md,
-}))
-
-const $snapshotName = themed<TextStyle>(({ colors, typography }) => ({
-  flex: 1,
-  fontSize: typography.body,
-  fontWeight: "600",
-  color: colors.mainText,
-  fontFamily: typography.code.normal,
-}))
-
-const $iconButton = themed<ViewStyle>(({ spacing, colors }) => ({
-  padding: spacing.xs,
-  borderRadius: 4,
-  cursor: "pointer",
-  backgroundColor: colors.neutralVery,
-}))
-
-const $snapshotContent = themed<ViewStyle>(({ spacing, colors }) => ({
-  padding: spacing.md,
-  backgroundColor: colors.cardBackground,
-}))
-
-const $emptyStateText = themed<TextStyle>(({ colors, typography }) => ({
-  fontSize: typography.body,
-  fontWeight: "400",
-  color: colors.mainText,
 }))
