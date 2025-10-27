@@ -20,15 +20,6 @@ export function StateSnapshots() {
     setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
   }
 
-  const copySnapshotToClipboard = (snapshot: Snapshot) => {
-    try {
-      IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
-      console.log("Snapshot copied to clipboard")
-    } catch (error) {
-      console.error("Failed to copy snapshot to clipboard:", error)
-    }
-  }
-
   const restoreSnapshot = (snapshot: Snapshot) => {
     if (!snapshot || !snapshot.state) return
 
@@ -122,6 +113,15 @@ export function StateSnapshots() {
       ))}
     </>
   )
+}
+
+function copySnapshotToClipboard(snapshot: Snapshot) {
+  try {
+    IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
+    console.log("Snapshot copied to clipboard")
+  } catch (error) {
+    console.error("Failed to copy snapshot to clipboard:", error)
+  }
 }
 
 const $snapshotCard = themed<ViewStyle>(({ colors }) => ({
