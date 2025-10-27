@@ -20,54 +20,23 @@ export function StateScreen() {
   const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
-  const [activeTab, setActiveTab] = useGlobal("activeClientId", "")
-  const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const [activeClientId, setActiveClient] = useGlobal("activeClientId", "")
+  const [snapshots] = useGlobal<Snapshot[]>("snapshots", [])
 
-  const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
+  const clientStateSubscriptions = stateSubscriptionsByClientId[activeClientId] || []
 
   const saveSubscription = (path: string) => {
     if (clientStateSubscriptions.some((s) => s.path === path)) return
     sendToCore("state.values.subscribe", {
       paths: [...clientStateSubscriptions.map((s) => s.path), path],
-      clientId: activeTab,
+      clientId: activeClientId,
     })
-  }
-
-  const removeSubscription = (path: string) => {
-    const newStateSubscriptions = clientStateSubscriptions.filter((s) => s.path !== path)
-    sendToCore("state.values.subscribe", {
-      paths: newStateSubscriptions.map((s) => s.path),
-      clientId: activeTab,
-    })
-    setStateSubscriptionsByClientId((prev) => ({
-      ...prev,
-      [activeTab]: newStateSubscriptions,
-    }))
   }
 
   const createSnapshot = () => {
-    if (!activeTab) return
+    if (!activeClientId) return
 
-    sendToCore("state.backup.request", { clientId: activeTab })
-  }
-
-  const deleteSnapshot = (snapshotId: string) => {
-    setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
-  }
-
-  const restoreSnapshot = (snapshot: Snapshot) => {
-    if (!snapshot || !snapshot.state) return
-
-    // Use the snapshot's clientId if available, otherwise fall back to the active client
-    const targetClientId = snapshot.clientId || activeTab
-
-    if (!targetClientId) return
-
-    // Send the restore command to the client
-    sendToCore("state.restore.request", {
-      clientId: targetClientId,
-      state: snapshot.state,
-    })
+    sendToCore("state.backup.request", { clientId: activeClientId })
   }
 
   if (showAddSubscription) {
@@ -93,10 +62,10 @@ export function StateScreen() {
               onPress={() => {
                 setStateSubscriptionsByClientId((prev) => ({
                   ...prev,
-                  [activeTab]: [],
+                  [activeClientId]: [],
                 }))
-                sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
-                setActiveTab("")
+                sendToCore("state.values.subscribe", { paths: [], clientId: activeClientId })
+                setActiveClient("")
               }}
             >
               <Text style={$buttonText()}>Clear State</Text>
@@ -118,19 +87,7 @@ export function StateScreen() {
         <Tab id="snapshots" label="Snapshots" tabgroup="activeStateTab" />
       </View>
       <View style={$stateContainer()}>
-        {activeStateTab === "Subscriptions" ? (
-          <StateSubscriptions
-            subscriptions={clientStateSubscriptions}
-            onRemoveSubscription={removeSubscription}
-          />
-        ) : (
-          <StateSnapshots
-            snapshots={snapshots}
-            onCopySnapshot={copySnapshotToClipboard}
-            onRestoreSnapshot={restoreSnapshot}
-            onDeleteSnapshot={deleteSnapshot}
-          />
-        )}
+        {activeStateTab === "Subscriptions" ? <StateSubscriptions /> : <StateSnapshots />}
       </View>
     </ScrollView>
   )
@@ -219,15 +176,6 @@ function copyAllSnapshotsToClipboard(snapshots: Snapshot[]): void {
     console.log("All snapshots copied to clipboard")
   } catch (error) {
     console.error("Failed to copy snapshots to clipboard:", error)
-  }
-}
-
-function copySnapshotToClipboard(snapshot: Snapshot): void {
-  try {
-    IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
-    console.log("Snapshot copied to clipboard")
-  } catch (error) {
-    console.error("Failed to copy snapshot to clipboard:", error)
   }
 }
 

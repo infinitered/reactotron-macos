@@ -4,36 +4,47 @@ import { TreeViewWithProvider } from "../TreeView"
 import { Divider } from "../Divider"
 import { Icon } from "../Icon"
 import type { StateSubscription } from "app/types"
+import { useGlobal } from "app/state/useGlobal"
+import { sendToCore } from "app/state/connectToServer"
 
-interface StateSubscriptionsProps {
-  subscriptions: StateSubscription[]
-  onRemoveSubscription: (path: string) => void
-}
-
-export function StateSubscriptions({
-  subscriptions,
-  onRemoveSubscription,
-}: StateSubscriptionsProps) {
+export function StateSubscriptions() {
   const theme = useTheme()
+  const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
+    [clientId: string]: StateSubscription[]
+  }>("stateSubscriptionsByClientId", {})
+  const [activeClientId, _] = useGlobal("activeClientId", "")
+  const clientStateSubscriptions = stateSubscriptionsByClientId[activeClientId] || []
 
-  if (subscriptions.length === 0) {
+  const removeSubscription = (path: string) => {
+    const newStateSubscriptions = clientStateSubscriptions.filter((s) => s.path !== path)
+    sendToCore("state.values.subscribe", {
+      paths: newStateSubscriptions.map((s) => s.path),
+      clientId: activeClientId,
+    })
+    setStateSubscriptionsByClientId((prev) => ({
+      ...prev,
+      [activeClientId]: newStateSubscriptions,
+    }))
+  }
+
+  if (clientStateSubscriptions.length === 0) {
     return <Text style={$emptyStateText()}>State is empty</Text>
   }
 
   return (
     <>
-      {subscriptions.map((subscription, index) => (
+      {clientStateSubscriptions.map((subscription, index) => (
         <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
           <Text style={$pathText()}>{subscription.path ? subscription.path : "Full State"}</Text>
           <View style={$treeViewContainer()}>
             <View style={$treeViewInnerContainer()}>
               <TreeViewWithProvider data={subscription.value} />
             </View>
-            <Pressable onPress={() => onRemoveSubscription(subscription.path)}>
+            <Pressable onPress={() => removeSubscription(subscription.path)}>
               <Icon icon="trash" size={20} color={theme.colors.mainText} />
             </Pressable>
           </View>
-          {index < subscriptions.length - 1 && <Divider extraStyles={$stateDivider()} />}
+          {index < clientStateSubscriptions.length - 1 && <Divider extraStyles={$stateDivider()} />}
         </View>
       ))}
     </>

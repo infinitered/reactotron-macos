@@ -5,23 +5,44 @@ import { Divider } from "../Divider"
 import { Icon } from "../Icon"
 import { Tooltip } from "../Tooltip"
 import { useState } from "react"
+import { useGlobal } from "../../state/useGlobal"
+import { sendToCore } from "../../state/connectToServer"
+import IRClipboard from "../../native/IRClipboard/NativeIRClipboard"
 import type { Snapshot } from "app/types"
 
-interface StateSnapshotsProps {
-  snapshots: Snapshot[]
-  onCopySnapshot: (snapshot: Snapshot) => void
-  onRestoreSnapshot: (snapshot: Snapshot) => void
-  onDeleteSnapshot: (snapshotId: string) => void
-}
-
-export function StateSnapshots({
-  snapshots,
-  onCopySnapshot,
-  onRestoreSnapshot,
-  onDeleteSnapshot,
-}: StateSnapshotsProps) {
+export function StateSnapshots() {
   const theme = useTheme()
+  const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const [activeClientId, _] = useGlobal("activeClientId", "")
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
+
+  const deleteSnapshot = (snapshotId: string) => {
+    setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
+  }
+
+  const copySnapshotToClipboard = (snapshot: Snapshot) => {
+    try {
+      IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
+      console.log("Snapshot copied to clipboard")
+    } catch (error) {
+      console.error("Failed to copy snapshot to clipboard:", error)
+    }
+  }
+
+  const restoreSnapshot = (snapshot: Snapshot) => {
+    if (!snapshot || !snapshot.state) return
+
+    // Use the snapshot's clientId if available, otherwise fall back to the active client
+    const targetClientId = snapshot.clientId || activeClientId
+
+    if (!targetClientId) return
+
+    // Send the restore command to the client
+    sendToCore("state.restore.request", {
+      clientId: targetClientId,
+      state: snapshot.state,
+    })
+  }
 
   const toggleSnapshotExpanded = (snapshotId: string) => {
     setExpandedSnapshotIds((prev) => {
@@ -60,7 +81,7 @@ export function StateSnapshots({
                     style={$iconButton()}
                     onPress={(e) => {
                       e.stopPropagation()
-                      onCopySnapshot(snapshot)
+                      copySnapshotToClipboard(snapshot)
                     }}
                   >
                     <Icon icon="clipboard" size={18} color={theme.colors.mainText} />
@@ -71,7 +92,7 @@ export function StateSnapshots({
                     style={$iconButton()}
                     onPress={(e) => {
                       e.stopPropagation()
-                      onRestoreSnapshot(snapshot)
+                      restoreSnapshot(snapshot)
                     }}
                   >
                     <Icon icon="arrowUpFromLine" size={18} color={theme.colors.mainText} />
@@ -82,7 +103,7 @@ export function StateSnapshots({
                     style={$iconButton()}
                     onPress={(e) => {
                       e.stopPropagation()
-                      onDeleteSnapshot(snapshot.id)
+                      deleteSnapshot(snapshot.id)
                     }}
                   >
                     <Icon icon="trash" size={18} color={theme.colors.mainText} />
