@@ -3,9 +3,9 @@ import { themed, useTheme } from "../../theme/theme"
 import { TreeViewWithProvider } from "../TreeView"
 import { Divider } from "../Divider"
 import { Icon } from "../Icon"
-import type { StateSubscription } from "app/types"
-import { useGlobal } from "app/state/useGlobal"
-import { sendToCore } from "app/state/connectToServer"
+import type { StateSubscription } from "../../types"
+import { useGlobal } from "../../state/useGlobal"
+import { sendToCore } from "../../state/connectToServer"
 
 export function StateSubscriptions() {
   const theme = useTheme()
