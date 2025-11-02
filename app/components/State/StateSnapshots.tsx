@@ -1,5 +1,5 @@
 import { Text, ViewStyle, TextStyle, Pressable, View } from "react-native"
-import { themed, useTheme } from "../../theme/theme"
+import { themed, useTheme, useThemeName } from "../../theme/theme"
 import { TreeViewWithProvider } from "../TreeView"
 import { Divider } from "../Divider"
 import { Icon } from "../Icon"
@@ -12,9 +12,12 @@ import type { Snapshot } from "app/types"
 
 export function StateSnapshots() {
   const theme = useTheme()
+  const [themeName] = useThemeName()
   const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
   const [activeClientId, _] = useGlobal("activeClientId", "")
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
+
+  const iconColor = theme.colors.mainText
 
   const deleteSnapshot = (snapshotId: string) => {
     setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
@@ -75,7 +78,12 @@ export function StateSnapshots() {
                       copySnapshotToClipboard(snapshot)
                     }}
                   >
-                    <Icon icon="clipboard" size={18} color={theme.colors.mainText} />
+                    <Icon
+                      icon="clipboard"
+                      size={18}
+                      color={iconColor}
+                      key={`clipboard-${themeName}`}
+                    />
                   </Pressable>
                 </Tooltip>
                 <Tooltip label="Restore Snapshot">
@@ -86,7 +94,12 @@ export function StateSnapshots() {
                       restoreSnapshot(snapshot)
                     }}
                   >
-                    <Icon icon="arrowUpFromLine" size={18} color={theme.colors.mainText} />
+                    <Icon
+                      icon="arrowUpFromLine"
+                      size={18}
+                      color={iconColor}
+                      key={`restore-${themeName}`}
+                    />
                   </Pressable>
                 </Tooltip>
                 <Tooltip label="Delete Snapshot">
@@ -97,7 +110,7 @@ export function StateSnapshots() {
                       deleteSnapshot(snapshot.id)
                     }}
                   >
-                    <Icon icon="trash" size={18} color={theme.colors.mainText} />
+                    <Icon icon="trash" size={18} color={iconColor} key={`trash-${themeName}`} />
                   </Pressable>
                 </Tooltip>
               </View>
