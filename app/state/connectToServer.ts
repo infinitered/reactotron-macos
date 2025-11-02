@@ -205,7 +205,6 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
           )
 
           if (existingSnapshot) {
-            console.log("Duplicate snapshot detected, skipping:", { serverDate, clientId })
             return prev
           }
 
@@ -227,7 +226,6 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
             state: data.cmd.payload?.state || data.cmd.payload,
             clientId: clientId,
           }
-          console.log("Adding snapshot:", newSnapshot)
           return [...prev, newSnapshot]
         })
         return
