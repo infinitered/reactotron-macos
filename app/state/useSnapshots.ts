@@ -1,5 +1,6 @@
 import { Snapshot } from "app/types"
 import { useGlobal, withGlobal } from "./useGlobal"
+import { sendToCore } from "./connectToServer"
 
 type SnapshotSetter = (value: Snapshot[] | ((prev: Snapshot[]) => Snapshot[])) => void
 
@@ -55,16 +56,37 @@ function buildSnapshotHelpers(setSnapshots: SnapshotSetter) {
   return { addSnapshot, deleteSnapshot }
 }
 
+function buildRestoreSnapshot(activeClientId: string) {
+  return (snapshot: Snapshot) => {
+    if (!snapshot || !snapshot.state) return
+
+    // Use the snapshot's clientId if available, otherwise fall back to the active client
+    const targetClientId = snapshot.clientId || activeClientId
+
+    if (!targetClientId) return
+
+    // Send the restore command to the client
+    sendToCore("state.restore.request", {
+      clientId: targetClientId,
+      state: snapshot.state,
+    })
+  }
+}
+
 export function useSnapshots() {
   const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const [activeClientId] = useGlobal<string>("activeClientId", "")
   const { addSnapshot, deleteSnapshot } = buildSnapshotHelpers(setSnapshots)
+  const restoreSnapshot = buildRestoreSnapshot(activeClientId)
 
-  return { snapshots, setSnapshots, addSnapshot, deleteSnapshot }
+  return { snapshots, setSnapshots, addSnapshot, deleteSnapshot, restoreSnapshot }
 }
 
 export function withSnapshots() {
   const [snapshots, setSnapshots] = withGlobal<Snapshot[]>("snapshots", [])
+  const [activeClientId] = withGlobal<string>("activeClientId", "")
   const { addSnapshot, deleteSnapshot } = buildSnapshotHelpers(setSnapshots)
+  const restoreSnapshot = buildRestoreSnapshot(activeClientId)
 
-  return { snapshots, setSnapshots, addSnapshot, deleteSnapshot }
+  return { snapshots, setSnapshots, addSnapshot, deleteSnapshot, restoreSnapshot }
 }

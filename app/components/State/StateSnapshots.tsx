@@ -5,8 +5,6 @@ import { Divider } from "../Divider"
 import { Icon } from "../Icon"
 import { Tooltip } from "../Tooltip"
 import { useState } from "react"
-import { useGlobal } from "../../state/useGlobal"
-import { sendToCore } from "../../state/connectToServer"
 import IRClipboard from "../../native/IRClipboard/NativeIRClipboard"
 import type { Snapshot } from "../../../app/types"
 import { useSnapshots } from "../../../app/state/useSnapshots"
@@ -14,26 +12,10 @@ import { useSnapshots } from "../../../app/state/useSnapshots"
 export function StateSnapshots() {
   const theme = useTheme()
   const [themeName] = useThemeName()
-  const { snapshots, deleteSnapshot } = useSnapshots()
-  const [activeClientId, _] = useGlobal("activeClientId", "")
+  const { snapshots, deleteSnapshot, restoreSnapshot } = useSnapshots()
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
 
   const iconColor = theme.colors.mainText
-
-  const restoreSnapshot = (snapshot: Snapshot) => {
-    if (!snapshot || !snapshot.state) return
-
-    // Use the snapshot's clientId if available, otherwise fall back to the active client
-    const targetClientId = snapshot.clientId || activeClientId
-
-    if (!targetClientId) return
-
-    // Send the restore command to the client
-    sendToCore("state.restore.request", {
-      clientId: targetClientId,
-      state: snapshot.state,
-    })
-  }
 
   const toggleSnapshotExpanded = (snapshotId: string) => {
     setExpandedSnapshotIds((prev) => {
