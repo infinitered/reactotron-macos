@@ -8,7 +8,7 @@ import { useState } from "react"
 import { useGlobal } from "../../state/useGlobal"
 import { sendToCore } from "../../state/connectToServer"
 import IRClipboard from "../../native/IRClipboard/NativeIRClipboard"
-import type { Snapshot } from "app/types"
+import type { Snapshot } from "../../../app/types"
 import { useSnapshots } from "../../../app/state/useSnapshots"
 
 export function StateSnapshots() {
