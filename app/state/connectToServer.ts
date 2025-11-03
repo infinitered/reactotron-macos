@@ -41,7 +41,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_customCommands, setCustomCommands] = withGlobal<CustomCommand[]>("customCommands", [], {
     persist: true,
   })
-  const { snapshots, setSnapshots } = useSnapshots()
+  const { addSnapshot } = useSnapshots()
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -193,41 +193,10 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
 
       // Handle state backup response
       if (data.cmd.type === CommandType.StateBackupResponse) {
-        setSnapshots((prev) => {
-          // Use the server-provided date to check for duplicates
-          const serverDate = data.cmd.date
-          const clientId = data.cmd.clientId
-
-          // Check if we already have a snapshot with the same server date and clientId
-          const existingSnapshot = prev.find(
-            (s) =>
-              s.clientId === clientId &&
-              new Date(s.date).getTime() === new Date(serverDate).getTime(),
-          )
-
-          if (existingSnapshot) {
-            return prev
-          }
-
-          // Format the date as "Wednesday @ 5:00:15 PM"
-          const snapshotDate = new Date(serverDate)
-          const dayName = snapshotDate.toLocaleDateString("en-US", { weekday: "long" })
-          const timeString = snapshotDate.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true,
-          })
-          const snapshotName = `${dayName} @ ${timeString}`
-
-          const newSnapshot = {
-            id: `${Date.now()}-${clientId}`,
-            name: snapshotName,
-            date: snapshotDate,
-            state: data.cmd.payload?.state || data.cmd.payload,
-            clientId: clientId,
-          }
-          return [...prev, newSnapshot]
+        addSnapshot({
+          date: data.cmd.date,
+          clientId: data.cmd.clientId,
+          state: data.cmd.payload?.state || data.cmd.payload,
         })
         return
       }

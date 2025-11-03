@@ -14,15 +14,11 @@ import { useSnapshots } from "app/state/useSnapshots"
 export function StateSnapshots() {
   const theme = useTheme()
   const [themeName] = useThemeName()
-  const { snapshots, setSnapshots } = useSnapshots()
+  const { snapshots, deleteSnapshot } = useSnapshots()
   const [activeClientId, _] = useGlobal("activeClientId", "")
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
 
   const iconColor = theme.colors.mainText
-
-  const deleteSnapshot = (snapshotId: string) => {
-    setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
-  }
 
   const restoreSnapshot = (snapshot: Snapshot) => {
     if (!snapshot || !snapshot.state) return
