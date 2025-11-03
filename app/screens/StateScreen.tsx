@@ -171,7 +171,7 @@ function AddSubscription({
 
 function copyAllSnapshotsToClipboard(snapshots: Snapshot[]): void {
   try {
-    IRClipboard.setString(JSON.stringify(snapshots, null, 2))
+    IRClipboard.setString(JSON.stringify(snapshots))
   } catch (error) {
     console.error("Failed to copy snapshots to clipboard:", error)
   }

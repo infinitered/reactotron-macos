@@ -130,7 +130,7 @@ export function StateSnapshots() {
 
 function copySnapshotToClipboard(snapshot: Snapshot) {
   try {
-    IRClipboard.setString(JSON.stringify(snapshot.state, null, 2))
+    IRClipboard.setString(JSON.stringify(snapshot.state))
   } catch (error) {
     console.error("Failed to copy snapshot to clipboard:", error)
   }
