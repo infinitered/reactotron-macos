@@ -9,11 +9,12 @@ import { useGlobal } from "../../state/useGlobal"
 import { sendToCore } from "../../state/connectToServer"
 import IRClipboard from "../../native/IRClipboard/NativeIRClipboard"
 import type { Snapshot } from "app/types"
+import { useSnapshots } from "app/state/useSnapshots"
 
 export function StateSnapshots() {
   const theme = useTheme()
   const [themeName] = useThemeName()
-  const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const { snapshots, setSnapshots } = useSnapshots()
   const [activeClientId, _] = useGlobal("activeClientId", "")
   const [expandedSnapshotIds, setExpandedSnapshotIds] = useState<Set<string>>(new Set())
 

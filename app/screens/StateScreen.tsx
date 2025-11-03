@@ -10,6 +10,7 @@ import { Tab } from "../components/Tab"
 import { StateSubscriptions } from "../components/State/StateSubscriptions"
 import { StateSnapshots } from "../components/State/StateSnapshots"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
+import { useSnapshots } from "app/state/useSnapshots"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
@@ -21,7 +22,7 @@ export function StateScreen() {
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
   const [activeClientId, setActiveClient] = useGlobal("activeClientId", "")
-  const [snapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const { snapshots } = useSnapshots()
 
   const clientStateSubscriptions = stateSubscriptionsByClientId[activeClientId] || []
 
