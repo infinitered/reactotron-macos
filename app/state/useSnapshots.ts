@@ -1,9 +1,9 @@
 import { Snapshot } from "app/types"
-import { useGlobal } from "./useGlobal"
+import { useGlobal, withGlobal } from "./useGlobal"
 
-export function useSnapshots() {
-  const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+type SnapshotSetter = (value: Snapshot[] | ((prev: Snapshot[]) => Snapshot[])) => void
 
+function buildSnapshotHelpers(setSnapshots: SnapshotSetter) {
   const addSnapshot = ({
     date,
     clientId,
@@ -51,6 +51,20 @@ export function useSnapshots() {
   const deleteSnapshot = (snapshotId: string) => {
     setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
   }
+
+  return { addSnapshot, deleteSnapshot }
+}
+
+export function useSnapshots() {
+  const [snapshots, setSnapshots] = useGlobal<Snapshot[]>("snapshots", [])
+  const { addSnapshot, deleteSnapshot } = buildSnapshotHelpers(setSnapshots)
+
+  return { snapshots, setSnapshots, addSnapshot, deleteSnapshot }
+}
+
+export function withSnapshots() {
+  const [snapshots, setSnapshots] = withGlobal<Snapshot[]>("snapshots", [])
+  const { addSnapshot, deleteSnapshot } = buildSnapshotHelpers(setSnapshots)
 
   return { snapshots, setSnapshots, addSnapshot, deleteSnapshot }
 }

@@ -10,7 +10,7 @@ import { Tab } from "../components/Tab"
 import { StateSubscriptions } from "../components/State/StateSubscriptions"
 import { StateSnapshots } from "../components/State/StateSnapshots"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
-import { useSnapshots } from "app/state/useSnapshots"
+import { useSnapshots } from "../../app/state/useSnapshots"
 
 type StateTab = "Subscriptions" | "Snapshots"
 
