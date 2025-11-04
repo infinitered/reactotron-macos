@@ -4,9 +4,14 @@ export type {
   SystemMenuStructure,
 } from "../../native/IRSystemMenuManager/NativeIRSystemMenuManager"
 
+export type PlatformShortcut = {
+  windows?: string
+  macos?: string
+}
+
 export interface SystemMenuItem {
   label: string
-  shortcut?: string
+  shortcut?: string | PlatformShortcut
   enabled?: boolean
   position?: number
   action?: () => void

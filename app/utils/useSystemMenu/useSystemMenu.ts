@@ -113,19 +113,24 @@ export function useSystemMenu(config?: SystemMenuConfig) {
 
       if (item.action) actionsRef.current.set(actionKey, item.action)
 
+      // Resolve platform-specific shortcut for macOS
+      const resolvedShortcut = typeof item.shortcut === "object"
+        ? (item.shortcut.macos ?? "")
+        : (item.shortcut ?? "")
+
       try {
         if (typeof item.position === "number") {
           await NativeIRSystemMenuManager.insertMenuItemAtPath(
             parentPath,
             item.label,
             item.position,
-            item.shortcut ?? "",
+            resolvedShortcut,
           )
         } else {
           await NativeIRSystemMenuManager.addMenuItemAtPath(
             parentPath,
             item.label,
-            item.shortcut ?? "",
+            resolvedShortcut,
           )
         }
 

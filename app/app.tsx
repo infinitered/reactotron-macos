@@ -4,7 +4,7 @@
  *
  * @format
  */
-import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
+import { DevSettings, NativeModules, Pressable, StatusBar, View, Text, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
 import { useEffect, useMemo } from "react"
@@ -20,6 +20,7 @@ import { HelpScreen } from "./screens/HelpScreen"
 import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
+import { ShortcutsProvider } from "./contexts/ShortcutsContext"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -44,39 +45,39 @@ function App(): React.JSX.Element {
         View: [
           {
             label: "Toggle Sidebar",
-            shortcut: "cmd+b",
-            action: toggleSidebar,
+            shortcut: { windows: "ctrl+b", macos: "cmd+b" },
+            action: () => toggleSidebar(),
           },
           {
             label: "Logs Tab",
-            shortcut: "cmd+1",
+            shortcut: { windows: "ctrl+1", macos: "cmd+1" },
             action: () => setActiveItem("logs"),
           },
           {
             label: "Network Tab",
-            shortcut: "cmd+2",
+            shortcut: { windows: "ctrl+2", macos: "cmd+2" },
             action: () => setActiveItem("network"),
           },
           {
             label: "Performance Tab",
-            shortcut: "cmd+3",
+            shortcut: { windows: "ctrl+3", macos: "cmd+3" },
             action: () => setActiveItem("performance"),
           },
           {
             label: "Plugins Tab",
-            shortcut: "cmd+4",
+            shortcut: { windows: "ctrl+4", macos: "cmd+4" },
             action: () => setActiveItem("plugins"),
           },
           {
             label: "Help Tab",
-            shortcut: "cmd+5",
+            shortcut: { windows: "ctrl+5", macos: "cmd+5" },
             action: () => setActiveItem("help"),
           },
           ...(__DEV__
             ? [
               {
                 label: "Toggle Dev Menu",
-                shortcut: "cmd+shift+d",
+                shortcut: { windows: "ctrl+shift+d", macos: "cmd+shift+d" },
                 action: () => NativeModules.DevMenu.show(),
               },
             ]
@@ -85,20 +86,20 @@ function App(): React.JSX.Element {
         Window: [
           {
             label: "Reload",
-            shortcut: "cmd+shift+r",
+            shortcut: { windows: "ctrl+shift+r", macos: "cmd+shift+r" },
             action: () => DevSettings.reload(),
           },
         ],
         Tools: [
           {
             label: "Clear Timeline Items",
-            shortcut: "cmd+k",
+            shortcut: { windows: "ctrl+k", macos: "cmd+k" },
             action: () => setTimelineItems([]),
           },
         ],
       },
     }),
-    [toggleSidebar],
+    [toggleSidebar, setActiveItem, setTimelineItems],
   )
 
   useSystemMenu(menuConfig)
@@ -128,18 +129,23 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <View style={$container()}>
-      <Titlebar />
-      <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <View style={$mainContent}>
-        <Sidebar />
-        <View style={$contentContainer}>
-          <AppHeader />
-          {renderActiveItem()}
+    <ShortcutsProvider>
+      <View style={$container()}>
+        <Titlebar />
+        <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
+        <View style={$mainContent}>
+          <Sidebar />
+          <View style={$contentContainer}>
+            <AppHeader />
+            {renderActiveItem()}
+            <Pressable onPress={() => toggleSidebar()}>
+              <Text>Toggle Sidebar</Text>
+            </Pressable>
+          </View>
         </View>
+        <PortalHost />
       </View>
-      <PortalHost />
-    </View>
+    </ShortcutsProvider>
   )
 }
 
