@@ -81,7 +81,6 @@ function formatShortcut(shortcut: string): string {
   return shortcut
     .replace(/cmd/gi, "Ctrl")
     .replace(/shift/gi, "Shift")
-    .replace(/\+/g, "+")
     .split("+")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join("+")
