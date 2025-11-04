@@ -4,23 +4,21 @@
  *
  * @format
  */
-import { DevSettings, NativeModules, Pressable, StatusBar, View, Text, type ViewStyle } from "react-native"
+import { StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
-import { useEffect, useMemo } from "react"
+import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
-import { useSystemMenu } from "./utils/useSystemMenu/useSystemMenu"
 import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
-import { useSidebar } from "./state/useSidebar"
 import { AppHeader } from "./components/AppHeader"
-import { useGlobal, withGlobal } from "./state/useGlobal"
+import { useGlobal } from "./state/useGlobal"
 import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
-import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
 import { ShortcutsProvider } from "./contexts/ShortcutsContext"
+import { SystemMenu } from "./components/SystemMenu"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -30,87 +28,11 @@ if (__DEV__) {
 
 function App(): React.JSX.Element {
   const { colors } = useTheme()
-  const { toggleSidebar } = useSidebar()
-  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
-    persist: true,
-  })
-  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
+  const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
   })
 
-  const menuConfig = useMemo(
-    () => ({
-      remove: ["File", "Edit", "Format"],
-      items: {
-        View: [
-          {
-            label: "Toggle Sidebar",
-            shortcut: { windows: "ctrl+b", macos: "cmd+b" },
-            action: () => toggleSidebar(),
-          },
-          {
-            label: "Logs Tab",
-            shortcut: { windows: "ctrl+1", macos: "cmd+1" },
-            action: () => setActiveItem("logs"),
-          },
-          {
-            label: "Network Tab",
-            shortcut: { windows: "ctrl+2", macos: "cmd+2" },
-            action: () => setActiveItem("network"),
-          },
-          {
-            label: "Performance Tab",
-            shortcut: { windows: "ctrl+3", macos: "cmd+3" },
-            action: () => setActiveItem("performance"),
-          },
-          {
-            label: "Plugins Tab",
-            shortcut: { windows: "ctrl+4", macos: "cmd+4" },
-            action: () => setActiveItem("plugins"),
-          },
-          {
-            label: "Help Tab",
-            shortcut: { windows: "ctrl+5", macos: "cmd+5" },
-            action: () => setActiveItem("help"),
-          },
-          ...(__DEV__
-            ? [
-              {
-                label: "Toggle Dev Menu",
-                shortcut: { windows: "ctrl+shift+d", macos: "cmd+shift+d" },
-                action: () => NativeModules.DevMenu.show(),
-              },
-            ]
-            : []),
-        ],
-        Window: [
-          {
-            label: "Reload",
-            shortcut: { windows: "ctrl+shift+r", macos: "cmd+shift+r" },
-            action: () => DevSettings.reload(),
-          },
-        ],
-        Tools: [
-          {
-            label: "Clear Timeline Items",
-            shortcut: { windows: "ctrl+k", macos: "cmd+k" },
-            action: () => setTimelineItems([]),
-          },
-        ],
-      },
-    }),
-    [toggleSidebar, setActiveItem, setTimelineItems],
-  )
 
-  useSystemMenu(menuConfig)
-
-  setTimeout(() => {
-    fetch("https://www.google.com")
-      .then((res) => res.text())
-      .then((text) => {
-        console.tron.log("text", text)
-      })
-  }, 1000)
 
   // Connect to the server when the app mounts.
   // This will update global state with the server's state
@@ -130,21 +52,20 @@ function App(): React.JSX.Element {
 
   return (
     <ShortcutsProvider>
-      <View style={$container()}>
-        <Titlebar />
-        <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-        <View style={$mainContent}>
-          <Sidebar />
-          <View style={$contentContainer}>
-            <AppHeader />
-            {renderActiveItem()}
-            <Pressable onPress={() => toggleSidebar()}>
-              <Text>Toggle Sidebar</Text>
-            </Pressable>
+      <SystemMenu>
+        <View style={$container()}>
+          <Titlebar />
+          <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
+          <View style={$mainContent}>
+            <Sidebar />
+            <View style={$contentContainer}>
+              <AppHeader />
+              {renderActiveItem()}
+            </View>
           </View>
+          <PortalHost />
         </View>
-        <PortalHost />
-      </View>
+      </SystemMenu>
     </ShortcutsProvider>
   )
 }

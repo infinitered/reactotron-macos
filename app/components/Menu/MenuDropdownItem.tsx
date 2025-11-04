@@ -70,7 +70,7 @@ const MenuDropdownItemComponent = ({
           <Text
             style={[$shortcut(), !enabled && $dropdownItemTextDisabled()]}
           >
-            {formatShortcut(item.shortcut)}
+            {formatShortcut(item.shortcut.windows || "")}
           </Text>
         )}
         {item.submenu && (
@@ -91,6 +91,7 @@ const MenuDropdownItemComponent = ({
 export const MenuDropdownItem = memo(MenuDropdownItemComponent)
 
 function formatShortcut(shortcut: string): string {
+  if (!shortcut) return ""
   return shortcut
     .replace(/cmd/gi, "Ctrl")
     .replace(/shift/gi, "Shift")

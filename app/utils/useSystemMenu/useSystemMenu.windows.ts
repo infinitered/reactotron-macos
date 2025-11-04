@@ -156,51 +156,13 @@ export function useSystemMenu(config?: SystemMenuConfig) {
   }, [globalMenuItems])
 
   useEffect(() => {
-    const updateMenus = async () => {
-      if (!config?.items) return
+    if (!config?.items) return
 
-      // Clear all existing actions and shortcuts first
-      actionsRef.current.clear()
-      clearAllShortcuts()
-
-      Object.entries(config.items).forEach(([parentKey, entries]) => {
-        entries.forEach(entry => {
-          if (!isSeparator(entry)) {
-            const item = entry as SystemMenuItem
-            if (item.action) {
-              actionsRef.current.set(joinPath([parentKey, item.label]), item.action)
-              // Register shortcut if present
-              if (item.shortcut) {
-                const resolvedShortcut = typeof item.shortcut === "object"
-                  ? item.shortcut.windows
-                  : item.shortcut
-                if (resolvedShortcut) {
-                  registerShortcut(resolvedShortcut, item.action)
-                }
-              }
-            }
-          }
-        })
-      })
-
-      setGlobalMenuConfig(config)
-      setGlobalMenuItems(config.items as Record<string, SystemMenuItem[]>)
-      await discoverMenus()
-    }
-
-    updateMenus()
-  }, [config, setGlobalMenuConfig, setGlobalMenuItems, discoverMenus, clearAllShortcuts, registerShortcut])
-
-  // This effect should only restore actions when there's no config but global config exists
-  // It should NOT run when config is provided
-  useEffect(() => {
-    if (config || !globalMenuConfig?.items) return
-
-    // Clear and re-register to ensure no duplicates
+    // Clear all existing actions and shortcuts first (only on initial mount)
     actionsRef.current.clear()
     clearAllShortcuts()
 
-    Object.entries(globalMenuConfig.items).forEach(([parentKey, entries]) => {
+    Object.entries(config.items).forEach(([parentKey, entries]) => {
       entries.forEach(entry => {
         if (!isSeparator(entry)) {
           const item = entry as SystemMenuItem
@@ -219,11 +181,22 @@ export function useSystemMenu(config?: SystemMenuConfig) {
         }
       })
     })
-  }, [config, globalMenuConfig, clearAllShortcuts, registerShortcut])
 
-  useEffect(() => {
-    discoverMenus()
-  }, [discoverMenus])
+    // Update global state directly without calling discoverMenus to avoid redundancy
+    const menuStructure: SystemMenuStructure = Object.keys(config.items).map(title => ({
+      title,
+      enabled: true,
+      path: [title],
+      items: [],
+      children: [],
+    }))
+
+    setGlobalMenuConfig(config)
+    setGlobalMenuStructure(menuStructure)
+    setGlobalMenuItems(config.items as Record<string, SystemMenuItem[]>)
+  }, [])
+
+
 
   return {
     availableMenus: [],
