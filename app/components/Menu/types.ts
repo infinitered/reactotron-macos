@@ -18,4 +18,4 @@ export interface MenuItem {
 export type DropdownMenuItem = MenuItem
 
 // Menu separator constant
-export const MENU_SEPARATOR = 'menu-item-separator' as const
+export const MENU_SEPARATOR = "menu-item-separator" as const

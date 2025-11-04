@@ -1,14 +1,18 @@
-import { SEPARATOR, type SystemMenuListEntry } from "./types"
+import { type SystemMenuListEntry } from "./types"
+import { MENU_SEPARATOR } from "../../components/Menu/types"
 
 export const PATH_SEPARATOR = " > "
 
 export const parsePathKey = (key: string): string[] =>
-  key.split(PATH_SEPARATOR).map(s => s.trim()).filter(Boolean)
+  key
+    .split(PATH_SEPARATOR)
+    .map((s) => s.trim())
+    .filter(Boolean)
 
 export const joinPath = (path: string[]): string => path.join(PATH_SEPARATOR)
 
-export const isSeparator = (entry: SystemMenuListEntry): entry is typeof SEPARATOR =>
-  entry === SEPARATOR
+export const isSeparator = (entry: SystemMenuListEntry): entry is typeof MENU_SEPARATOR =>
+  entry === MENU_SEPARATOR
 
 export interface KeyCombination {
   ctrl: boolean
@@ -26,7 +30,11 @@ export interface KeyCombination {
 export function parseShortcut(shortcut: string): KeyCombination | null {
   if (!shortcut?.trim()) return null
 
-  const parts = shortcut.toLowerCase().split("+").map(s => s.trim()).filter(Boolean)
+  const parts = shortcut
+    .toLowerCase()
+    .split("+")
+    .map((s) => s.trim())
+    .filter(Boolean)
   if (parts.length === 0) return null
 
   const combination: KeyCombination = { ctrl: false, alt: false, shift: false, cmd: false, key: "" }

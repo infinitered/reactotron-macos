@@ -10,17 +10,26 @@ interface TitlebarMenuItemProps {
   onHoverOut?: () => void
 }
 
-export const TitlebarMenuItem = ({ title, isOpen, onPress, onHoverIn, onHoverOut }: TitlebarMenuItemProps) => {
+export const TitlebarMenuItem = ({
+  title,
+  isOpen,
+  onPress,
+  onHoverIn,
+  onHoverOut,
+}: TitlebarMenuItemProps) => {
   const [isHovered, setIsHovered] = useState(false)
 
-  const handleHover = useCallback((isHovered: boolean) => {
-    setIsHovered(isHovered)
-    if (isHovered) {
-      onHoverIn?.()
-    } else {
-      onHoverOut?.()
-    }
-  }, [onHoverIn, onHoverOut])
+  const handleHover = useCallback(
+    (isHovered: boolean) => {
+      setIsHovered(isHovered)
+      if (isHovered) {
+        onHoverIn?.()
+      } else {
+        onHoverOut?.()
+      }
+    },
+    [onHoverIn, onHoverOut],
+  )
 
   return (
     <Pressable
@@ -31,10 +40,7 @@ export const TitlebarMenuItem = ({ title, isOpen, onPress, onHoverIn, onHoverOut
       onHoverOut={() => {
         handleHover(false)
       }}
-      style={({ pressed }) => [
-        $menuItem(),
-        (pressed || isOpen || isHovered) && $menuItemHovered(),
-      ]}
+      style={({ pressed }) => [$menuItem(), (pressed || isOpen || isHovered) && $menuItemHovered()]}
     >
       <Text style={$menuItemText()}>{title}</Text>
     </Pressable>

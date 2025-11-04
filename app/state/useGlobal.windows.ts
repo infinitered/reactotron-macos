@@ -24,21 +24,21 @@
  *   established value "wins" (subsequent differing defaults are ignored).
  */
 
-import { useSyncExternalStore, useEffect, useCallback } from "react";
-import { unstable_batchedUpdates } from "react-native";
+import { useSyncExternalStore, useEffect, useCallback } from "react"
+import { unstable_batchedUpdates } from "react-native"
 
-type Id = string;
-type Listener = () => void;
-type SetValue<T> = T | ((prev: T) => T);
-type UseGlobalOptions = { persist?: boolean };
+type Id = string
+type Listener = () => void
+type SetValue<T> = T | ((prev: T) => T)
+type UseGlobalOptions = { persist?: boolean }
 
 /* -----------------------------------------------------------------------------
  * Internal Stores
  * -------------------------------------------------------------------------- */
 // Central storage for all global state values, keyed by unique identifiers
-const globals = new Map<Id, unknown>();
+const globals = new Map<Id, unknown>()
 // Subscription system: maps each global ID to a set of listener functions
-const listeners = new Map<Id, Set<Listener>>();
+const listeners = new Map<Id, Set<Listener>>()
 
 /* -----------------------------------------------------------------------------
  * Persistence Stubs (no-op)
@@ -61,14 +61,14 @@ function debouncePersist(_delay: number = 300): void {
  * Pure read: NEVER writes during render.
  */
 function getSnapshotWithDefault<T>(id: Id, initialValue: T): T {
-  return (globals.has(id) ? (globals.get(id) as T) : initialValue);
+  return globals.has(id) ? (globals.get(id) as T) : initialValue
 }
 
 /**
  * Read a snapshot without default (used by imperative API and setters).
  */
 function getSnapshot<T>(id: Id): T {
-  return globals.get(id) as T;
+  return globals.get(id) as T
 }
 
 /**
@@ -76,18 +76,18 @@ function getSnapshot<T>(id: Id): T {
  * Returns an unsubscribe function that cleans up both the listener and empty sets.
  */
 function subscribe(id: Id, cb: Listener): () => void {
-  let set = listeners.get(id);
-  if (!set) listeners.set(id, (set = new Set()));
-  set.add(cb);
+  let set = listeners.get(id)
+  if (!set) listeners.set(id, (set = new Set()))
+  set.add(cb)
 
   // Return cleanup function that prevents memory leaks
   return () => {
-    const s = listeners.get(id);
-    if (!s) return;
-    s.delete(cb);
+    const s = listeners.get(id)
+    if (!s) return
+    s.delete(cb)
     // Clean up empty listener sets to prevent memory leaks
-    if (s.size === 0) listeners.delete(id);
-  };
+    if (s.size === 0) listeners.delete(id)
+  }
 }
 
 /**
@@ -96,12 +96,12 @@ function subscribe(id: Id, cb: Listener): () => void {
  * Iterates over a copy to be resilient to listeners mutating subscriptions.
  */
 function notify(id: Id) {
-  const s = listeners.get(id);
-  if (!s || s.size === 0) return;
+  const s = listeners.get(id)
+  if (!s || s.size === 0) return
 
   unstable_batchedUpdates(() => {
-    for (const l of Array.from(s)) l();
-  });
+    for (const l of Array.from(s)) l()
+  })
 }
 
 /**
@@ -112,37 +112,33 @@ function notify(id: Id) {
  */
 function buildSetValue<T>(id: Id, persist: boolean, initialValue?: T) {
   return (value: SetValue<T> | null) => {
-    const prev = globals.get(id) as T | undefined;
+    const prev = globals.get(id) as T | undefined
 
     // Handle null value as reset (imperative API)
     if (value === null) {
-      if (!globals.has(id)) return; // nothing to reset
-      globals.delete(id);
+      if (!globals.has(id)) return // nothing to reset
+      globals.delete(id)
       // persistence cleanup would go here (no-op for now)
-      notify(id);
-      return;
+      notify(id)
+      return
     }
 
     // Resolve functional updater - use prev if exists, otherwise use initialValue as fallback
-    const current = prev !== undefined ? prev : initialValue;
-    const next =
-      typeof value === "function"
-        ? (value as (prev: T) => T)(current as T)
-        : value;
-
+    const current = prev !== undefined ? prev : initialValue
+    const next = typeof value === "function" ? (value as (prev: T) => T)(current as T) : value
 
     // Avoid unnecessary notifications/re-renders on no-op updates
     // BUT: prev might be undefined while next is defined (first set)
-    if (prev !== undefined && Object.is(prev, next)) return;
+    if (prev !== undefined && Object.is(prev, next)) return
 
-    globals.set(id, next);
+    globals.set(id, next)
 
     // Would save to persistent storage if implemented (no-op for now)
-    if (persist) debouncePersist();
+    if (persist) debouncePersist()
 
     // Notify all subscribers for re-renders
-    notify(id);
-  };
+    notify(id)
+  }
 }
 
 /* -----------------------------------------------------------------------------
@@ -162,13 +158,13 @@ function buildSetValue<T>(id: Id, persist: boolean, initialValue?: T) {
 export function useGlobal<T>(
   id: Id,
   initialValue: T,
-  { persist = false }: UseGlobalOptions = {}
+  { persist = false }: UseGlobalOptions = {},
 ): [T, (v: SetValue<T>) => void] {
   // Read via useSyncExternalStore; ensure the snapshot read is PURE (no writes)
   const value = useSyncExternalStore(
-    (cb) => subscribe(id, cb),                     // subscribe
-    () => getSnapshotWithDefault<T>(id, initialValue) // getSnapshot (client)
-  );
+    (cb) => subscribe(id, cb), // subscribe
+    () => getSnapshotWithDefault<T>(id, initialValue), // getSnapshot (client)
+  )
 
   /**
    * Post-mount initialization:
@@ -178,19 +174,19 @@ export function useGlobal<T>(
    */
   useEffect(() => {
     if (!globals.has(id)) {
-      globals.set(id, initialValue);
-      // Optionally, a dev-only warning could detect mismatched defaults for same id.
+      globals.set(id, initialValue)
     }
-    // We intentionally do not depend on initialValue here:
-    // changing the default later should not rewrite established globals.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id])
 
   // Memoize the setter; enforce non-null signature for hook users
-  const setAny = useCallback(buildSetValue<T>(id, persist, initialValue), [id, persist, initialValue]);
-  const set = useCallback<(v: SetValue<T>) => void>((v) => setAny(v), [setAny]);
+  const setAny = useCallback(buildSetValue<T>(id, persist, initialValue), [
+    id,
+    persist,
+    initialValue,
+  ])
+  const set = useCallback<(v: SetValue<T>) => void>((v) => setAny(v), [setAny])
 
-  return [value, set];
+  return [value, set]
 }
 
 /**
@@ -207,11 +203,11 @@ export function useGlobal<T>(
 export function withGlobal<T>(
   id: Id,
   initialValue: T,
-  { persist = false }: UseGlobalOptions = {}
+  { persist = false }: UseGlobalOptions = {},
 ): [T, (v: SetValue<T> | null) => void] {
   // Imperative path can initialize synchronously without render concerns
-  if (!globals.has(id)) globals.set(id, initialValue);
-  return [getSnapshot<T>(id), buildSetValue<T>(id, persist, initialValue)];
+  if (!globals.has(id)) globals.set(id, initialValue)
+  return [getSnapshot<T>(id), buildSetValue<T>(id, persist, initialValue)]
 }
 
 /**
@@ -221,10 +217,10 @@ export function withGlobal<T>(
  * @param rerender - Whether to trigger re-renders (default: true)
  */
 export function resetGlobal(id: Id, rerender = true) {
-  if (!globals.has(id)) return;
-  globals.delete(id);
+  if (!globals.has(id)) return
+  globals.delete(id)
   // Note: No persistence cleanup needed since persistence is not implemented
-  if (rerender) notify(id);
+  if (rerender) notify(id)
 }
 
 /**
@@ -237,13 +233,13 @@ export function resetGlobal(id: Id, rerender = true) {
  */
 export function clearGlobals(rerender = true) {
   // Clear in-memory state
-  const hadAny = globals.size > 0;
-  globals.clear();
+  const hadAny = globals.size > 0
+  globals.clear()
   // Note: No persistent storage to clear since persistence is not implemented
 
   if (rerender && hadAny) {
     // Only notify ids that currently have listeners
-    for (const id of listeners.keys()) notify(id);
+    for (const id of listeners.keys()) notify(id)
   }
 }
 
@@ -254,23 +250,22 @@ export function clearGlobals(rerender = true) {
 /**
  * Read a global value without subscribing. Returns undefined if missing.
  */
-export const getGlobal = <T,>(id: Id): T | undefined =>
-  (globals.get(id) as T | undefined);
+export const getGlobal = <T>(id: Id): T | undefined => globals.get(id) as T | undefined
 
 /**
  * Set a global value without subscribing. (Non-null only.)
  */
-export const setGlobal = <T,>(id: Id, v: SetValue<T>): void =>
-  buildSetValue<T>(id, false, undefined)(v);
+export const setGlobal = <T>(id: Id, v: SetValue<T>): void =>
+  buildSetValue<T>(id, false, undefined)(v)
 
 /**
  * Check whether a global key exists.
  */
-export const hasGlobal = (id: Id): boolean => globals.has(id);
+export const hasGlobal = (id: Id): boolean => globals.has(id)
 
 /* -----------------------------------------------------------------------------
  * Module Initialization
  * -------------------------------------------------------------------------- */
 
 // Load persisted globals on module initialization (no-op for now)
-loadPersistedGlobals();
+loadPersistedGlobals()

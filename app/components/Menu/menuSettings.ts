@@ -9,5 +9,5 @@ export const menuSettings = {
     menuOverlay: 9999,
     dropdown: 10000,
     submenu: 10001,
-  }
+  },
 } as const

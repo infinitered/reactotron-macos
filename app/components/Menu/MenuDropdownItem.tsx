@@ -35,7 +35,7 @@ const MenuDropdownItemComponent = ({
   const handleHoverOut = useCallback(() => {
     // Use a small timeout to prevent flickering between items
     hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredItem((current) => current === item.label ? null : current)
+      setHoveredItem((current) => (current === item.label ? null : current))
     }, 10)
   }, [item.label])
 
@@ -53,35 +53,21 @@ const MenuDropdownItemComponent = ({
       disabled={!enabled}
       style={({ pressed }) => [
         $dropdownItem(),
-        ((pressed || hoveredItem === item.label) && enabled) && $dropdownItemHovered(),
+        (pressed || hoveredItem === item.label) && enabled && $dropdownItemHovered(),
         !enabled && $dropdownItemDisabled,
       ]}
     >
-      <Text
-        style={[
-          $dropdownItemText(),
-          !enabled && $dropdownItemTextDisabled(),
-        ]}
-      >
+      <Text style={[$dropdownItemText(), !enabled && $dropdownItemTextDisabled()]}>
         {item.label}
       </Text>
       <View style={$rightContent}>
         {item.shortcut && (
-          <Text
-            style={[$shortcut(), !enabled && $dropdownItemTextDisabled()]}
-          >
+          <Text style={[$shortcut(), !enabled && $dropdownItemTextDisabled()]}>
             {formatShortcut(item.shortcut.windows || "")}
           </Text>
         )}
         {item.submenu && (
-          <Text
-            style={[
-              $submenuArrow(),
-              !enabled && $dropdownItemTextDisabled(),
-            ]}
-          >
-            ▶
-          </Text>
+          <Text style={[$submenuArrow(), !enabled && $dropdownItemTextDisabled()]}>▶</Text>
         )}
       </View>
     </Pressable>

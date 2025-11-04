@@ -1,4 +1,4 @@
-export { SEPARATOR } from "../../native/IRSystemMenuManager/NativeIRSystemMenuManager"
+import { MENU_SEPARATOR } from "../../components/Menu/types"
 export type {
   SystemMenuItemPressedEvent,
   SystemMenuStructure,
@@ -18,7 +18,7 @@ export interface SystemMenuItem {
   submenu?: SystemMenuListEntry[]
 }
 
-export type SystemMenuListEntry = SystemMenuItem | typeof SEPARATOR
+export type SystemMenuListEntry = SystemMenuItem | typeof MENU_SEPARATOR
 
 export interface SystemMenuConfig {
   items?: Record<string, SystemMenuListEntry[]>

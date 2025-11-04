@@ -53,7 +53,6 @@
 import { useEffect, useRef, useCallback, useState } from "react"
 import NativeIRSystemMenuManager from "../../native/IRSystemMenuManager/NativeIRSystemMenuManager"
 import {
-  SEPARATOR,
   type SystemMenuItem,
   type SystemMenuConfig,
   type SystemMenuListEntry,
@@ -61,6 +60,7 @@ import {
   type SystemMenuStructure,
 } from "./types"
 import { parsePathKey, joinPath, isSeparator } from "./utils"
+import { MENU_SEPARATOR } from "../../components/Menu/types"
 
 export function useSystemMenu(config?: SystemMenuConfig) {
   const actionsRef = useRef<Map<string, () => void>>(new Map())
@@ -92,7 +92,7 @@ export function useSystemMenu(config?: SystemMenuConfig) {
 
     // Clear any existing separators before adding new ones to avoid duplication
     try {
-      await NativeIRSystemMenuManager.removeMenuItemAtPath([...parentPath, SEPARATOR])
+      await NativeIRSystemMenuManager.removeMenuItemAtPath([...parentPath, MENU_SEPARATOR])
     } catch (e) {
       console.warn(`Failed to clear separators for "${parentKey}":`, e)
     }
@@ -100,7 +100,7 @@ export function useSystemMenu(config?: SystemMenuConfig) {
     for (const entry of entries) {
       if (isSeparator(entry)) {
         try {
-          await NativeIRSystemMenuManager.addMenuItemAtPath(parentPath, SEPARATOR, "")
+          await NativeIRSystemMenuManager.addMenuItemAtPath(parentPath, MENU_SEPARATOR, "")
         } catch (e) {
           console.error(`Failed to add separator under "${parentKey}":`, e)
         }
@@ -114,9 +114,8 @@ export function useSystemMenu(config?: SystemMenuConfig) {
       if (item.action) actionsRef.current.set(actionKey, item.action)
 
       // Resolve platform-specific shortcut for macOS
-      const resolvedShortcut = typeof item.shortcut === "object"
-        ? (item.shortcut.macos ?? "")
-        : (item.shortcut ?? "")
+      const resolvedShortcut =
+        typeof item.shortcut === "object" ? item.shortcut.macos ?? "" : item.shortcut ?? ""
 
       try {
         if (typeof item.position === "number") {
@@ -294,7 +293,7 @@ export function useSystemMenu(config?: SystemMenuConfig) {
           // Remove any remaining separators
           await NativeIRSystemMenuManager.removeMenuItemAtPath([
             ...parsePathKey(parentKey),
-            SEPARATOR,
+            MENU_SEPARATOR,
           ])
           const parentPath = parsePathKey(parentKey)
           // If this was a top-level menu we created and it's now empty, remove it entirely

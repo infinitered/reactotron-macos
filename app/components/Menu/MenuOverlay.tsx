@@ -16,11 +16,10 @@ interface MenuOverlayProps {
 
 export const MenuOverlay = ({
   onPress,
-  portalName = 'menu-overlay',
+  portalName = "menu-overlay",
   style,
   excludeArea,
 }: MenuOverlayProps) => {
-
   return (
     <Portal name={portalName}>
       <Pressable style={overlayStyle({ excludeArea, style })} onPress={onPress} />
@@ -29,11 +28,14 @@ export const MenuOverlay = ({
 }
 
 interface OverlayStyleArgs {
-  excludeArea?: { top?: number, left?: number, right?: number, bottom?: number }
+  excludeArea?: { top?: number; left?: number; right?: number; bottom?: number }
   style?: ViewStyle
 }
 
-const overlayStyle: (args: OverlayStyleArgs) => ViewStyle = ({ excludeArea, style }: OverlayStyleArgs) => ({
+const overlayStyle: (args: OverlayStyleArgs) => ViewStyle = ({
+  excludeArea,
+  style,
+}: OverlayStyleArgs) => ({
   position: "absolute",
   top: excludeArea?.top ?? 0,
   left: excludeArea?.left ?? 0,

@@ -73,11 +73,20 @@ import { parsePathKey, joinPath, isSeparator } from "./utils"
 
 export function useSystemMenu(config?: SystemMenuConfig) {
   const actionsRef = useRef<Map<string, () => void>>(new Map())
-  const { registerShortcut, unregisterShortcut, clearAllShortcuts } = useShortcuts()
+  const { registerShortcut, clearAllShortcuts } = useShortcuts()
 
-  const [globalMenuConfig, setGlobalMenuConfig] = useGlobal<SystemMenuConfig | null>("windows-menu-config", null)
-  const [globalMenuStructure, setGlobalMenuStructure] = useGlobal<SystemMenuStructure>("windows-menu-structure", [])
-  const [globalMenuItems, setGlobalMenuItems] = useGlobal<Record<string, SystemMenuItem[]>>("windows-menu-items", {})
+  const [globalMenuConfig, setGlobalMenuConfig] = useGlobal<SystemMenuConfig | null>(
+    "windows-menu-config",
+    null,
+  )
+  const [globalMenuStructure, setGlobalMenuStructure] = useGlobal<SystemMenuStructure>(
+    "windows-menu-structure",
+    [],
+  )
+  const [globalMenuItems, setGlobalMenuItems] = useGlobal<Record<string, SystemMenuItem[]>>(
+    "windows-menu-items",
+    {},
+  )
 
   const handleMenuItemPressed = useCallback((event: SystemMenuItemPressedEvent) => {
     const action = actionsRef.current.get(joinPath(event.menuPath))
@@ -87,7 +96,7 @@ export function useSystemMenu(config?: SystemMenuConfig) {
   const discoverMenus = useCallback(async () => {
     if (!config?.items || config === globalMenuConfig) return []
 
-    const menuStructure: SystemMenuStructure = Object.keys(config.items).map(title => ({
+    const menuStructure: SystemMenuStructure = Object.keys(config.items).map((title) => ({
       title,
       enabled: true,
       path: [title],
@@ -102,56 +111,66 @@ export function useSystemMenu(config?: SystemMenuConfig) {
     return []
   }, [config, globalMenuConfig, setGlobalMenuConfig, setGlobalMenuStructure, setGlobalMenuItems])
 
-  const addMenuItem = useCallback(async (parentKey: string, item: SystemMenuItem) => {
-    const actionKey = joinPath([parentKey, item.label])
+  const addMenuItem = useCallback(
+    async (parentKey: string, item: SystemMenuItem) => {
+      const actionKey = joinPath([parentKey, item.label])
 
-    if (item.action) {
-      actionsRef.current.set(actionKey, item.action)
-    }
+      if (item.action) {
+        actionsRef.current.set(actionKey, item.action)
+      }
 
-    setGlobalMenuItems(prev => ({
-      ...prev,
-      [parentKey]: [...(prev[parentKey] || []), item],
-    }))
-  }, [setGlobalMenuItems])
-
-  const removeMenuItemByName = useCallback(async (nameOrPath: string) => {
-    const path = parsePathKey(nameOrPath)
-    actionsRef.current.delete(joinPath(path))
-
-    if (path.length === 1) {
-      // Remove entire top-level menu
-      setGlobalMenuItems(prev => {
-        const { [path[0]]: _, ...rest } = prev
-        return rest
-      })
-    } else if (path.length === 2) {
-      const [parentKey, itemLabel] = path
-      setGlobalMenuItems(prev => ({
+      setGlobalMenuItems((prev) => ({
         ...prev,
-        [parentKey]: (prev[parentKey] || []).filter(item => item.label !== itemLabel),
+        [parentKey]: [...(prev[parentKey] || []), item],
       }))
-    }
-  }, [setGlobalMenuItems, globalMenuItems])
+    },
+    [setGlobalMenuItems],
+  )
 
-  const setMenuItemEnabled = useCallback(async (pathOrKey: string | string[], enabled: boolean) => {
-    const path = Array.isArray(pathOrKey) ? pathOrKey : parsePathKey(pathOrKey)
+  const removeMenuItemByName = useCallback(
+    async (nameOrPath: string) => {
+      const path = parsePathKey(nameOrPath)
+      actionsRef.current.delete(joinPath(path))
 
-    if (path.length >= 2) {
-      const [parentKey, itemLabel] = path
-      setGlobalMenuItems(prev => ({
-        ...prev,
-        [parentKey]: (prev[parentKey] || []).map(item =>
-          item.label === itemLabel ? { ...item, enabled } : item
-        ),
-      }))
-    }
-  }, [setGlobalMenuItems])
+      if (path.length === 1) {
+        // Remove entire top-level menu
+        setGlobalMenuItems((prev) => {
+          const { [path[0]]: _, ...rest } = prev
+          return rest
+        })
+      } else if (path.length === 2) {
+        const [parentKey, itemLabel] = path
+        setGlobalMenuItems((prev) => ({
+          ...prev,
+          [parentKey]: (prev[parentKey] || []).filter((item) => item.label !== itemLabel),
+        }))
+      }
+    },
+    [setGlobalMenuItems, globalMenuItems],
+  )
+
+  const setMenuItemEnabled = useCallback(
+    async (pathOrKey: string | string[], enabled: boolean) => {
+      const path = Array.isArray(pathOrKey) ? pathOrKey : parsePathKey(pathOrKey)
+
+      if (path.length >= 2) {
+        const [parentKey, itemLabel] = path
+        setGlobalMenuItems((prev) => ({
+          ...prev,
+          [parentKey]: (prev[parentKey] || []).map((item) =>
+            item.label === itemLabel ? { ...item, enabled } : item,
+          ),
+        }))
+      }
+    },
+    [setGlobalMenuItems],
+  )
 
   const getAllMenuPaths = useCallback(async (): Promise<string[]> => {
     return Object.entries(globalMenuItems).flatMap(([parentKey, entries]) =>
-      entries.filter(entry => !isSeparator(entry))
-        .map(entry => joinPath([parentKey, entry.label]))
+      entries
+        .filter((entry) => !isSeparator(entry))
+        .map((entry) => joinPath([parentKey, entry.label])),
     )
   }, [globalMenuItems])
 
@@ -163,16 +182,15 @@ export function useSystemMenu(config?: SystemMenuConfig) {
     clearAllShortcuts()
 
     Object.entries(config.items).forEach(([parentKey, entries]) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (!isSeparator(entry)) {
           const item = entry as SystemMenuItem
           if (item.action) {
             actionsRef.current.set(joinPath([parentKey, item.label]), item.action)
             // Register shortcut if present
             if (item.shortcut) {
-              const resolvedShortcut = typeof item.shortcut === "object"
-                ? item.shortcut.windows
-                : item.shortcut
+              const resolvedShortcut =
+                typeof item.shortcut === "object" ? item.shortcut.windows : item.shortcut
               if (resolvedShortcut) {
                 registerShortcut(resolvedShortcut, item.action)
               }
@@ -183,7 +201,7 @@ export function useSystemMenu(config?: SystemMenuConfig) {
     })
 
     // Update global state directly without calling discoverMenus to avoid redundancy
-    const menuStructure: SystemMenuStructure = Object.keys(config.items).map(title => ({
+    const menuStructure: SystemMenuStructure = Object.keys(config.items).map((title) => ({
       title,
       enabled: true,
       path: [title],
@@ -195,8 +213,6 @@ export function useSystemMenu(config?: SystemMenuConfig) {
     setGlobalMenuStructure(menuStructure)
     setGlobalMenuItems(config.items as Record<string, SystemMenuItem[]>)
   }, [])
-
-
 
   return {
     availableMenus: [],

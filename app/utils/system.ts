@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react"
 import IRRunShellCommand from "../native/IRRunShellCommand/NativeIRRunShellCommand"
 import IRSystemInfo, { SystemInfo } from "../native/IRSystemInfo/NativeIRSystemInfo"
 import IRKeyboard, { KeyboardEvent } from "../native/IRKeyboard/NativeIRKeyboard"
-import { Platform, type EventSubscription } from "react-native"
+import { type EventSubscription } from "react-native"
 
 /**
  * Get the current memory usage of the app in MB via a shell command.

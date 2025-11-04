@@ -24,10 +24,6 @@ function App(): React.JSX.Element {
   const { colors } = useTheme()
   const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
 
-
-
-
-
   // Connect to the server when the app mounts.
   // This will update global state with the server's state
   // and handle all websocket events.

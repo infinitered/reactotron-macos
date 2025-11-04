@@ -6,22 +6,26 @@ export interface PositioningStrategy {
   calculateSubmenuPosition: (
     basePosition: Position,
     itemIndex: number,
-    parentWidth?: number
+    parentWidth?: number,
   ) => Position
   calculateContextMenuPosition?: (
     clickPosition: Position,
     menuSize?: { width: number; height: number },
-    screenSize?: { width: number; height: number }
+    screenSize?: { width: number; height: number },
   ) => Position
 }
 
 const defaultStrategy: PositioningStrategy = {
-  calculateSubmenuPosition: (basePosition, itemIndex, parentWidth = menuSettings.submenuOffsetX) => ({
+  calculateSubmenuPosition: (
+    basePosition,
+    itemIndex,
+    parentWidth = menuSettings.submenuOffsetX,
+  ) => ({
     x: basePosition.x + parentWidth,
     y: basePosition.y + itemIndex * menuSettings.itemHeight + menuSettings.submenuOffsetY,
   }),
 
-  calculateContextMenuPosition: (clickPosition, menuSize, screenSize) => {
+  calculateContextMenuPosition: (clickPosition: Position) => {
     // Basic positioning - can be enhanced for screen edge detection
     return {
       x: clickPosition.x,
@@ -34,13 +38,13 @@ export const useMenuPositioning = (strategy: PositioningStrategy = defaultStrate
   const calculateSubmenuPosition = useCallback(
     (basePosition: Position, itemIndex: number, parentWidth?: number) =>
       strategy.calculateSubmenuPosition(basePosition, itemIndex, parentWidth),
-    [strategy]
+    [strategy],
   )
 
   const calculateContextMenuPosition = useCallback(
-    (clickPosition: Position, menuSize?: { width: number; height: number }, screenSize?: { width: number; height: number }) =>
-      strategy.calculateContextMenuPosition?.(clickPosition, menuSize, screenSize) ?? clickPosition,
-    [strategy]
+    (clickPosition: Position) =>
+      strategy.calculateContextMenuPosition?.(clickPosition) ?? clickPosition,
+    [strategy],
   )
 
   return {

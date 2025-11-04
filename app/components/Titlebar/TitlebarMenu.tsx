@@ -4,7 +4,7 @@ import { themed } from "../../theme/theme"
 import { TitlebarMenuItem } from "./TitlebarMenuItem"
 import { MenuDropdown } from "../Menu/MenuDropdown"
 import { MenuOverlay } from "../Menu/MenuOverlay"
-import type { Position } from "../Menu/types"
+import type { DropdownMenuItem, Position } from "../Menu/types"
 import { PassthroughView } from "./PassthroughView"
 import { useSystemMenu } from "../../utils/useSystemMenu/useSystemMenu"
 
@@ -55,12 +55,9 @@ export const TitlebarMenu = () => {
       {openMenu && menuItems[openMenu] && (
         <>
           {/* Single overlay for all menu interactions */}
-          <MenuOverlay
-            onPress={handleClose}
-            excludeArea={{ top: 36 }}
-          />
+          <MenuOverlay onPress={handleClose} excludeArea={{ top: 36 }} />
           <MenuDropdown
-            items={menuItems[openMenu]}
+            items={menuItems[openMenu] as DropdownMenuItem[]}
             position={dropdownPosition}
             onItemPress={(item) => {
               handleMenuItemPressed({ menuPath: [openMenu, item.label] })
