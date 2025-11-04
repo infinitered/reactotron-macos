@@ -6,8 +6,8 @@ import { Icon } from "../Icon"
 import { Tooltip } from "../Tooltip"
 import { useState } from "react"
 import IRClipboard from "../../native/IRClipboard/NativeIRClipboard"
-import type { Snapshot } from "../../../app/types"
-import { useSnapshots } from "../../../app/state/useSnapshots"
+import type { Snapshot } from "../../types"
+import { useSnapshots } from "../../state/useSnapshots"
 
 export function StateSnapshots() {
   const theme = useTheme()
