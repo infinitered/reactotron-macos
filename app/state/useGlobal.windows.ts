@@ -110,7 +110,7 @@ function notify(id: Id) {
  * - Skips notifications if value is Object.is-equal (no-op update)
  * - Accepts `null` to reset/delete the value (used by imperative API)
  */
-function buildSetValue<T>(id: Id, persist: boolean) {
+function buildSetValue<T>(id: Id, persist: boolean, initialValue?: T) {
   return (value: SetValue<T> | null) => {
     const prev = globals.get(id) as T | undefined;
 
@@ -123,14 +123,17 @@ function buildSetValue<T>(id: Id, persist: boolean) {
       return;
     }
 
-    // Resolve functional updater
+    // Resolve functional updater - use prev if exists, otherwise use initialValue as fallback
+    const current = prev !== undefined ? prev : initialValue;
     const next =
       typeof value === "function"
-        ? (value as (prev: T) => T)(getSnapshot<T>(id))
+        ? (value as (prev: T) => T)(current as T)
         : value;
 
+
     // Avoid unnecessary notifications/re-renders on no-op updates
-    if (Object.is(prev, next)) return;
+    // BUT: prev might be undefined while next is defined (first set)
+    if (prev !== undefined && Object.is(prev, next)) return;
 
     globals.set(id, next);
 
@@ -184,7 +187,7 @@ export function useGlobal<T>(
   }, [id]);
 
   // Memoize the setter; enforce non-null signature for hook users
-  const setAny = useCallback(buildSetValue<T>(id, persist), [id, persist]);
+  const setAny = useCallback(buildSetValue<T>(id, persist, initialValue), [id, persist, initialValue]);
   const set = useCallback<(v: SetValue<T>) => void>((v) => setAny(v), [setAny]);
 
   return [value, set];
@@ -208,7 +211,7 @@ export function withGlobal<T>(
 ): [T, (v: SetValue<T> | null) => void] {
   // Imperative path can initialize synchronously without render concerns
   if (!globals.has(id)) globals.set(id, initialValue);
-  return [getSnapshot<T>(id), buildSetValue<T>(id, persist)];
+  return [getSnapshot<T>(id), buildSetValue<T>(id, persist, initialValue)];
 }
 
 /**
@@ -258,7 +261,7 @@ export const getGlobal = <T,>(id: Id): T | undefined =>
  * Set a global value without subscribing. (Non-null only.)
  */
 export const setGlobal = <T,>(id: Id, v: SetValue<T>): void =>
-  buildSetValue<T>(id, false)(v);
+  buildSetValue<T>(id, false, undefined)(v);
 
 /**
  * Check whether a global key exists.
