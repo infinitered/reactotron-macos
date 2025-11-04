@@ -10,7 +10,7 @@ import { useGlobal } from "../state/useGlobal"
  * with useGlobal/withGlobal to retrieve which tab is currently active.
  */
 export function Tab({ id, label, tabgroup }: { id: string; label: string; tabgroup: string }) {
-  const [activeTab, setActiveTab] = useGlobal(tabgroup, label, { persist: true })
+  const [activeTab, setActiveTab] = useGlobal(tabgroup, label)
   const active = activeTab === label
 
   return (

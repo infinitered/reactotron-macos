@@ -1,4 +1,12 @@
-export type FilterType = "all" | "log" | "display" | "api.request" | "api.response"
+import { CommandType } from "reactotron-core-contract"
+
+export type FilterType =
+  | "all"
+  | typeof CommandType.Log
+  | typeof CommandType.Display
+  | typeof CommandType.ApiResponse
+  | typeof CommandType.StateActionComplete
+  | typeof CommandType.Benchmark
 // export type LogLevel = "all" | "debug" | "warn" | "error"
 // export type SortBy = "time-newest" | "time-oldest" | "type" | "level"
 

@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
 import { StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
@@ -11,7 +5,6 @@ import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
-import { AppHeader } from "./components/AppHeader"
 import { useGlobal } from "./state/useGlobal"
 import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
@@ -19,6 +12,7 @@ import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
 import { ShortcutsProvider } from "./contexts/ShortcutsContext"
 import { SystemMenu } from "./components/SystemMenu"
+import { CustomCommandsScreen } from "./screens/CustomCommandsScreen"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -28,9 +22,9 @@ if (__DEV__) {
 
 function App(): React.JSX.Element {
   const { colors } = useTheme()
-  const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
-    persist: true,
-  })
+  const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
+
+
 
 
 
@@ -45,6 +39,8 @@ function App(): React.JSX.Element {
         return <HelpScreen />
       case "state":
         return <StateScreen />
+      case "customCommands":
+        return <CustomCommandsScreen />
       default:
         return <TimelineScreen />
     }
@@ -58,10 +54,7 @@ function App(): React.JSX.Element {
           <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
           <View style={$mainContent}>
             <Sidebar />
-            <View style={$contentContainer}>
-              <AppHeader />
-              {renderActiveItem()}
-            </View>
+            <View style={$contentContainer}>{renderActiveItem()}</View>
           </View>
           <PortalHost />
         </View>
