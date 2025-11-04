@@ -3,6 +3,7 @@ import { deleteGlobal, withGlobal } from "./useGlobal"
 import { CommandType } from "reactotron-core-contract"
 import type { StateSubscription, TimelineItem, CustomCommand } from "../types"
 import { isSafeKey, sanitizeValue } from "../utils/sanitize"
+import { withSnapshots } from "./useSnapshots"
 
 type UnsubscribeFn = () => void
 type SendToClientFn = (message: string | object, payload?: object, clientId?: string) => void
@@ -40,6 +41,7 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
   const [_customCommands, setCustomCommands] = withGlobal<CustomCommand[]>("customCommands", [], {
     persist: true,
   })
+  const { addSnapshot } = withSnapshots()
 
   ws.socket = new WebSocket(`ws://localhost:${props.port}`)
   if (!ws.socket) throw new Error("Failed to connect to Reactotron server")
@@ -186,6 +188,16 @@ export function connectToServer(props: { port: number } = { port: 9292 }): Unsub
         const payload = data.cmd.payload
         const commandId = payload.id
         setCustomCommands((prev) => prev.filter((cmd) => cmd.id !== commandId))
+        return
+      }
+
+      // Handle state backup response
+      if (data.cmd.type === CommandType.StateBackupResponse) {
+        addSnapshot({
+          date: data.cmd.date,
+          clientId: data.cmd.clientId,
+          state: data.cmd.payload?.state || data.cmd.payload,
+        })
         return
       }
     }

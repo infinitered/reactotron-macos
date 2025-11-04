@@ -2,41 +2,42 @@ import { Text, ViewStyle, ScrollView, TextStyle, Pressable, View, TextInput } fr
 import { themed } from "../theme/theme"
 import { sendToCore } from "../state/connectToServer"
 import { useGlobal } from "../state/useGlobal"
-import { TreeViewWithProvider } from "../components/TreeView"
 import { useState } from "react"
 import { Divider } from "../components/Divider"
 import { useKeyboardEvents } from "../utils/system"
-import type { StateSubscription } from "app/types"
-import { Icon } from "../components/Icon"
+import type { StateSubscription, Snapshot } from "app/types"
+import { Tab } from "../components/Tab"
+import { StateSubscriptions } from "../components/State/StateSubscriptions"
+import { StateSnapshots } from "../components/State/StateSnapshots"
+import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
+import { useSnapshots } from "../state/useSnapshots"
+
+type StateTab = "Subscriptions" | "Snapshots"
 
 export function StateScreen() {
   const [showAddSubscription, setShowAddSubscription] = useState(false)
+  const [activeStateTab] = useGlobal<StateTab>("activeStateTab", "Subscriptions")
 
   const [stateSubscriptionsByClientId, setStateSubscriptionsByClientId] = useGlobal<{
     [clientId: string]: StateSubscription[]
   }>("stateSubscriptionsByClientId", {})
-  const [activeTab, setActiveTab] = useGlobal("activeClientId", "")
+  const [activeClientId, setActiveClient] = useGlobal("activeClientId", "")
+  const { snapshots } = useSnapshots()
 
-  const clientStateSubscriptions = stateSubscriptionsByClientId[activeTab] || []
+  const clientStateSubscriptions = stateSubscriptionsByClientId[activeClientId] || []
 
   const saveSubscription = (path: string) => {
     if (clientStateSubscriptions.some((s) => s.path === path)) return
     sendToCore("state.values.subscribe", {
       paths: [...clientStateSubscriptions.map((s) => s.path), path],
-      clientId: activeTab,
+      clientId: activeClientId,
     })
   }
 
-  const removeSubscription = (path: string) => {
-    const newStateSubscriptions = clientStateSubscriptions.filter((s) => s.path !== path)
-    sendToCore("state.values.subscribe", {
-      paths: newStateSubscriptions.map((s) => s.path),
-      clientId: activeTab,
-    })
-    setStateSubscriptionsByClientId((prev) => ({
-      ...prev,
-      [activeTab]: newStateSubscriptions,
-    }))
+  const createSnapshot = () => {
+    if (!activeClientId) return
+
+    sendToCore("state.backup.request", { clientId: activeClientId })
   }
 
   if (showAddSubscription) {
@@ -52,50 +53,42 @@ export function StateScreen() {
     <ScrollView contentContainerStyle={$container()}>
       <View style={$header()}>
         <Text style={$title()}>State</Text>
-        <View style={$buttonsContainer()}>
-          <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
-            <Text>Add Subscription</Text>
-          </Pressable>
-          <Pressable
-            style={$button()}
-            onPress={() => {
-              setStateSubscriptionsByClientId((prev) => ({
-                ...prev,
-                [activeTab]: [],
-              }))
-              sendToCore("state.values.subscribe", { paths: [], clientId: activeTab })
-              setActiveTab("")
-            }}
-          >
-            <Text>Clear State</Text>
-          </Pressable>
-        </View>
+        {activeStateTab === "Subscriptions" ? (
+          <View style={$buttonsContainer()}>
+            <Pressable style={$button()} onPress={() => setShowAddSubscription(true)}>
+              <Text style={$buttonText()}>Add Subscription</Text>
+            </Pressable>
+            <Pressable
+              style={$button()}
+              onPress={() => {
+                setStateSubscriptionsByClientId((prev) => ({
+                  ...prev,
+                  [activeClientId]: [],
+                }))
+                sendToCore("state.values.subscribe", { paths: [], clientId: activeClientId })
+                setActiveClient("")
+              }}
+            >
+              <Text style={$buttonText()}>Clear State</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={$buttonsContainer()}>
+            <Pressable style={$button()} onPress={() => copyAllSnapshotsToClipboard(snapshots)}>
+              <Text style={$buttonText()}>Copy All</Text>
+            </Pressable>
+            <Pressable style={$button()} onPress={createSnapshot}>
+              <Text style={$buttonText()}>Create Snapshot</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+      <View style={$tabsContainer()}>
+        <Tab id="subscriptions" label="Subscriptions" tabgroup="activeStateTab" />
+        <Tab id="snapshots" label="Snapshots" tabgroup="activeStateTab" />
       </View>
       <View style={$stateContainer()}>
-        {clientStateSubscriptions.length > 0 ? (
-          <>
-            {clientStateSubscriptions.map((subscription, index) => (
-              <View key={`${subscription.path}-${index}`} style={$stateItemContainer()}>
-                <Text style={$pathText()}>
-                  {subscription.path ? subscription.path : "Full State"}
-                </Text>
-                <View style={$treeViewContainer()}>
-                  <View style={$treeViewInnerContainer()}>
-                    <TreeViewWithProvider data={subscription.value} />
-                  </View>
-                  <Pressable onPress={() => removeSubscription(subscription.path)}>
-                    <Icon icon="trash" size={20} />
-                  </Pressable>
-                </View>
-                {index < clientStateSubscriptions.length - 1 && (
-                  <Divider extraStyles={$stateDivider()} />
-                )}
-              </View>
-            ))}
-          </>
-        ) : (
-          <Text>State is empty</Text>
-        )}
+        {activeStateTab === "Subscriptions" ? <StateSubscriptions /> : <StateSnapshots />}
       </View>
     </ScrollView>
   )
@@ -177,12 +170,13 @@ function AddSubscription({
   )
 }
 
-const $pathText = themed<TextStyle>(({ colors, typography, spacing }) => ({
-  fontSize: typography.body,
-  fontWeight: "400",
-  color: colors.mainText,
-  marginBottom: spacing.sm,
-}))
+function copyAllSnapshotsToClipboard(snapshots: Snapshot[]): void {
+  try {
+    IRClipboard.setString(JSON.stringify(snapshots))
+  } catch (error) {
+    console.error("Failed to copy snapshots to clipboard:", error)
+  }
+}
 
 const $container = themed<ViewStyle>(({ spacing }) => ({
   padding: spacing.xl,
@@ -203,17 +197,10 @@ const $title = themed<TextStyle>(({ colors, spacing, typography }) => ({
   marginTop: spacing.xl,
 }))
 
-const $stateItemContainer = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.xl,
-}))
-
-const $treeViewInnerContainer = themed<ViewStyle>(() => ({
-  flex: 1,
-}))
-
-const $treeViewContainer = themed<ViewStyle>(() => ({
+const $tabsContainer = themed<ViewStyle>(({ spacing }) => ({
   flexDirection: "row",
-  justifyContent: "space-between",
+  marginTop: spacing.lg,
+  marginBottom: spacing.md,
 }))
 
 const $stateContainer = themed<ViewStyle>(({ spacing }) => ({
@@ -231,6 +218,10 @@ const $button = themed<ViewStyle>(({ colors, spacing }) => ({
   borderRadius: 8,
   marginTop: spacing.xl,
   cursor: "pointer",
+}))
+
+const $buttonText = themed<TextStyle>(({ colors }) => ({
+  color: colors.mainText,
 }))
 
 const $addSubscriptionOuterContainer = themed<ViewStyle>(({ spacing }) => ({
@@ -301,8 +292,4 @@ const $subscriptionButton = themed<ViewStyle>(({ colors, spacing }) => ({
   backgroundColor: colors.neutralVery,
   borderRadius: 8,
   cursor: "pointer",
-}))
-
-const $stateDivider = themed<ViewStyle>(({ spacing }) => ({
-  marginTop: spacing.lg,
 }))
