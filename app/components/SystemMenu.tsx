@@ -31,44 +31,44 @@ export function SystemMenu({ children }: { children: React.ReactNode }) {
                 View: [
                     {
                         label: "Toggle Sidebar",
-                        shortcut: "cmd+b",
+                        shortcut: { macos: "cmd+b", windows: "ctrl+b" },
                         action: toggleSidebar,
                     },
                     {
                         label: "Logs Tab",
-                        shortcut: "cmd+1",
+                        shortcut: { macos: "cmd+1", windows: "ctrl+1" },
                         action: () => setActiveItem("logs"),
                     },
                     {
                         label: "Network Tab",
-                        shortcut: "cmd+2",
+                        shortcut: { macos: "cmd+2", windows: "ctrl+2" },
                         action: () => setActiveItem("network"),
                     },
                     {
                         label: "Performance Tab",
-                        shortcut: "cmd+3",
+                        shortcut: { macos: "cmd+3", windows: "ctrl+3" },
                         action: () => setActiveItem("performance"),
                     },
                     {
                         label: "Plugins Tab",
-                        shortcut: "cmd+4",
+                        shortcut: { macos: "cmd+4", windows: "ctrl+4" },
                         action: () => setActiveItem("plugins"),
                     },
                     {
                         label: "Custom Commands Tab",
-                        shortcut: "cmd+5",
+                        shortcut: { macos: "cmd+5", windows: "ctrl+5" },
                         action: () => setActiveItem("customCommands"),
                     },
                     {
                         label: "Help Tab",
-                        shortcut: "cmd+6",
+                        shortcut: { macos: "cmd+6", windows: "ctrl+6" },
                         action: () => setActiveItem("help"),
                     },
                     ...(__DEV__
                         ? [
                             {
                                 label: "Toggle Dev Menu",
-                                shortcut: "cmd+shift+d",
+                                shortcut: { macos: "cmd+shift+d", windows: "ctrl+shift+d" },
                                 action: () => NativeModules.DevMenu.show(),
                             },
                         ]
@@ -77,14 +77,14 @@ export function SystemMenu({ children }: { children: React.ReactNode }) {
                 Window: [
                     {
                         label: "Reload",
-                        shortcut: "cmd+shift+r",
+                        shortcut: { macos: "cmd+shift+r", windows: "ctrl+shift+r" },
                         action: () => DevSettings.reload(),
                     },
                 ],
                 Tools: [
                     {
                         label: "Clear Timeline Items",
-                        shortcut: "cmd+k",
+                        shortcut: { macos: "cmd+k", windows: "ctrl+k" },
                         action: () => setTimelineItems([]),
                     },
                 ],
