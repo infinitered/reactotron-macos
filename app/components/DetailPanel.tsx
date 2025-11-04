@@ -10,7 +10,8 @@ import {
   Linking,
 } from "react-native"
 import { themed } from "../theme/theme"
-import { TimelineItem } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import { TimelineItem, TimelineItemBenchmark } from "../types"
 import { TreeViewWithProvider } from "./TreeView"
 import ActionButton from "./ActionButton"
 import { Tooltip } from "./Tooltip"
@@ -44,23 +45,32 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
 
   const getHeaderTitle = () => {
     switch (selectedItem.type) {
-      case "log":
+      case CommandType.StateActionComplete:
+        return "State Action Details"
+      case CommandType.Log:
         return "Log Details"
-      case "display":
+      case CommandType.Display:
         return "Display Details"
-      default:
+      case CommandType.Benchmark:
+        return "Benchmark Details"
+      case CommandType.ApiResponse:
         return "Network Details"
+      default:
+        return "Unknown"
     }
   }
 
   const renderDetailContent = () => {
     switch (selectedItem.type) {
-      case "log":
+      case CommandType.StateActionComplete:
+        return <StateActionDetailContent item={selectedItem} />
+      case CommandType.Log:
         return <LogDetailContent item={selectedItem} />
-      case "display":
+      case CommandType.Display:
         return <DisplayDetailContent item={selectedItem} />
-      case "api.request":
-      case "api.response":
+      case CommandType.Benchmark:
+        return <BenchmarkDetailContent item={selectedItem} />
+      case CommandType.ApiResponse:
         return <NetworkDetailContent item={selectedItem} />
       default:
         return null
@@ -113,7 +123,31 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
   )
 }
 
-function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display" } }) {
+function StateActionDetailContent({
+  item,
+}: {
+  item: TimelineItem & { type: typeof CommandType.StateActionComplete }
+}) {
+  const {
+    payload: { action, name },
+  } = item
+  return (
+    <View style={$detailContent()}>
+      <DetailSection title="Type">
+        <Text style={$valueText()}>{name}</Text>
+      </DetailSection>
+      <DetailSection title="Payload">
+        <TreeViewWithProvider data={action.payload} />
+      </DetailSection>
+    </View>
+  )
+}
+
+function DisplayDetailContent({
+  item,
+}: {
+  item: TimelineItem & { type: typeof CommandType.Display }
+}) {
   const { payload } = item
   const { name, image, preview, ...rest } = payload
 
@@ -180,10 +214,53 @@ function DisplayDetailContent({ item }: { item: TimelineItem & { type: "display"
   )
 }
 
+function BenchmarkDetailContent({ item }: { item: TimelineItemBenchmark }) {
+  const { payload } = item
+
+  const totalDuration = payload.steps[payload.steps.length - 1].time
+
+  return (
+    <View style={$detailContent()}>
+      <DetailSection title="Benchmark Data">
+        {payload.steps.map((step, index) => {
+          if (index === 0) return
+          const startPercent = Number((((step.time - step.delta) / totalDuration) * 100).toFixed(0))
+          const endPercent = 100 - Number(((step.time / totalDuration) * 100).toFixed(0))
+          return (
+            <View key={index} style={$benchmarkRow()}>
+              <View
+                style={[$benchmarkRowStep(), { left: `${startPercent}%`, right: `${endPercent}%` }]}
+              ></View>
+              <Text style={$valueText()}>{step.title}</Text>
+              <Text style={$valueText()}>{step.delta.toFixed(3)}ms</Text>
+            </View>
+          )
+        })}
+      </DetailSection>
+      <DetailSection title="Payload">
+        <TreeViewWithProvider data={payload} />
+      </DetailSection>
+      <DetailSection title="Metadata">
+        <TreeViewWithProvider
+          data={{
+            id: item.id,
+            clientId: item.clientId,
+            connectionId: item.connectionId,
+            messageId: item.messageId,
+            important: item.important,
+            date: item.date,
+            deltaTime: item.deltaTime,
+          }}
+        />
+      </DetailSection>
+    </View>
+  )
+}
+
 /**
  * Renders detailed content for log timeline items including level, message, stack trace, and metadata.
  */
-function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
+function LogDetailContent({ item }: { item: TimelineItem & { type: typeof CommandType.Log } }) {
   const { payload } = item
 
   return (
@@ -234,7 +311,7 @@ function LogDetailContent({ item }: { item: TimelineItem & { type: "log" } }) {
 function NetworkDetailContent({
   item,
 }: {
-  item: TimelineItem & { type: "api.request" | "api.response" }
+  item: TimelineItem & { type: typeof CommandType.ApiResponse }
 }) {
   const { payload } = item
 
@@ -416,6 +493,20 @@ const $sectionHeader = themed<ViewStyle>(({ colors, spacing }) => ({
   paddingHorizontal: spacing.md,
   borderBottomWidth: 1,
   borderBottomColor: colors.border,
+}))
+
+const $benchmarkRow = themed<ViewStyle>(() => ({
+  display: "flex",
+  alignItems: "center",
+  flexDirection: "row",
+  justifyContent: "space-between",
+}))
+
+const $benchmarkRowStep = themed<ViewStyle>(({ colors }) => ({
+  position: "absolute",
+  top: 0,
+  bottom: 0,
+  backgroundColor: colors.border,
 }))
 
 const $sectionTitle = themed<TextStyle>(({ colors, typography }) => ({

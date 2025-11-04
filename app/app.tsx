@@ -7,19 +7,20 @@
 import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
 import { useSystemMenu } from "./utils/useSystemMenu/useSystemMenu"
 import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
 import { useSidebar } from "./state/useSidebar"
-import { AppHeader } from "./components/AppHeader"
 import { useGlobal, withGlobal } from "./state/useGlobal"
 import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
 import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
+import { AboutModal } from "./components/AboutModal"
+import { CustomCommandsScreen } from "./screens/CustomCommandsScreen"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -30,17 +31,21 @@ if (__DEV__) {
 function App(): React.JSX.Element {
   const { colors } = useTheme()
   const { toggleSidebar } = useSidebar()
-  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
-    persist: true,
-  })
-  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [], {
-    persist: true,
-  })
+  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
+  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
+  const [aboutVisible, setAboutVisible] = useState(false)
 
   const menuConfig = useMemo(
     () => ({
-      remove: ["File", "Edit", "Format"],
+      remove: ["File", "Edit", "Format", "Reactotron > About Reactotron"],
       items: {
+        Reactotron: [
+          {
+            label: "About Reactotron",
+            position: 0,
+            action: () => setAboutVisible(true),
+          },
+        ],
         View: [
           {
             label: "Toggle Sidebar",
@@ -68,8 +73,13 @@ function App(): React.JSX.Element {
             action: () => setActiveItem("plugins"),
           },
           {
-            label: "Help Tab",
+            label: "Custom Commands Tab",
             shortcut: "cmd+5",
+            action: () => setActiveItem("customCommands"),
+          },
+          {
+            label: "Help Tab",
+            shortcut: "cmd+6",
             action: () => setActiveItem("help"),
           },
           ...(__DEV__
@@ -98,7 +108,7 @@ function App(): React.JSX.Element {
         ],
       },
     }),
-    [toggleSidebar],
+    [toggleSidebar, setActiveItem],
   )
 
   useSystemMenu(menuConfig)
@@ -122,6 +132,8 @@ function App(): React.JSX.Element {
         return <HelpScreen />
       case "state":
         return <StateScreen />
+      case "customCommands":
+        return <CustomCommandsScreen />
       default:
         return <TimelineScreen />
     }
@@ -133,12 +145,10 @@ function App(): React.JSX.Element {
       <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
       <View style={$mainContent}>
         <Sidebar />
-        <View style={$contentContainer}>
-          <AppHeader />
-          {renderActiveItem()}
-        </View>
+        <View style={$contentContainer}>{renderActiveItem()}</View>
       </View>
       <PortalHost />
+      <AboutModal visible={aboutVisible} onClose={() => setAboutVisible(false)} />
     </View>
   )
 }

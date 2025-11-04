@@ -1,12 +1,14 @@
 import { useGlobal } from "../state/useGlobal"
-import { TimelineItem } from "../types"
+import { CommandType } from "reactotron-core-contract"
+import type { TimelineItem } from "../types"
 import { TimelineLogItem } from "../components/TimelineLogItem"
 import { TimelineNetworkItem } from "../components/TimelineNetworkItem"
 import { TimelineDisplayItem } from "../components/TimelineDisplayItem"
+import { TimelineBenchmmarkItem } from "../components/TimelineBenchmarkItem"
 import { DetailPanel } from "../components/DetailPanel"
 import { ResizableDivider } from "../components/ResizableDivider"
 import { LegendList } from "@legendapp/list"
-import { View, ViewStyle } from "react-native"
+import { TextInput, View, ViewStyle, TextStyle } from "react-native"
 import { useSelectedTimelineItems } from "../utils/useSelectedTimelineItems"
 import { Separator } from "../components/Separator"
 import { themed, useThemeName } from "../theme/theme"
@@ -14,7 +16,9 @@ import { $flex, $row } from "../theme/basics"
 import { useTimeline } from "../utils/useTimeline"
 import { MenuItemId } from "app/components/Sidebar/SidebarMenu"
 import { useEffect } from "react"
-import { FilterType } from "app/components/TimelineToolbar"
+import { FilterType } from "../components/TimelineToolbar"
+import { ClearLogsButton } from "../components/ClearLogsButton"
+import { TimelineStateActionItem } from "../components/TimelineStateActionItem"
 
 /**
  * Renders the correct component for each timeline item.
@@ -36,14 +40,24 @@ const TimelineItemRenderer = ({
     onSelectItem(item)
   }
 
-  if (item.type === "log") {
+  if (item.type === CommandType.Log) {
     return <TimelineLogItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
-  if (item.type === "display") {
+  if (item.type === CommandType.Display) {
     return <TimelineDisplayItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
   }
-  if (item.type === "api.response") {
+  if (item.type === CommandType.ApiResponse) {
     return <TimelineNetworkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+  }
+  if (item.type === CommandType.StateActionComplete) {
+    return (
+      <TimelineStateActionItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+    )
+  }
+  if (item.type === CommandType.Benchmark) {
+    return (
+      <TimelineBenchmmarkItem item={item} isSelected={isSelected} onSelect={handleSelectItem} />
+    )
   }
   console.tron.log("Unknown item", item)
   return null
@@ -52,15 +66,25 @@ const TimelineItemRenderer = ({
 function getTimelineTypes(activeItem: MenuItemId): FilterType[] {
   switch (activeItem) {
     case "logs":
-      return ["log", "display"]
+      return [CommandType.Log, CommandType.Display, CommandType.StateActionComplete]
     case "network":
-      return ["api.request", "api.response"]
+      return [CommandType.ApiResponse]
+    case "performance":
+      return [CommandType.Benchmark]
     default:
-      return ["log", "display", "api.request", "api.response"]
+      return [
+        CommandType.Log,
+        CommandType.Display,
+        CommandType.ApiResponse,
+        CommandType.Benchmark,
+        CommandType.StateActionComplete,
+      ]
   }
 }
 
 export function TimelineScreen() {
+  const [search, setSearch] = useGlobal("search", "")
+  const [theme] = useThemeName()
   const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs", {
     persist: true,
   })
@@ -85,6 +109,18 @@ export function TimelineScreen() {
   return (
     <View style={[$flex, $row]}>
       <View style={{ width: timelineWidth }}>
+        <View style={$statusRow()}>
+          <View style={$searchContainer()}>
+            <TextInput
+              value={search}
+              placeholder="Search"
+              style={$searchInput()}
+              placeholderTextColor={theme === "dark" ? "white" : "black"}
+              onChangeText={setSearch}
+            />
+          </View>
+          <ClearLogsButton />
+        </View>
         <LegendList<TimelineItem>
           data={timelineItems}
           extraData={selectedItem?.id}
@@ -103,7 +139,12 @@ export function TimelineScreen() {
           ItemSeparatorComponent={Separator}
         />
       </View>
-      <ResizableDivider onResize={setTimelineWidth} minWidth={300} maxWidth={800} />
+      <ResizableDivider
+        currentWidth={timelineWidth}
+        onResize={setTimelineWidth}
+        minWidth={300}
+        maxWidth={800}
+      />
       <View style={$flex}>
         <DetailPanel selectedItem={selectedItem} onClose={() => setSelectedItemId(null)} />
       </View>
@@ -113,4 +154,25 @@ export function TimelineScreen() {
 
 const $contentContainer = themed<ViewStyle>(({ spacing }) => ({
   paddingRight: spacing.xs,
+}))
+const $statusRow = themed<ViewStyle>(({ spacing, colors }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  padding: spacing.sm,
+  justifyContent: "center",
+  width: "100%",
+  backgroundColor: colors.cardBackground,
+}))
+const $searchInput = themed<TextStyle>(({ colors, typography, spacing }) => ({
+  width: 140,
+  fontSize: typography.body,
+  backgroundColor: colors.background,
+  color: colors.mainText,
+  borderWidth: 1,
+  borderRadius: 4,
+  padding: spacing.xxs,
+  zIndex: 1,
+}))
+const $searchContainer = themed<ViewStyle>(({ spacing }) => ({
+  marginRight: spacing.md,
 }))

@@ -1,9 +1,9 @@
 import { CommandType } from "reactotron-core-contract"
-import type { TimelineItemDisplay } from "../types"
 import { TimelineItem } from "./TimelineItem"
+import { TimelineItemStateActionComplete } from "../types"
 
-type TimelineDisplayItemProps = {
-  item: TimelineItemDisplay
+type TimelineStateActionItemProps = {
+  item: TimelineItemStateActionComplete
   isSelected?: boolean
   onSelect?: () => void
 }
@@ -11,22 +11,22 @@ type TimelineDisplayItemProps = {
 /**
  * A single display item in the timeline.
  */
-export function TimelineDisplayItem({
+export function TimelineStateActionItem({
   item,
   isSelected = false,
   onSelect,
-}: TimelineDisplayItemProps) {
+}: TimelineStateActionItemProps) {
   const { payload, date, deltaTime, important } = item
 
   // Type guard to ensure this is a display item
-  if (item.type !== CommandType.Display) return null
+  if (item.type !== CommandType.StateActionComplete) return null
 
   return (
     <TimelineItem
-      title={payload.name}
+      title={"ACTION"}
       date={new Date(date)}
       deltaTime={deltaTime}
-      preview={payload.preview ?? ""}
+      preview={payload.name}
       isImportant={important}
       isTagged={important}
       isSelected={isSelected}

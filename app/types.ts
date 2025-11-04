@@ -1,3 +1,19 @@
+// Import types from the official Reactotron contract package
+import { CommandType, CommandMap } from "reactotron-core-contract"
+import type {
+  ErrorStackFrame,
+  ErrorLogPayload,
+  CommandTypeKey,
+  StateValuesChangePayload,
+  StateValuesSubscribePayload,
+  StateKeysRequestPayload,
+  StateValuesRequestPayload,
+  StateBackupRequestPayload,
+  StateRestoreRequestPayload,
+  Command,
+  StateActionCompletePayload,
+} from "reactotron-core-contract"
+
 /**
  * ClientData is data describing a particular client
  * (usually a React Native app running on a simulator or device).
@@ -34,19 +50,24 @@ export type ClientData = {
   address: string
 }
 
-export interface ErrorStackFrame {
-  fileName: string
-  functionName: string
-  lineNumber: number
-  columnNumber: number | null
+// Re-export types from reactotron-core-contract for convenience
+export type {
+  ErrorStackFrame,
+  ErrorLogPayload,
+  CommandTypeKey,
+  Command,
+  StateValuesChangePayload,
+  StateValuesSubscribePayload,
+  StateKeysRequestPayload,
+  StateValuesRequestPayload,
+  StateBackupRequestPayload,
+  StateRestoreRequestPayload,
 }
+export { CommandType }
 
-export interface ErrorLogPayload {
-  level: "error"
-  message: string
-  stack: Error["stack"] | string[] | ErrorStackFrame[]
-}
-
+// Extended LogPayload to support debug level with objects
+// Note: We extend the contract's LogPayload to allow Record<string, any> for debug messages
+// The contract only supports string messages, but we need richer debugging capabilities
 export type LogPayload =
   | {
       level: "debug"
@@ -81,11 +102,17 @@ export interface NetworkResponse {
 }
 
 export interface NetworkPayload {
-  type: "api.request" | "api.response"
+  type: typeof CommandType.ApiResponse
   request?: NetworkRequest
   response?: NetworkResponse
   error?: string
 }
+
+/**
+ * TimelineItem types are app-specific representations of commands received from reactotron-core-server.
+ * While they share similarities with the Command type from reactotron-core-contract, they are
+ * tailored for this macOS app's UI needs (e.g., date as string for serialization, additional id field).
+ */
 
 // Unified timeline item type
 export type TimelineItemBase = {
@@ -99,23 +126,51 @@ export type TimelineItemBase = {
 }
 
 export type TimelineItemLog = TimelineItemBase & {
-  type: "log"
+  type: typeof CommandType.Log
   payload: LogPayload
 }
 
+export type TimelineItemBenchmark = TimelineItemBase & {
+  type: typeof CommandType.Benchmark
+  payload: CommandMap[typeof CommandType.Benchmark]
+}
+
 export type TimelineItemNetwork = TimelineItemBase & {
-  type: "api.request" | "api.response"
+  type: typeof CommandType.ApiResponse
   payload: NetworkPayload
 }
 
 export type TimelineItemDisplay = TimelineItemBase & {
-  type: "display"
+  type: typeof CommandType.Display
   payload: DisplayPayload
 }
 
-export type TimelineItem = TimelineItemLog | TimelineItemNetwork | TimelineItemDisplay
+export type TimelineItemStateActionComplete = TimelineItemBase & {
+  type: typeof CommandType.StateActionComplete
+  payload: StateActionCompletePayload
+}
 
-export type StateSubscription = {
-  path: string
-  value: any
+export type TimelineItem =
+  | TimelineItemLog
+  | TimelineItemNetwork
+  | TimelineItemDisplay
+  | TimelineItemStateActionComplete
+  | TimelineItemBenchmark
+
+// StateSubscription represents a single state path/value pair tracked by the app
+// This is derived from the contract's StateValuesChangePayload structure
+export type StateSubscription = StateValuesChangePayload["changes"][number]
+
+// CustomCommand represents a user-defined command that can be sent to connected clients
+// This matches the CustomCommandRegisterPayload from reactotron-core-contract
+export type CustomCommand = {
+  id: number
+  command: string
+  title?: string
+  description?: string
+  args?: Array<{
+    name: string
+    type: string
+  }>
+  clientId?: string
 }
