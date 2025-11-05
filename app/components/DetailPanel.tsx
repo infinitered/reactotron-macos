@@ -172,6 +172,9 @@ function StateActionDetailContent({
           <TreeViewWithProvider data={action.args} />
         </DetailSection>
       )}
+      <DetailSection title="Path">
+        <Text style={$valueText()}>{action.path}</Text>
+      </DetailSection>
     </View>
   )
 }
