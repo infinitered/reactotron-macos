@@ -54,5 +54,7 @@ msbuild.binlog
 
 .claude/*
 
-# Windows reserved device names
+# Windows
 nul
+ReactNativeWindows.dsc.yaml
+WindowsDevTools.dsc.yaml
