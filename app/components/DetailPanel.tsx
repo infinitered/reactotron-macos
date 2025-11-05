@@ -18,6 +18,7 @@ import { Tooltip } from "./Tooltip"
 import IRClipboard from "../native/IRClipboard/NativeIRClipboard"
 import { $flex } from "../theme/basics"
 import { formatTime } from "../utils/formatTime"
+import { sendToClient, sendToCore } from "../state/connectToServer"
 
 type DetailPanelProps = {
   selectedItem: TimelineItem | null
@@ -93,6 +94,29 @@ export function DetailPanel({ selectedItem, onClose }: DetailPanelProps) {
           </View>
         </View>
         <View style={$headerActions()}>
+          {selectedItem.type === CommandType.StateActionComplete && (
+            <Tooltip label="Repeat this action">
+              <Pressable
+                style={$copyButton()}
+                onPress={
+                  () => {
+                    console.log("repeat action", selectedItem.payload)
+                    // sendToCore("state.action.dispatch", { action: selectedItem.payload })
+                    sendToCore({
+                      type: CommandType.StateActionDispatch,
+                      payload: selectedItem.payload,
+                    })
+                  }
+                  // sendToCore({
+                  //   type: CommandType.StateActionComplete,
+                  //   payload: selectedItem.payload,
+                  // })
+                }
+              >
+                <Text style={$copyButtonText()}>🔄</Text>
+              </Pressable>
+            </Tooltip>
+          )}
           <Tooltip label="Copy payload">
             <Pressable
               style={$copyButton()}
@@ -131,14 +155,23 @@ function StateActionDetailContent({
   const {
     payload: { action, name },
   } = item
+  console.log("action felipe", action)
+  console.log("args felipe", action.args)
   return (
     <View style={$detailContent()}>
       <DetailSection title="Type">
         <Text style={$valueText()}>{name}</Text>
       </DetailSection>
-      <DetailSection title="Payload">
-        <TreeViewWithProvider data={action.payload} />
-      </DetailSection>
+      {action.payload && (
+        <DetailSection title="Payload">
+          <TreeViewWithProvider data={action.payload} />
+        </DetailSection>
+      )}
+      {action.args && action.args.length > 0 && (
+        <DetailSection title="Args">
+          <TreeViewWithProvider data={action.args} />
+        </DetailSection>
+      )}
     </View>
   )
 }

@@ -21,7 +21,6 @@ import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
 import { AboutModal } from "./components/AboutModal"
 import { CustomCommandsScreen } from "./screens/CustomCommandsScreen"
-import { PluginScreen } from "./screens/PluginScreen"
 
 if (__DEV__) {
   // This is for debugging Reactotron with ... Reactotron!
@@ -135,8 +134,6 @@ function App(): React.JSX.Element {
         return <StateScreen />
       case "customCommands":
         return <CustomCommandsScreen />
-      case "plugins":
-        return <PluginScreen />
       default:
         return <TimelineScreen />
     }
