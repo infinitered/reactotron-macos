@@ -40,8 +40,8 @@ const MenuDropdownItemComponent = ({
   }, [item.label])
 
   const handlePress = useCallback(() => {
-    if (!item.action || disabled) return
-    item.action()
+    if (disabled) return
+    if (item.action) item.action()
     onItemPress(item)
   }, [item, onItemPress])
 
