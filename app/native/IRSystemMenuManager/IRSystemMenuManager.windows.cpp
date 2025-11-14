@@ -1,18 +1,18 @@
 //
-//  IRMenuItemManager.cpp
+//  IRSystemMenuManager.cpp
 //  Reactotron-Windows
 //
 //  Windows TurboModule implementation of menu item management
 //
 
 #include "pch.h"
-#include "IRMenuItemManager.windows.h"
+#include "IRSystemMenuManager.windows.h"
 
-using winrt::reactotron::implementation::IRMenuItemManager;
+using winrt::reactotron::implementation::IRSystemMenuManager;
 
 namespace winrt::reactotron::implementation
 {
-    void IRMenuItemManager::createMenu(std::string menuName,
+    void IRSystemMenuManager::createMenu(std::string menuName,
                                        ::React::ReactPromise<CreateRet> &&result) noexcept
     {
         // THE PROBLEM: onMenuItemPressed is nullptr/undefined at runtime

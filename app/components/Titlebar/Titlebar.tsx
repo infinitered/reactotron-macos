@@ -4,6 +4,7 @@ import { Icon } from "../Icon"
 import ActionButton from "../ActionButton"
 import { useSidebar } from "../../state/useSidebar"
 import { PassthroughView } from "./PassthroughView"
+import { TitlebarMenu } from "./TitlebarMenu"
 import { useGlobal } from "../../state/useGlobal"
 import { ClientTab } from "../ClientTab"
 
@@ -16,6 +17,11 @@ export const Titlebar = () => {
     <View style={$borderContainer()}>
       <View style={$container()}>
         <TrafficLightSpacer />
+        {Platform.OS === "windows" && (
+          <PassthroughView>
+            <TitlebarMenu />
+          </PassthroughView>
+        )}
         <PassthroughView>
           <ActionButton
             icon={() => (

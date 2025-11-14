@@ -1,25 +1,17 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-import { DevSettings, NativeModules, StatusBar, View, type ViewStyle } from "react-native"
+import { StatusBar, View, type ViewStyle } from "react-native"
 import { connectToServer } from "./state/connectToServer"
 import { useTheme, themed } from "./theme/theme"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect } from "react"
 import { TimelineScreen } from "./screens/TimelineScreen"
-import { useMenuItem } from "./utils/useMenuItem"
 import { Titlebar } from "./components/Titlebar/Titlebar"
 import { Sidebar } from "./components/Sidebar/Sidebar"
-import { useSidebar } from "./state/useSidebar"
-import { useGlobal, withGlobal } from "./state/useGlobal"
+import { useGlobal } from "./state/useGlobal"
 import { MenuItemId } from "./components/Sidebar/SidebarMenu"
 import { HelpScreen } from "./screens/HelpScreen"
-import { TimelineItem } from "./types"
 import { PortalHost } from "./components/Portal"
 import { StateScreen } from "./screens/StateScreen"
-import { AboutModal } from "./components/AboutModal"
+import { ShortcutsProvider } from "./contexts/ShortcutsContext"
+import { SystemMenu } from "./components/SystemMenu"
 import { CustomCommandsScreen } from "./screens/CustomCommandsScreen"
 
 if (__DEV__) {
@@ -30,96 +22,7 @@ if (__DEV__) {
 
 function App(): React.JSX.Element {
   const { colors } = useTheme()
-  const { toggleSidebar } = useSidebar()
-  const [activeItem, setActiveItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
-  const [, setTimelineItems] = withGlobal<TimelineItem[]>("timelineItems", [])
-  const [aboutVisible, setAboutVisible] = useState(false)
-
-  const menuConfig = useMemo(
-    () => ({
-      remove: ["File", "Edit", "Format", "Reactotron > About Reactotron"],
-      items: {
-        Reactotron: [
-          {
-            label: "About Reactotron",
-            position: 0,
-            action: () => setAboutVisible(true),
-          },
-        ],
-        View: [
-          {
-            label: "Toggle Sidebar",
-            shortcut: "cmd+b",
-            action: toggleSidebar,
-          },
-          {
-            label: "Logs Tab",
-            shortcut: "cmd+1",
-            action: () => setActiveItem("logs"),
-          },
-          {
-            label: "Network Tab",
-            shortcut: "cmd+2",
-            action: () => setActiveItem("network"),
-          },
-          {
-            label: "Performance Tab",
-            shortcut: "cmd+3",
-            action: () => setActiveItem("performance"),
-          },
-          {
-            label: "Plugins Tab",
-            shortcut: "cmd+4",
-            action: () => setActiveItem("plugins"),
-          },
-          {
-            label: "Custom Commands Tab",
-            shortcut: "cmd+5",
-            action: () => setActiveItem("customCommands"),
-          },
-          {
-            label: "Help Tab",
-            shortcut: "cmd+6",
-            action: () => setActiveItem("help"),
-          },
-          ...(__DEV__
-            ? [
-                {
-                  label: "Toggle Dev Menu",
-                  shortcut: "cmd+shift+d",
-                  action: () => NativeModules.DevMenu.show(),
-                },
-              ]
-            : []),
-        ],
-        Window: [
-          {
-            label: "Reload",
-            shortcut: "cmd+shift+r",
-            action: () => DevSettings.reload(),
-          },
-        ],
-        Tools: [
-          {
-            label: "Clear Timeline Items",
-            shortcut: "cmd+k",
-            action: () => setTimelineItems([]),
-          },
-        ],
-      },
-    }),
-    [toggleSidebar, setActiveItem],
-  )
-
-  useMenuItem(menuConfig)
-
-  setTimeout(() => {
-    fetch("https://www.google.com")
-      .then((res) => res.text())
-      .then((text) => {
-        console.tron.log("text", text)
-      })
-  }, 1000)
+  const [activeItem] = useGlobal<MenuItemId>("sidebar-active-item", "logs")
 
   // Connect to the server when the app mounts.
   // This will update global state with the server's state
@@ -140,16 +43,19 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <View style={$container()}>
-      <Titlebar />
-      <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
-      <View style={$mainContent}>
-        <Sidebar />
-        <View style={$contentContainer}>{renderActiveItem()}</View>
-      </View>
-      <PortalHost />
-      <AboutModal visible={aboutVisible} onClose={() => setAboutVisible(false)} />
-    </View>
+    <ShortcutsProvider>
+      <SystemMenu>
+        <View style={$container()}>
+          <Titlebar />
+          <StatusBar barStyle={"dark-content"} backgroundColor={colors.background} />
+          <View style={$mainContent}>
+            <Sidebar />
+            <View style={$contentContainer}>{renderActiveItem()}</View>
+          </View>
+          <PortalHost />
+        </View>
+      </SystemMenu>
+    </ShortcutsProvider>
   )
 }
 

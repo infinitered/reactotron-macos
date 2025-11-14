@@ -43,7 +43,15 @@ npm run macos-release
 
 #### System Requirements
 
-First, install the system requirements for React Native Windows: https://microsoft.github.io/react-native-windows/docs/rnw-dependencies
+First, install the system requirements for React Native Windows by running the following in an elevated Powershell session:
+
+```powershell
+.\bin\windows-setup.ps1
+```
+
+This should install everything for you.
+
+**Alternative**: Follow the official installation steps (results vary): https://microsoft.github.io/react-native-windows/docs/rnw-dependencies
 
 **Alternative**: If you experience issues with the official `rnw-dependencies.ps1` script, consider using Josh Yoes' improved setup process: https://github.com/joshuayoes/ReactNativeWindowsSandbox
 
@@ -58,6 +66,26 @@ npm run start
 npm run windows
 # for release builds
 npm run windows-release
+```
+
+**Troubleshooting**: If you run into a build error with ctype.h or ROSLYNCODETASKFACTORYCSHARPCOMPILER, try making a symlink like this (it's weird, I know):
+
+```powershell
+mklink /D "C:\Program Files\Windows Kits\10\lib" "C:\Program Files (x86)\Windows Kits\10\lib"
+```
+
+Somehow, `C:\Program Files\` instead of `C:\Program Files (x86)\` is being used, which breaks things. This makes a symlink to fix that.
+
+You may also need to add this path to the `reactotron.vcxproj`:
+
+```
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(ProjectDir)..\..\app;%(AdditionalIncludeDirectories);C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
 ```
 
 ### Cross-Platform Native Development

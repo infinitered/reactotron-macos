@@ -6,41 +6,41 @@ import { TurboModuleRegistry } from "react-native"
 export const SEPARATOR = "menu-item-separator" as const
 
 // Path shape: ["View", "Zen Mode"]
-export interface MenuItemPressedEvent {
+export interface SystemMenuItemPressedEvent {
   menuPath: string[]
 }
 
 // Native -> JS: Tree node describing a menu item returned by getMenuStructure()
-export interface MenuNode {
+export interface SystemMenuNode {
   title: string
   enabled: boolean
   path: string[]
   // TODO: This creates an infinite loop when building for windows
-  // children?: MenuNode[]
+  // children?: SystemMenuNode[]
   children?: any
 }
 
 // Native -> JS: Top-level entry from getMenuStructure()
-export interface MenuEntry {
+export interface SystemMenuEntry {
   title: string
-  items: MenuNode[]
+  items: SystemMenuNode[]
 }
 
-export type MenuStructure = MenuEntry[]
+export type SystemMenuStructure = SystemMenuEntry[]
 
-// JS -> Native: For building menu
-export interface MenuItem {
+// JS -> Native: For building menu (legacy - use SystemMenuItem instead)
+export interface SystemNativeMenuItem {
   label: string
   shortcut?: string
   enabled?: boolean
   action: () => void
 }
 
-export type MenuListEntry = MenuItem | typeof SEPARATOR
+export type SystemMenuListEntry = SystemNativeMenuItem | typeof SEPARATOR
 
 export interface Spec extends TurboModule {
   getAvailableMenus(): string[]
-  getMenuStructure(): MenuStructure
+  getMenuStructure(): SystemMenuStructure
   createMenu(menuName: string): Promise<{ success: boolean; existed: boolean; menuName: string }>
   addMenuItemAtPath(
     parentPath: string[],
@@ -60,7 +60,7 @@ export interface Spec extends TurboModule {
     path: string[],
     enabled: boolean,
   ): Promise<{ success: boolean; error?: string }>
-  readonly onMenuItemPressed: EventEmitter<MenuItemPressedEvent>
+  readonly onMenuItemPressed: EventEmitter<SystemMenuItemPressedEvent>
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>("IRMenuItemManager")
+export default TurboModuleRegistry.getEnforcing<Spec>("IRSystemMenuManager")
