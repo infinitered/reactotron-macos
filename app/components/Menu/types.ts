@@ -1,4 +1,5 @@
 import { PlatformShortcut } from "../../utils/useSystemMenu/types"
+import { MENU_SEPARATOR } from "./utils"
 
 export interface Position {
   x: number
@@ -16,6 +17,3 @@ export interface MenuItem {
 
 // Type alias for dropdown menu items (same as MenuItem)
 export type DropdownMenuItem = MenuItem
-
-// Menu separator constant
-export const MENU_SEPARATOR = "menu-item-separator" as const

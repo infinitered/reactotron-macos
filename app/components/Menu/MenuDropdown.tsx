@@ -5,10 +5,10 @@ import { Portal } from "../Portal"
 import { MenuDropdownItem } from "./MenuDropdownItem"
 import { useSubmenuState } from "./useSubmenuState"
 import { menuSettings } from "./menuSettings"
-import { type Position, type DropdownMenuItem, type MenuItem, MENU_SEPARATOR } from "./types"
 import { getUUID } from "../../utils/random/getUUID"
 import { Separator } from "../Separator"
-import { isSeparator } from "./utils"
+import { isSeparator, MENU_SEPARATOR } from "./utils"
+import type { Position, DropdownMenuItem, MenuItem } from "./types"
 
 interface MenuDropdownProps {
   items: (DropdownMenuItem | typeof MENU_SEPARATOR)[]
