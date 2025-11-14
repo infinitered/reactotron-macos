@@ -19,7 +19,7 @@ const MenuDropdownItemComponent = ({
 }: MenuDropdownItemProps) => {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const enabled = item.enabled !== false
+  const disabled = item.disabled === false
 
   const handleHoverIn = useCallback(() => {
     // Clear any pending hover clear
@@ -40,7 +40,7 @@ const MenuDropdownItemComponent = ({
   }, [item.label])
 
   const handlePress = useCallback(() => {
-    if (!item.action || !enabled) return
+    if (!item.action || disabled) return
     item.action()
     onItemPress(item)
   }, [item, onItemPress])
@@ -50,24 +50,24 @@ const MenuDropdownItemComponent = ({
       onHoverIn={handleHoverIn}
       onHoverOut={handleHoverOut}
       onPress={handlePress}
-      disabled={!enabled}
+      disabled={disabled}
       style={({ pressed }) => [
         $dropdownItem(),
-        (pressed || hoveredItem === item.label) && enabled && $dropdownItemHovered(),
-        !enabled && $dropdownItemDisabled,
+        (pressed || hoveredItem === item.label) && !disabled && $dropdownItemHovered(),
+        disabled && $dropdownItemDisabled,
       ]}
     >
-      <Text style={[$dropdownItemText(), !enabled && $dropdownItemTextDisabled()]}>
+      <Text style={[$dropdownItemText(), disabled && $dropdownItemTextDisabled()]}>
         {item.label}
       </Text>
       <View style={$rightContent}>
         {item.shortcut && (
-          <Text style={[$shortcut(), !enabled && $dropdownItemTextDisabled()]}>
+          <Text style={[$shortcut(), disabled && $dropdownItemTextDisabled()]}>
             {formatShortcut(item.shortcut.windows || "")}
           </Text>
         )}
         {item.submenu && (
-          <Text style={[$submenuArrow(), !enabled && $dropdownItemTextDisabled()]}>▶</Text>
+          <Text style={[$submenuArrow(), disabled && $dropdownItemTextDisabled()]}>▶</Text>
         )}
       </View>
     </Pressable>

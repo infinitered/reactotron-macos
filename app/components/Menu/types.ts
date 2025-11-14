@@ -1,4 +1,4 @@
-import { PlatformShortcut } from "app/utils/useSystemMenu/types"
+import { PlatformShortcut } from "../../utils/useSystemMenu/types"
 
 export interface Position {
   x: number
@@ -9,7 +9,7 @@ export interface Position {
 export interface MenuItem {
   label: string
   shortcut?: PlatformShortcut
-  enabled?: boolean
+  disabled?: boolean
   action?: () => void
   submenu?: (MenuItem | typeof MENU_SEPARATOR)[]
 }
