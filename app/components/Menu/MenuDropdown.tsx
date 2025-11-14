@@ -8,6 +8,7 @@ import { menuSettings } from "./menuSettings"
 import { type Position, type DropdownMenuItem, type MenuItem, MENU_SEPARATOR } from "./types"
 import { getUUID } from "../../utils/random/getUUID"
 import { Separator } from "../Separator"
+import { isSeparator } from "./utils"
 
 interface MenuDropdownProps {
   items: (DropdownMenuItem | typeof MENU_SEPARATOR)[]
@@ -19,10 +20,6 @@ interface MenuDropdownProps {
 const MenuDropdownComponent = ({ items, position, onItemPress, isSubmenu }: MenuDropdownProps) => {
   const portalName = useRef(`${isSubmenu ? "submenu" : "dropdown"}-${getUUID()}`).current
   const { openSubmenu, submenuPosition, handleItemHover } = useSubmenuState(position)
-
-  const isSeparator = (item: MenuItem | typeof MENU_SEPARATOR): item is typeof MENU_SEPARATOR => {
-    return item === MENU_SEPARATOR
-  }
 
   // Find the submenu item if one is open
   const submenuItem = openSubmenu
