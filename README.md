@@ -5,6 +5,8 @@
 
 ## Introduction
 
+Originally built by [Infinite Red](https://infinite.red), a U.S.-based web and mobile development company.
+
 Reactotron is a lightweight and useful debugger, designed for React Native app development. You can monitor and debug:
 
 - Logs (including native logs)
